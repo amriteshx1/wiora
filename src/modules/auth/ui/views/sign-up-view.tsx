@@ -4,6 +4,7 @@ import { z } from "zod";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { OctagonAlertIcon } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -34,6 +35,7 @@ import {
  });
 
 export const SignUpView = () => {
+    const router = useRouter();
     const [pending, setPending] = useState(false);
     const [error, setError] = useState<string | null >(null);
 
@@ -61,6 +63,7 @@ export const SignUpView = () => {
             {
                 onSuccess: () => {
                     setPending(false);
+                    router.push("/");
                 },
                 onError: ({ error }) => {
                     setPending(false);
