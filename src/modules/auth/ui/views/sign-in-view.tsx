@@ -41,7 +41,27 @@ export const SignInView = () => {
         }
     });
 
-    
+    const onSubmit = (data: z.infer<typeof formSchema>) => {
+        setError(null);
+        setPending(true);
+
+        authClient.signIn.email(
+            {
+                email: data.email,
+                password: data.password,
+            },
+            {
+                onSuccess: () => {
+                    setPending(false);
+                    router.push("/");
+                },
+                onError: ({ error }) => {
+                    setPending(false);
+                    setError(error.message);
+                }
+            }
+        );
+    };
 
     return (
         <div className="flex flex-col gap-4">
