@@ -1,32 +1,15 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { useTRPC } from "@/trpc/client";
-import { ErrorState } from "@/components/error-state";
+
 import { LoadingState } from "@/components/loading-state";
+import { ErrorState } from "@/components/error-state";
 
 export const AgentsView = () => {
     const trpc = useTRPC();
-    const { data, isLoading, isError } = useQuery(trpc.agents.getMany.queryOptions());
-
-    if(isLoading){
-        return (
-            <LoadingState 
-              title="Loading Agents"
-              description="This may take a few seconds"
-            />
-        )
-    };
-
-    if(isError){
-        return(
-            <ErrorState
-              title="Error Loading Agents"
-              description="Please try again later"
-            />
-        )
-    };
+    const { data } = useSuspenseQuery(trpc.agents.getMany.queryOptions());
     
     return (
         <div>
@@ -34,3 +17,21 @@ export const AgentsView = () => {
         </div>
     );
 };
+
+export const AgentsViewLoading = () => {
+    return (
+        <LoadingState
+          title="Loading Agents"
+          description="This may take a few seconds"
+        />
+    )
+};
+
+export const AgentsViewError = () => {
+    return (
+        <ErrorState 
+          title="Error Loading Agents"
+          description="Something went wrong"
+        />
+    )
+}
