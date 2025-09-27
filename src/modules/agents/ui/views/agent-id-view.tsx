@@ -20,7 +20,37 @@ interface Props{
 
 export const AgentIdView = ({ agentId }: Props) => {
     const trpc = useTRPC();
-   
+    const router = useRouter();
+    const queryClient = useQueryClient();
+
+    const [updateAgentDialogOpen, setUpdateAgentDialogOpen] = useState(false);
+
+    const { data } = useSuspenseQuery(trpc.agents.getOne.queryOptions({ id: agentId }));
+
+    const removeAgent = useMutation(
+        trpc.agents.remove.mutationOptions({
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions({}));
+                router.push("/agents");
+            },
+            onError: (error) => {
+                toast.error(error.message);
+            },
+        }),
+    );
+
+    const [RemoveConfirmation, confirmRemove] = useConfirm(
+        "Are you sure?",
+        `The following action will remove ${data.meetingCount} associated meetings`,
+    );
+
+    const handleRemoveAgent = async () => {
+        const ok = await confirmRemove();
+
+        if(!ok) return;
+
+        await removeAgent.mutateAsync({ id: agentId });
+    };
 
     return (
         <>
