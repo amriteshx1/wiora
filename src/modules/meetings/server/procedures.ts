@@ -6,7 +6,7 @@ import { and, count, desc, eq, getTableColumns, ilike, inArray, sql } from "driz
 
 import { db } from "@/db";
 import { agents, meetings, user } from "@/db/schema";
-import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { createTRPCRouter, premiumProcedure, protectedProcedure } from "@/trpc/init";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
 import { meetingsInsertSchema, meetingsUpdateSchema } from "../schemas";
 import { MeetingStatus, StreamTranscriptItem } from "../types";
@@ -182,7 +182,7 @@ export const meetingsRouter = createTRPCRouter({
 
         return updatedMeeting;
     }),
-    create: protectedProcedure
+    create: premiumProcedure("meetings")
       .input(meetingsInsertSchema)
       .mutation(async ({ input, ctx }) => {
         const [createdMeeting] = await db
