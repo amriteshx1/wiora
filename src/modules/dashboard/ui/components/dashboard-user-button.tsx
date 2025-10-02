@@ -77,7 +77,7 @@ export const DashboardUserButton = () => {
           <DrawerFooter>
             <Button
               variant="outline"
-              onClick={() => {}}
+              onClick={() => authClient.customer.portal()}
             >
               <CreditCardIcon className="size-4 text-black" />
               Billing
@@ -130,6 +130,7 @@ export const DashboardUserButton = () => {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem
+            onClick={() => authClient.customer.portal()}
             className="cursor-pointer flex items-center justify-between"
           >
             Billing
