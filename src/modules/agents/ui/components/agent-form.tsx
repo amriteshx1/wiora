@@ -21,7 +21,7 @@ import {
 
 import { AgentGetOne } from "../../types";
 import { agentsInsertSchema } from "../../schemas";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 interface AgentFormProps{
     onSuccess?: () => void;
