@@ -16,7 +16,7 @@
 <path d="M32 62L36 66L43 57" stroke="#B0B3B2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 
 <!-- Lines -->
-<rect x="63" y="49" width="72" height="4" rx="2" fill="#17A34A"/>
+<rect x="63" y="49" width="72" height="4" rx="2" fill="#000000ff"/>
 <rect x="63" y="61" width="64" height="4" rx="2" fill="#D5F2E0"/>
 <rect x="63" y="73" width="94" height="4" rx="2" fill="#E9F7F0"/>
 
