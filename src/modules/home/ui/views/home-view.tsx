@@ -28,6 +28,25 @@ export const HomeView = () => {
         </CardContent>
       </Card>
 
+      <Card className="overflow-hidden py-20 px-2 mx-[5vh] rounded-none">
+        <CardContent className="flex justify-between items-center">
+          <div className="w-[60%] flex flex-col gap-6">
+            <div className="flex gap-5">
+                <div className="flex text-sm gap-1 font-medium border-b border-l border-black p-1"><SquareCheck size={20} />Customizable AI Roles</div>
+                <div className="flex text-sm gap-1 font-medium border-b border-black p-1"><SquareCheck size={20} />Context-Aware Responses</div>
+                <div className="flex text-sm gap-1 font-medium border-b border-r border-black p-1"><SquareCheck size={20} />Post-Call Intelligence</div>
+            </div>
+            <p className="text-6xl font-semibold">Conversations Reimagined.</p>
+            <p className="text-6xl font-semibold">Intelligence Included.</p>
+            <p className="text-xl font-medium">AI agents that join, listen, and contribute in real time.</p>
+            <div className="flex gap-5">
+              <Button className="text-base rounded-none">Create a meeting</Button>
+              <Button className="bg-white text-base text-black border border-black rounded-none">Learn more</Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       
     </div>
   )
