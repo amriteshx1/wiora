@@ -47,6 +47,8 @@ export const HomeView = () => {
         </CardContent>
       </Card>
 
+      <FeatureMarquee />
+
       
     </div>
   )
