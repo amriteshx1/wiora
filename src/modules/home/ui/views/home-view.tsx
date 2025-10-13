@@ -49,7 +49,40 @@ export const HomeView = () => {
 
       <FeatureMarquee />
 
-      
+      <div className="flex flex-col justify-center items-center gap-14 py-10 mx-[5vh]">
+                <p className="text-4xl font-semibold p-4 border-b-2">Features</p>
+
+                <div className="flex gap-14">
+                  <Card className="rounded-none px-2 py-10 flex-1">
+                    <CardContent className="flex items-center gap-4">
+                      <img src="/brain.svg" alt="Brain" className="h-[102px] w-[102px]" />
+                      <div className="flex flex-col gap-4">
+                      <p className="text-xl font-medium">Intelligent by Design</p>
+                      <p className="text-base">Join meetings with AI agents that actively understand, assist, and enhance collaboration.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="rounded-none px-2 py-10 flex-1">
+                    <CardContent className="flex items-center gap-4">
+                      <img src="/flow.svg" alt="Flow" className="h-[102px] w-[102px]" />
+                      <div className="flex flex-col gap-4">
+                      <p className="text-xl font-medium">Built for Flow</p>
+                      <p className="text-base">Real-time chat, crystal-clear calls, and seamless sync across all your devices.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="rounded-none px-2 py-10 flex-1">
+                    <CardContent className="flex items-center gap-4">
+                      <img src="/notes.svg" alt="Notes" className="h-[102px] w-[102px]" />
+                      <div className="flex flex-col gap-4">
+                      <p className="text-xl font-medium">Beyond the Call</p>
+                      <p className="text-base">Get instant summaries, searchable transcripts, and contextual insights that keep work moving.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+            </div>
     </div>
   )
 };
