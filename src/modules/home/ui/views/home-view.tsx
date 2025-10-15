@@ -52,7 +52,73 @@ export const HomeView = () => {
             </div>
           </div>
 
-         
+          <div className="w-[40%] flex flex-col relative py-5">
+            <div className="w-[70%] h-[60%] self-start border-l border-b p-3 relative z-10 transform -rotate-6 shadow-xl">
+              <form className="space-y-2">
+                <GeneratedAvatar 
+                  seed="X"
+                  variant="botttsNeutral"
+                  className="border size-10"
+                />
+                 <div className="space-y-2">
+                   <Label>Agent Name</Label>
+                   <Input placeholder="e.g. Product analyst" />
+                 </div>
+       
+                 <div className="space-y-2">
+                   <Label>Instructions</Label>
+                   <Textarea placeholder="You provide clear, structured insights on product ideas, user feedback, and feature decisions." />
+                 </div>
+       
+                 <div className="flex justify-between gap-x-2">
+                   <Button variant="ghost" type="button">
+                     Cancel
+                   </Button>
+                   <Button type="button">
+                     Create
+                   </Button>
+                 </div>
+             </form>
+           </div>
+
+           <div className="w-[70%] h-[60%] self-end border-t border-l p-3 -mt-25 relative z-30 bg-white transform rotate-6 shadow-lg">
+            <form className="space-y-2">
+              <GpuIcon size="30px" color="#5D1712" />
+              <div className="space-y-2">
+                <Label>Meeting Name</Label>
+                <Input placeholder="e.g. Product Discussion" />
+              </div>
+    
+              <div className="space-y-2">
+                <Label>Agent</Label>
+                <CommandSelect
+                  options={[
+                  ]}
+                  value=""           
+                  onSelect={() => {}}  
+                  onSearch={() => {}}  
+                  placeholder="Select an agent"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Not found what you&apos;re looking for?{" "}
+                  <button
+                    type="button"
+                    className="text-primary hover:underline"
+                  >
+                    Create a new agent
+                  </button>
+                </p>
+              </div>
+
+              <div className="flex justify-between gap-x-2">
+                <Button variant="ghost" type="button">
+                  Cancel
+                </Button>
+                <Button type="button">Create</Button>
+              </div>
+            </form>
+           </div>
+          </div>
         </CardContent>
       </Card>
 
