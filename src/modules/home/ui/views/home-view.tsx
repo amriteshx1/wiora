@@ -3,17 +3,21 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SquareCheck } from "lucide-react";
-import { BrainIcon } from "lucide-react";
-import { WaypointsIcon } from "lucide-react";
-import { ScrollTextIcon } from "lucide-react";
 import FeatureMarquee from "../components/Marquee";
-import { Form } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { GeneratedAvatar } from "@/components/generated-avatar";
 import { CommandSelect } from "@/components/command-select";
 import { GpuIcon } from "lucide-react";
+import { CameraOffIcon } from "lucide-react";
+import { MicOffIcon } from "lucide-react";
+import { BotIcon } from "lucide-react";
+import { UserRoundIcon } from "lucide-react";
+import { BookOpenTextIcon } from "lucide-react";
+import { FileTextIcon } from "lucide-react";
+import { FileVideoIcon } from "lucide-react";
+import { SparklesIcon } from "lucide-react";
 
 export const HomeView = () => {
 
@@ -162,12 +166,38 @@ export const HomeView = () => {
       <div className="flex flex-col justify-center items-center gap-14 py-5 mx-[5vh]">
           <p className="text-4xl font-semibold p-4 border-b-2">Workflow</p>
 
-          <div className="flex justify-between items-center">
-            <Card className="rounded-none px-2">
-              <CardContent className="flex items-center">
-                
+          <div className="flex justify-between items-center w-full px-32">
+            <div className="flex justify-center items-center rounded-none w-[45%] border-b-2 px-4">
+              <Card className="rounded-none w-[80%] py-3">
+              <CardContent className="flex items-center px-3">
+                <form className="space-y-2">
+                  <GeneratedAvatar 
+                    seed="X"
+                    variant="botttsNeutral"
+                    className="border size-8"
+                  />
+                   <div className="space-y-2">
+                     <Label className="text-xs font-medium">Agent Name</Label>
+                     <Input placeholder="e.g. Product analyst" className="h-6 text-xs placeholder:text-xs"/>
+                   </div>
+         
+                   <div className="space-y-2">
+                     <Label className="text-xs font-medium">Instructions</Label>
+                     <Textarea className="text-xs placeholder:text-xs" placeholder="You provide clear, structured insights on product ideas, user feedback, and feature decisions." />
+                   </div>
+         
+                   <div className="flex justify-between gap-x-2">
+                     <Button variant="ghost" type="button" className="text-xs p-0 h-6">
+                       Cancel
+                     </Button>
+                     <Button type="button" className="text-xs h-6 px-2">
+                       Create
+                     </Button>
+                   </div>
+                </form>
               </CardContent>
-            </Card>
+              </Card>
+            </div>
             <div className="flex flex-col gap-4">
               <p className="text-xl font-medium">1. Create Your AI Agent</p>
               <p className="text-base">
@@ -175,25 +205,79 @@ export const HomeView = () => {
               </p>
             </div>
           </div>
-          <div className="flex justify-between items-center">
-            <div className="flex flex-col gap-4">
+
+          <div className="flex justify-between items-center w-full px-32">
+            <div className="flex flex-col gap-4 pl-20">
               <p className="text-xl font-medium">2. Schedule a Meeting</p>
               <p className="text-base">
                 Set up a meeting, select your AI agent, and join the call.
               </p>
             </div>
-            <Card className="rounded-none px-2">
-              <CardContent>
-
+            <div className="flex justify-center items-center rounded-none w-[45%] border-b-2 px-4">
+            <Card className="rounded-none w-[80%] py-3">
+              <CardContent className="flex items-center px-3">
+                <form className="space-y-2">
+                  <GpuIcon size="28px" color="#5D1712" />
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium">Meeting Name</Label>
+                    <Input placeholder="e.g. Product Discussion" className="h-6 text-xs placeholder:text-xs"/>
+                  </div>
+        
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium">Agent</Label>
+                    <CommandSelect
+                      options={[
+                      ]}
+                      value=""           
+                      onSelect={() => {}}  
+                      onSearch={() => {}}  
+                      placeholder="Select an agent"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Not found what you&apos;re looking for?{" "}
+                      <button
+                        type="button"
+                        className="text-primary hover:underline"
+                      >
+                        Create a new agent
+                      </button>
+                    </p>
+                  </div>
+    
+                  <div className="flex justify-between gap-x-2">
+                    <Button variant="ghost" type="button" className="text-xs h-0 px-2">
+                      Cancel
+                    </Button>
+                    <Button type="button" className="text-xs h-6 px-2">Create</Button>
+                  </div>
+                </form>
               </CardContent>
             </Card>
+            </div>
           </div>
-          <div className="flex justify-between items-center">
-            <Card className="rounded-none px-2">
-              <CardContent>
 
+          <div className="flex justify-between items-center w-full px-32">
+            <div className="flex justify-center items-center rounded-none w-[45%] border-b-2 px-4">
+            <Card className="rounded-none w-[80%] py-3">
+              <CardContent className="flex flex-col space-y-2 items-center px-2">
+                <div className="h-[15vh] w-[80%] border border-gray-400 flex flex-col justify-center items-center gap-1">
+                  <BotIcon size={32} strokeWidth={1} className="border border-gray-800 rounded-full p-1" />
+                  <p className="text-xs font-light">Product Analyst Agent</p>
+                </div>
+                <div className="flex justify-center items-center border">
+                  <div className="h-[6vh] w-[10vh] border border-gray-400 flex flex-col justify-center items-center gap-0">
+                    <UserRoundIcon size={16} strokeWidth={1} className="border border-gray-800 rounded-full p-0.5" />
+                    <p className="text-[10px] font-light">You</p>
+                  </div>
+                </div>
+                <div className="flex justify-center items-center gap-3">
+                  <CameraOffIcon size={14} strokeWidth={1}/>
+                  <MicOffIcon size={14} strokeWidth={1} />
+                  <Button type="button" className="text-[10px] h-4 px-1 bg-red-600 text-white">End</Button>
+                </div>
               </CardContent>
             </Card>
+            </div>
             <div className="flex flex-col gap-4">
               <p className="text-xl font-medium">3. Join and Interact</p>
               <p className="text-base">
@@ -201,20 +285,43 @@ export const HomeView = () => {
               </p>
             </div>
           </div>
-          <div className="flex justify-between items-center">
-            <div className="flex flex-col gap-4">
+          <div className="flex justify-between items-center w-full px-32">
+            <div className="flex flex-col gap-4 pl-20">
               <p className="text-xl font-medium">4. Get Post-Call Intelligence</p>
               <p className="text-base">
                 Access summaries, searchable transcripts, and replays - all generated automatically.
               </p>
             </div>
-            <Card className="rounded-none px-2">
-              <CardContent>
-
+            <div className="flex justify-center items-center rounded-none w-[45%] border-b-2 px-4">
+            <Card className="rounded-none w-[80%] py-6">
+              <CardContent className="flex flex-wrap items-center px-6">
+                <div className="w-[50%] flex flex-col justify-center items-center border p-6">
+                  <BookOpenTextIcon size={18} strokeWidth={1} />
+                  <p className="text-xs font-normal">Summary</p>
+                </div>
+                <div className="w-[50%] flex flex-col justify-center items-center border p-6">
+                  <FileTextIcon size={18} strokeWidth={1} />
+                  <p className="text-xs font-normal">Transcript</p>
+                </div>
+                <div className="w-[50%] flex flex-col justify-center items-center border p-6">
+                  <FileVideoIcon size={18} strokeWidth={1} />
+                  <p className="text-xs font-normal">Recording</p>
+                </div>
+                <div className="w-[50%] flex flex-col justify-center items-center border p-6">
+                  <SparklesIcon size={18} strokeWidth={1} />
+                  <p className="text-xs font-normal">Ask AI</p>
+                </div>
               </CardContent>
             </Card>
+            </div>
           </div>
+
       </div>
+
+    <div className="flex flex-col justify-center items-center gap-14 py-5 mx-[5vh]">
+          <p className="text-4xl font-semibold p-4 border-b-2">Pricing Plans</p>
+    </div>
+
     </div>
   )
 };
