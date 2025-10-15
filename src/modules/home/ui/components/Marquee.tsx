@@ -18,21 +18,21 @@ const FeatureMarquee = () => {
       <Marquee
         gradient={true}
         gradientColor= "white"
-        gradientWidth={60}
+        gradientWidth={80}
         speed={40}
         pauseOnHover={true}
       >
-        <div className="flex text-lg gap-8 hover:cursor-default mr-8 font-normal">
-          <div className="flex items-center gap-2"><BotIcon strokeWidth={1.5} />Live AI Agents</div>
-          <div className="flex items-center gap-2"><DramaIcon strokeWidth={1.5} />Custom Roles</div>
-          <div className="flex items-center gap-2"><ZapIcon strokeWidth={1.5} />Instant Meetings</div>
-          <div className="flex items-center gap-2"><HeadsetIcon strokeWidth={1.5} />Crystal-Clear Calls</div>
-          <div className="flex items-center gap-2"><MessageCircleMoreIcon strokeWidth={1.5} />Real-Time Messaging</div>
-          <div className="flex items-center gap-2"><ScrollTextIcon strokeWidth={1.5} />Instant Summaries</div>
-          <div className="flex items-center gap-2"><TextSearchIcon strokeWidth={1.5} />Searchable Transcripts</div>
-          <div className="flex items-center gap-2"><TabletSmartphoneIcon strokeWidth={1.5} />Mobile-Ready</div>
-          <div className="flex items-center gap-2"><RefreshCcwIcon strokeWidth={1.5} />Always Synced</div>
-          <div className="flex items-center gap-2"><FlameKindlingIcon strokeWidth={1.5} />Sleek Modern UI</div>
+        <div className="flex text-lg gap-8 hover:cursor-default mr-8 font-light">
+          <div className="flex items-center gap-2"><BotIcon strokeWidth={0.8} />Live AI Agents</div>
+          <div className="flex items-center gap-2"><DramaIcon strokeWidth={0.8} />Custom Roles</div>
+          <div className="flex items-center gap-2"><ZapIcon strokeWidth={0.8} />Instant Meetings</div>
+          <div className="flex items-center gap-2"><HeadsetIcon strokeWidth={0.8} />Crystal-Clear Calls</div>
+          <div className="flex items-center gap-2"><MessageCircleMoreIcon strokeWidth={0.8} />Real-Time Messaging</div>
+          <div className="flex items-center gap-2"><ScrollTextIcon strokeWidth={0.8} />Instant Summaries</div>
+          <div className="flex items-center gap-2"><TextSearchIcon strokeWidth={0.8} />Searchable Transcripts</div>
+          <div className="flex items-center gap-2"><TabletSmartphoneIcon strokeWidth={0.8} />Mobile-Ready</div>
+          <div className="flex items-center gap-2"><RefreshCcwIcon strokeWidth={0.8} />Always Synced</div>
+          <div className="flex items-center gap-2"><FlameKindlingIcon strokeWidth={0.8} />Sleek Modern UI</div>
         </div>
       </Marquee>
     </div>
