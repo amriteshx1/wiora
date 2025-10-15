@@ -319,7 +319,7 @@ export const HomeView = () => {
 
       </div>
 
-    <div className="flex flex-col justify-center items-center gap-14 py-5 mx-[5vh]">
+      <div className="flex flex-col justify-center items-center gap-14 py-5 mx-[5vh]">
           <p className="text-4xl font-semibold p-4 border-b-2 mb-4">Pricing Plans</p>
 
           <div className="flex justify-center items-center w-full gap-4">
@@ -387,7 +387,13 @@ export const HomeView = () => {
               </CardContent>
             </Card>
           </div>
-    </div>
+      </div>
+
+      <div className="flex flex-col justify-center items-center gap-4 py-20 mx-[5vh]">
+          <p className="text-4xl font-semibold p-4">Experience the future of meetings - powered by AI</p>
+          <Button className="w-[20%] h-[6vh] text-lg">Get Started for Free</Button>
+      </div>
+
 
     </div>
   )
