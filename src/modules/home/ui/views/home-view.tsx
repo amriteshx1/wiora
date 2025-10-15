@@ -18,6 +18,7 @@ import { BookOpenTextIcon } from "lucide-react";
 import { FileTextIcon } from "lucide-react";
 import { FileVideoIcon } from "lucide-react";
 import { SparklesIcon } from "lucide-react";
+import { CircleCheckIcon } from "lucide-react";
 
 export const HomeView = () => {
 
@@ -319,7 +320,73 @@ export const HomeView = () => {
       </div>
 
     <div className="flex flex-col justify-center items-center gap-14 py-5 mx-[5vh]">
-          <p className="text-4xl font-semibold p-4 border-b-2">Pricing Plans</p>
+          <p className="text-4xl font-semibold p-4 border-b-2 mb-4">Pricing Plans</p>
+
+          <div className="flex justify-center items-center w-full gap-4">
+            <Card className="rounded-none w-[25%]">
+              <CardContent className="flex flex-col justify-center items-center gap-8">
+                <div className="flex justify-center items-center gap-8">
+                  <div className="flex flex-col items-start">
+                    <h6 className="font-medium text-xl">Monthly</h6>
+                    <p className="text-xs text-neutral-700">For individuals getting started</p>
+                  </div>
+                  <h4 className="text-3xl font-medium flex">12$ <span className="text-xs self-end">/month</span></h4>
+                </div>
+                <Button type="button" className="w-full">Select Plan</Button>
+                <div className="flex flex-col items-start w-full gap-y-2.5">
+                  <p className="font-medium text-sm mb-4">FEATURES</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Unlimited Agents</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Unlimited Meetings</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Upto 300 minutes total</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Full Summaries + Transcripts</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Real-time chat & Recording Playback</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-none w-[25%] bg-black text-white transform scale-105">
+              <CardContent className="flex flex-col justify-center items-center gap-8">
+                <div className="flex justify-center items-center gap-8">
+                  <div className="flex flex-col items-start">
+                    <h6 className="font-medium text-xl">Yearly</h6>
+                    <p className="text-xs text-neutral-300">For small teams or focused peers</p>
+                  </div>
+                  <h4 className="text-3xl font-medium flex">110$ <span className="text-xs self-end">/year</span></h4>
+                </div>
+                <Button type="button" className="w-full bg-white text-black hover:bg-white/95">Select Plan</Button>
+                <div className="flex flex-col items-start w-full gap-y-2.5">
+                  <p className="font-medium text-sm mb-4">FEATURES</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-white text-black" />Unlimited Agents</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-white text-black" />Unlimited Meetings</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-white text-black" />Upto 400 minutes total/month</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-white text-black" />Full Summaries + Transcripts</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-white text-black" />Real-time chat & Recording Playback</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-white text-black" />Priority background processing</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-none w-[25%]">
+              <CardContent className="flex flex-col justify-center items-center gap-8">
+                <div className="flex justify-center items-center gap-8">
+                  <div className="flex flex-col items-start">
+                    <h6 className="font-medium text-xl">Enterprise</h6>
+                    <p className="text-xs text-neutral-700">For startups, orgs or educators</p>
+                  </div>
+                  <h4 className="text-3xl font-medium flex">Custom</h4>
+                </div>
+                <Button type="button" className="w-full">Select Plan</Button>
+                <div className="flex flex-col items-start w-full gap-y-2.5">
+                  <p className="font-medium text-sm mb-4">FEATURES</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />2 months free</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Unlimited Agents + Meetings</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Unlimited duration & usage</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Custom Organizational Dashboard</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Dedicated Discord Support</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
     </div>
 
     </div>
