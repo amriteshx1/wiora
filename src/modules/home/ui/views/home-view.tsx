@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SquareCheck } from "lucide-react";
@@ -34,8 +36,12 @@ export const HomeView = () => {
                 <p  className='lg:text-[1.05vw] md:block hidden text-[1.1vh] cursor-pointer'>About</p>
                 <p  className='lg:text-[1.05vw] md:block hidden text-[1.1vh] cursor-pointer'>Features</p>
                 <p className='lg:text-[1.05vw] lg:block hidden text-[1vh] cursor-pointer'>How it works</p>
-                <Button className="bg-white text-black border border-black hover:bg-neutral-100 rounded-none">Sign in</Button>
-                <Button className="rounded-none">Get Started</Button>
+                <Link href="/sign-in">
+                  <Button className="bg-white text-black border border-black hover:bg-neutral-100 rounded-none">Sign in</Button>
+                </Link>
+                <Link href="/sign-up">
+                  <Button className="rounded-none">Get Started</Button>
+                </Link>
             </div>
         </CardContent>
       </Card>
@@ -52,7 +58,9 @@ export const HomeView = () => {
             <p className="text-6xl font-semibold">Intelligence Included.</p>
             <p className="text-xl font-medium">AI agents that join, listen, and contribute in real time.</p>
             <div className="flex gap-5">
-              <Button className="text-base rounded-none">Create a meeting</Button>
+              <Link href="/sign-up">
+                <Button className="text-base rounded-none">Create a meeting</Button>
+              </Link>
               <Button className="bg-white text-base text-black border border-black hover:bg-neutral-100 rounded-none">Learn more</Button>
             </div>
           </div>
@@ -332,7 +340,9 @@ export const HomeView = () => {
                   </div>
                   <h4 className="text-3xl font-medium flex">12$ <span className="text-xs self-end">/month</span></h4>
                 </div>
-                <Button type="button" className="w-full">Select Plan</Button>
+                <Link href="/sign-up" className="w-full">
+                  <Button type="button" className="w-full">Select Plan</Button>
+                </Link>
                 <div className="flex flex-col items-start w-full gap-y-2.5">
                   <p className="font-medium text-sm mb-4">FEATURES</p>
                   <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Unlimited Agents</p>
@@ -353,7 +363,9 @@ export const HomeView = () => {
                   </div>
                   <h4 className="text-3xl font-medium flex">110$ <span className="text-xs self-end">/year</span></h4>
                 </div>
-                <Button type="button" className="w-full bg-white text-black hover:bg-white/95">Select Plan</Button>
+                <Link href="/sign-up" className="w-full">
+                  <Button type="button" className="w-full bg-white text-black hover:bg-white/95">Select Plan</Button>
+                </Link>
                 <div className="flex flex-col items-start w-full gap-y-2.5">
                   <p className="font-medium text-sm mb-4">FEATURES</p>
                   <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-white text-black" />Unlimited Agents</p>
@@ -375,7 +387,9 @@ export const HomeView = () => {
                   </div>
                   <h4 className="text-3xl font-medium flex">Custom</h4>
                 </div>
-                <Button type="button" className="w-full">Select Plan</Button>
+                <Link href="/sign-up" className="w-full">
+                  <Button type="button" className="w-full">Select Plan</Button>
+                </Link>
                 <div className="flex flex-col items-start w-full gap-y-2.5">
                   <p className="font-medium text-sm mb-4">FEATURES</p>
                   <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />2 months free</p>
@@ -392,7 +406,9 @@ export const HomeView = () => {
       <div className="flex flex-col justify-center items-center gap-4 py-20 mx-[5vh]">
           <p className="text-4xl font-semibold">Experience the future of meetings - powered by AI</p>
           <p className="text-lg font-medium text-black/75">Turn every conversation into insights, actions, and clarity.</p>
-          <Button className="w-[20%] h-[6vh] text-base">Get Started for Free</Button>
+          <Link href="/sign-up" className="w-[20%] h-[6vh]">
+            <Button className="w-full h-full text-base">Get Started for Free</Button>
+          </Link>
       </div>
 
       <Card className=" px-2 py-3 mx-[5vh] rounded-none mb-6">
