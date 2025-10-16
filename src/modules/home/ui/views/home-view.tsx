@@ -34,7 +34,7 @@ export const HomeView = () => {
                 <p  className='lg:text-[1.05vw] md:block hidden text-[1.1vh] cursor-pointer'>About</p>
                 <p  className='lg:text-[1.05vw] md:block hidden text-[1.1vh] cursor-pointer'>Features</p>
                 <p className='lg:text-[1.05vw] lg:block hidden text-[1vh] cursor-pointer'>How it works</p>
-                <Button className="bg-white text-black border border-black rounded-none">Sign in</Button>
+                <Button className="bg-white text-black border border-black hover:bg-neutral-100 rounded-none">Sign in</Button>
                 <Button className="rounded-none">Get Started</Button>
             </div>
         </CardContent>
@@ -53,11 +53,11 @@ export const HomeView = () => {
             <p className="text-xl font-medium">AI agents that join, listen, and contribute in real time.</p>
             <div className="flex gap-5">
               <Button className="text-base rounded-none">Create a meeting</Button>
-              <Button className="bg-white text-base text-black border border-black rounded-none">Learn more</Button>
+              <Button className="bg-white text-base text-black border border-black hover:bg-neutral-100 rounded-none">Learn more</Button>
             </div>
           </div>
 
-          <div className="w-[40%] flex flex-col relative py-5">
+          <div className="w-[40%] flex flex-col relative py-8">
             <div className="w-[70%] h-[60%] self-start border-l border-b p-3 relative z-10 transform -rotate-6 shadow-xl">
               <form className="space-y-2">
                 <GeneratedAvatar 
@@ -390,11 +390,23 @@ export const HomeView = () => {
       </div>
 
       <div className="flex flex-col justify-center items-center gap-4 py-20 mx-[5vh]">
-          <p className="text-4xl font-semibold p-4">Experience the future of meetings - powered by AI</p>
-          <Button className="w-[20%] h-[6vh] text-lg">Get Started for Free</Button>
+          <p className="text-4xl font-semibold">Experience the future of meetings - powered by AI</p>
+          <p className="text-lg font-medium text-black/75">Turn every conversation into insights, actions, and clarity.</p>
+          <Button className="w-[20%] h-[6vh] text-base">Get Started for Free</Button>
       </div>
 
-
+      <Card className=" px-2 py-3 mx-[5vh] rounded-none mb-6">
+        <CardContent className="flex justify-between">
+          <p className="text-lg font-medium">Wiora <span className="font-normal text-xs">© All Rights Reserved.</span></p>
+          <div className="w-[40%] flex justify-end items-center gap-x-8">
+            <p className="text-xs">Docs</p>
+            <p className="text-xs">Privacy</p>
+            <p className="text-xs">Terms</p>
+            <p className="text-xs">Help</p>
+            <p className="text-xs">Contact</p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 };
