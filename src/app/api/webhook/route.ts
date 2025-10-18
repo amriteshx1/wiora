@@ -18,6 +18,7 @@ import { streamVideo } from "@/lib/stream-video";
 import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
+import { isFreeUser } from "@/lib/isFreeUser";
 
 const openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
@@ -74,6 +75,22 @@ export async function POST(req: NextRequest){
 
         if(!existingMeeting){
             return NextResponse.json({error: "Meeting not found"}, {status: 404});
+        }
+
+        const userId = existingMeeting.userId; 
+        
+        if (userId) {
+            const freeUser = await isFreeUser(userId);
+            
+            if (freeUser) {
+                
+                await inngest.send({
+                    name: "meetings/end-call-after-timeout",
+                    data: {
+                        meetingId: existingMeeting.id,
+                    },
+                });
+            }
         }
 
         await db
