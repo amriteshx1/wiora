@@ -6,6 +6,7 @@ import { StreamTranscriptItem } from "@/modules/meetings/types";
 import { db } from "@/db";
 import { agents, meetings, user } from "@/db/schema";
 import { eq, inArray } from "drizzle-orm";
+import { streamVideo } from "@/lib/stream-video";
 
 const summarizer = createAgent({
   name: "summarizer",
@@ -109,5 +110,33 @@ export const meetingsProcessing = inngest.createFunction(
         })
         .where(eq(meetings.id, event.data.meetingId))
     })
+  },
+);
+
+export const meetingTimeoutEnd = inngest.createFunction(
+  { id: "meetings/timeout-end" },
+  { event: "meetings/end-call-after-timeout" },
+  async ({ event, step }) => {
+    const { meetingId } = event.data;
+
+    await step.sleep("wait-for-timeout", "10s");
+    
+    const [existingMeeting] = await step.run("check-meeting-status", async() => {
+        return db.select().from(meetings).where(eq(meetings.id, meetingId));
+    });
+
+    if (existingMeeting && existingMeeting.status === "active") {
+        await step.run("end-stream-call", async () => {
+            const call = streamVideo.video.call("default", meetingId);
+            await call.end();
+            
+            await db
+                .update(meetings)
+                .set({ status: "processing", endedAt: new Date() })
+                .where(eq(meetings.id, meetingId));
+        });
+    } else {
+        console.log(`Call for meeting ${meetingId} is not active. Skipping forced end.`);
+    }
   },
 );
