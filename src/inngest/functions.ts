@@ -129,11 +129,23 @@ export const meetingTimeoutEnd = inngest.createFunction(
         await step.run("end-stream-call", async () => {
             const call = streamVideo.video.call("default", meetingId);
             await call.end();
-            
+
             await db
-                .update(meetings)
-                .set({ status: "processing", endedAt: new Date() })
-                .where(eq(meetings.id, meetingId));
+              .update(meetings)
+              .set({
+                status: "processing",
+                endedAt: new Date(),
+              })
+              .where(eq(meetings.id, meetingId));
+
+            await inngest.send({
+              name: "meetings/processing",
+              data: {
+                meetingId,
+                transcriptUrl: existingMeeting.transcriptUrl || "",
+              },
+            });
+            
         });
     } else {
         console.log(`Call for meeting ${meetingId} is not active. Skipping forced end.`);
