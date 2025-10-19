@@ -13,7 +13,7 @@ import { SparklesIcon } from "lucide-react";
 
 const FeatureMarquee = () => {
   return (
-    <div className="relative mx-[5vh] p-2">
+    <div className="relative lg:mx-[5vh] mx-[3vh] lg:p-2 p-1">
 
       <Marquee
         gradient={true}
@@ -22,7 +22,7 @@ const FeatureMarquee = () => {
         speed={40}
         pauseOnHover={true}
       >
-        <div className="flex text-lg gap-8 hover:cursor-default mr-8 font-light">
+        <div className="flex lg:text-lg text-base lg:gap-8 gap-6 hover:cursor-default lg:mr-8 mr-6 font-light">
           <div className="flex items-center gap-2"><BotIcon strokeWidth={0.8} />Live AI Agents</div>
           <div className="flex items-center gap-2"><DramaIcon strokeWidth={0.8} />Custom Roles</div>
           <div className="flex items-center gap-2"><ZapIcon strokeWidth={0.8} />Instant Meetings</div>
