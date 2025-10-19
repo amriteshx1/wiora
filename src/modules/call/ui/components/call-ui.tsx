@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StreamTheme, useCall } from "@stream-io/video-react-sdk";
 import { CallLobby } from "./call-lobby";
 import { CallActive } from "./call-active";
@@ -26,6 +26,18 @@ export const CallUI = ({ meetingName }: Props) => {
         call.endCall();
         setShow("ended");
     };
+
+    useEffect(() => {
+      if (!call) return;
+  
+      const unsubscribe = call.on("callEnded", () => {
+        setShow("ended");
+      });
+  
+      return () => {
+        unsubscribe?.();
+      };
+    }, [call]);
 
     return (
         <StreamTheme className="h-full">
