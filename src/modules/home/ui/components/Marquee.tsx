@@ -13,7 +13,7 @@ import { SparklesIcon } from "lucide-react";
 
 const FeatureMarquee = () => {
   return (
-    <div className="relative lg:mx-[5vh] mx-[3vh] lg:p-2 p-1">
+    <div className="relative lg:mx-[5vh] md:mx-[3vh] mx-[1vh] lg:p-2 p-1">
 
       <Marquee
         gradient={true}
@@ -22,17 +22,17 @@ const FeatureMarquee = () => {
         speed={40}
         pauseOnHover={true}
       >
-        <div className="flex lg:text-lg text-base lg:gap-8 gap-6 hover:cursor-default lg:mr-8 mr-6 font-light">
-          <div className="flex items-center gap-2"><BotIcon strokeWidth={0.8} />Live AI Agents</div>
-          <div className="flex items-center gap-2"><DramaIcon strokeWidth={0.8} />Custom Roles</div>
-          <div className="flex items-center gap-2"><ZapIcon strokeWidth={0.8} />Instant Meetings</div>
-          <div className="flex items-center gap-2"><HeadsetIcon strokeWidth={0.8} />Crystal-Clear Calls</div>
-          <div className="flex items-center gap-2"><BookOpenTextIcon strokeWidth={0.8} />Instant Summaries</div>
-          <div className="flex items-center gap-2"><FileTextIcon strokeWidth={0.8} />Searchable Transcripts</div>
-          <div className="flex items-center gap-2"><FileVideoIcon strokeWidth={0.8} />Meeting Replays</div>
-          <div className="flex items-center gap-2"><SparklesIcon strokeWidth={0.8} />Chat With AI</div>
-          <div className="flex items-center gap-2"><TabletSmartphoneIcon strokeWidth={0.8} />Mobile-Ready</div>
-          <div className="flex items-center gap-2"><FlameKindlingIcon strokeWidth={0.8} />Sleek Modern UI</div>
+        <div className="flex lg:text-lg md:text-base text-sm lg:gap-8 md:gap-6 gap-4 hover:cursor-default lg:mr-8 md:mr-6 mr-4 font-light">
+          <div className="flex items-center md:gap-2 gap-1"><BotIcon strokeWidth={0.8} />Live AI Agents</div>
+          <div className="flex items-center md:gap-2 gap-1"><DramaIcon strokeWidth={0.8} />Custom Roles</div>
+          <div className="flex items-center md:gap-2 gap-1"><ZapIcon strokeWidth={0.8} />Instant Meetings</div>
+          <div className="flex items-center md:gap-2 gap-1"><HeadsetIcon strokeWidth={0.8} />Crystal-Clear Calls</div>
+          <div className="flex items-center md:gap-2 gap-1"><BookOpenTextIcon strokeWidth={0.8} />Instant Summaries</div>
+          <div className="flex items-center md:gap-2 gap-1"><FileTextIcon strokeWidth={0.8} />Searchable Transcripts</div>
+          <div className="flex items-center md:gap-2 gap-1"><FileVideoIcon strokeWidth={0.8} />Meeting Replays</div>
+          <div className="flex items-center md:gap-2 gap-1"><SparklesIcon strokeWidth={0.8} />Chat With AI</div>
+          <div className="flex items-center md:gap-2 gap-1"><TabletSmartphoneIcon strokeWidth={0.8} />Mobile-Ready</div>
+          <div className="flex items-center md:gap-2 gap-1"><FlameKindlingIcon strokeWidth={0.8} />Sleek Modern UI</div>
         </div>
       </Marquee>
     </div>
