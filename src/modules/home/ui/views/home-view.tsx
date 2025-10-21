@@ -38,8 +38,26 @@ export const HomeView = () => {
 
             <div className='lg:w-[50%] w-[70%] flex lg:gap-[4vh] md:gap-[3vh] gap-[1vh] justify-end items-center'>
                 <p  className='lg:text-[1.05vw] md:block hidden text-[1.1vh] cursor-pointer'>About</p>
-                <p  className='lg:text-[1.05vw] md:block hidden text-[1.1vh] cursor-pointer'>Features</p>
-                <p className='lg:text-[1.05vw] lg:block hidden text-[1vh] cursor-pointer'>How it works</p>
+                <p  
+                  onClick={() => {
+                    const el = document.getElementById("features");
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                  }}
+                  className='lg:text-[1.05vw] md:block hidden text-[1.1vh] cursor-pointer'>
+                    Features
+                </p>
+                <p 
+                  onClick={() => {
+                    const el = document.getElementById("workflow");
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                  }}
+                  className='lg:text-[1.05vw] lg:block hidden text-[1vh] cursor-pointer'>
+                    How it works
+                </p>
                 <Link href="/sign-in">
                   <Button className="bg-white md:text-sm text-xs text-black border border-black hover:bg-neutral-100 rounded-none">Sign in</Button>
                 </Link>
@@ -125,6 +143,7 @@ export const HomeView = () => {
                   onSelect={() => {}}  
                   onSearch={() => {}}  
                   placeholder="Select an agent"
+                  className="pointer-events-none"
                 />
                 <p className="text-sm text-muted-foreground">
                   Not found what you&apos;re looking for?{" "}
@@ -151,7 +170,7 @@ export const HomeView = () => {
 
       <FeatureMarquee />
 
-      <div className="flex flex-col justify-center items-center lg:gap-14 md:gap-10 gap-8 lg:py-10 py-5 lg:mx-[5vh] md:mx-[3vh] mx-[1vh]">
+      <div id="features" className="flex flex-col justify-center items-center lg:gap-14 md:gap-10 gap-8 lg:py-10 py-5 lg:mx-[5vh] md:mx-[3vh] mx-[1vh]">
                 <p className="lg:text-4xl md:text-3xl text-2xl font-semibold lg:p-4 md:p-2 p-1 border-b-2">Features</p>
 
                 <div className="flex lg:flex-row flex-col lg:gap-14 md:gap-10 gap-8">
@@ -186,7 +205,7 @@ export const HomeView = () => {
 
             </div>
 
-      <div className="flex flex-col justify-center items-center lg:gap-14 md:gap-12 gap-10 py-5 lg:mx-[5vh] md:mx-[3vh] mx-[1vh]">
+      <div id="workflow" className="flex flex-col justify-center items-center lg:gap-14 md:gap-12 gap-10 py-5 lg:mx-[5vh] md:mx-[3vh] mx-[1vh]">
           <p className="lg:text-4xl md:text-3xl text-2xl font-semibold lg:p-4 md:p-2 p-1 border-b-2">Workflow</p>
 
           <div className="flex md:flex-row flex-col md:justify-between justify-center items-center w-full lg:px-32 px-2 md:pb-0 pb-6">
@@ -267,6 +286,7 @@ export const HomeView = () => {
                       onSelect={() => {}}  
                       onSearch={() => {}}  
                       placeholder="Select an agent"
+                      className="pointer-events-none"
                     />
                     <p className="lg:text-sm text-xs text-muted-foreground">
                       Not found what you&apos;re looking for?{" "}
