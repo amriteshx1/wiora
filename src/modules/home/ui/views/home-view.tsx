@@ -143,7 +143,7 @@ export const HomeView = () => {
                 <div className="flex lg:flex-row flex-col lg:gap-14 md:gap-10 gap-8">
                   <Card className="rounded-none lg:px-2 md:px-5 px-1 lg:py-10 md:py-5 py-3 flex-1">
                     <CardContent className="flex items-center lg:gap-4 md:gap-14 gap-8">
-                      <img src="/brain.svg" alt="Brain" className="lg:h-[102px] md:h-[92px] h-[72px] lg:w-[102px] md:w-[92px] w-[72px]" />
+                      <img src="/brain.svg" alt="Brain" className="lg:h-[100px] md:h-[82px] h-[62px] lg:w-[100px] md:w-[82px] w-[62px]" />
                       <div className="flex flex-col lg:gap-4 md:gap-3 gap-2">
                         <p className="lg:text-xl md:text-lg text-base font-medium">Intelligent by Design</p>
                         <p className="lg:text-base md:text-sm text-xs">Join meetings with AI agents that actively understand, assist, and enhance collaboration.</p>
@@ -152,7 +152,7 @@ export const HomeView = () => {
                   </Card>
                   <Card className="rounded-none lg:px-2 md:px-5 px-1 lg:py-10 md:py-5 py-3 flex-1">
                     <CardContent className="flex items-center lg:gap-4 md:gap-14 gap-8">
-                      <img src="/flow.svg" alt="Flow" className="lg:h-[102px] md:h-[92px] h-[72px] lg:w-[102px] md:w-[92px] w-[72px]" />
+                      <img src="/flow.svg" alt="Flow" className="lg:h-[100px] md:h-[82px] h-[62px] lg:w-[100px] md:w-[82px] w-[62px]" />
                       <div className="flex flex-col lg:gap-4 md:gap-3 gap-2">
                         <p className="lg:text-xl md:text-lg text-base font-medium">Built for Flow</p>
                         <p className="lg:text-base md:text-sm text-xs">Real-time chat, crystal-clear calls, and seamless sync across all your devices.</p>
@@ -161,7 +161,7 @@ export const HomeView = () => {
                   </Card>
                   <Card className="rounded-none lg:px-2 md:px-5 px-1 lg:py-10 md:py-5 py-3 flex-1">
                     <CardContent className="flex items-center lg:gap-4 md:gap-14 gap-8">
-                      <img src="/notes.svg" alt="Notes" className="lg:h-[102px] md:h-[92px] h-[72px] lg:w-[102px] md:w-[92px] w-[72px]" />
+                      <img src="/notes.svg" alt="Notes" className="lg:h-[100px] md:h-[82px] h-[62px] lg:w-[100px] md:w-[82px] w-[62px]" />
                       <div className="flex flex-col lg:gap-4 md:gap-3 gap-2">
                         <p className="lg:text-xl md:text-lg text-base font-medium">Beyond the Call</p>
                         <p className="lg:text-base md:text-sm text-xs">Get instant summaries, searchable transcripts, and contextual insights that keep work moving.</p>
@@ -176,7 +176,7 @@ export const HomeView = () => {
           <p className="lg:text-4xl md:text-3xl text-2xl font-semibold lg:p-4 md:p-2 p-1 border-b-2">Workflow</p>
 
           <div className="flex md:flex-row flex-col md:justify-between justify-center items-center w-full lg:px-32 px-2 md:pb-0 pb-6">
-            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2">
+            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75">
               <Card className="rounded-none lg:w-[80%] w-[90%] lg:py-3 md:py-2 py-1">
               <CardContent className="flex items-center lg:px-3 px-2">
                 <form className="space-y-2">
@@ -207,7 +207,7 @@ export const HomeView = () => {
               </CardContent>
               </Card>
             </div>
-            <div className="flex flex-col text-center md:gap-4 gap-2 md:mt-0 mt-5">
+            <div className="flex flex-col text-center md:gap-4 gap-2 md:mt-0 mt-3">
               <p className="lg:text-xl md:text-lg text-base font-medium">1. Create Your AI Agent</p>
               <p className="lg:text-base md:text-sm text-xs">
                 Define your agent’s role, tone, and purpose - from tutor to mentor to sales coach.
@@ -216,13 +216,13 @@ export const HomeView = () => {
           </div>
 
           <div className="flex md:flex-row flex-col-reverse md:justify-between justify-center items-center w-full lg:px-32 px-2 md:pb-0 pb-6">
-            <div className="flex flex-col text-center md:gap-4 gap-2 lg:pl-20 pl-5 md:mt-0 mt-5">
+            <div className="flex flex-col text-center md:gap-4 gap-2 lg:pl-20 pl-5 md:mt-0 mt-3">
               <p className="lg:text-xl md:text-lg text-base font-medium">2. Schedule a Meeting</p>
               <p className="lg:text-base md:text-sm text-xs">
                 Set up a meeting, select your AI agent, and join the call.
               </p>
             </div>
-            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2">
+            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75">
             <Card className="rounded-none lg:w-[80%] w-[90%] lg:py-3 md:py-2 py-1">
               <CardContent className="flex items-center lg:px-3 px-2">
                 <form className="space-y-2">
@@ -266,7 +266,7 @@ export const HomeView = () => {
           </div>
 
           <div className="flex md:flex-row flex-col md:justify-between justify-center items-center w-full lg:px-32 px-2 md:pb-0 pb-6">
-            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2">
+            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75">
             <Card className="rounded-none lg:w-[80%] w-[90%] lg:py-3 md:py-2 py-1">
               <CardContent className="flex flex-col space-y-2 items-center px-2">
                 <div className="lg:h-[15vh] h-[8vh] w-[80%] border border-gray-400 flex flex-col justify-center items-center gap-1">
@@ -287,7 +287,7 @@ export const HomeView = () => {
               </CardContent>
             </Card>
             </div>
-            <div className="flex flex-col text-center md:gap-4 gap-2 md:mt-0 mt-5">
+            <div className="flex flex-col text-center md:gap-4 gap-2 md:mt-0 mt-3">
               <p className="lg:text-xl md:text-lg text-base font-medium">3. Join and Interact</p>
               <p className="lg:text-base md:text-sm text-xs">
                 Collaborate in real time as your agent listens, responds, and participates naturally.
@@ -295,13 +295,13 @@ export const HomeView = () => {
             </div>
           </div>
           <div className="flex md:flex-row flex-col-reverse md:justify-between justify-center items-center w-full lg:px-32 px-2 md:pb-0 pb-6">
-            <div className="flex flex-col text-center md:gap-4 gap-2 lg:pl-20 pl-5 md:mt-0 mt-5">
+            <div className="flex flex-col text-center md:gap-4 gap-2 lg:pl-20 pl-5 md:mt-0 mt-3">
               <p className="lg:text-xl md:text-lg text-base font-medium">4. Get Post-Call Intelligence</p>
               <p className="lg:text-base md:text-sm text-xs">
                 Access summaries, searchable transcripts, and replays - all generated automatically.
               </p>
             </div>
-            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2">
+            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75">
             <Card className="rounded-none lg:w-[80%] w-[90%] lg:py-6 md:py-3 py-2">
               <CardContent className="flex flex-wrap items-center lg:px-6 px-3">
                 <div className="w-[50%] flex flex-col justify-center items-center border p-6">
@@ -330,8 +330,8 @@ export const HomeView = () => {
       <div className="flex flex-col justify-center items-center lg:gap-14 md:gap-12 gap-10 py-5 lg:mx-[5vh] md:mx-[3vh] mx-[1vh]">
           <p className="lg:text-4xl md:text-3xl text-2xl font-semibold lg:p-4 md:p-2 p-1 border-b-2 md:mb-4 mb-2">Pricing Plans</p>
 
-          <div className="flex md:flex-row flex-col justify-center items-center w-full lg:gap-4 md:gap-0 gap-2">
-            <Card className="rounded-none lg:w-[25%] md:w-[30%] w-[75%]">
+          <div className="flex md:flex-row flex-col justify-center items-center w-full lg:gap-4 gap-0 relative">
+            <Card className="rounded-none lg:w-[25%] md:w-[30%] w-[75%] transform md:scale-100 scale-95 relative z-10">
               <CardContent className="flex flex-col justify-center items-center lg:gap-8 gap-4 md:px-6 px-2">
                 <div className="flex justify-center items-center lg:gap-8 gap-4">
                   <div className="flex flex-col items-start">
@@ -354,7 +354,7 @@ export const HomeView = () => {
               </CardContent>
             </Card>
 
-            <Card className="rounded-none lg:w-[25%] md:w-[33%] w-[80%] bg-black text-white transform lg:scale-105 md:scale-110 scale-100">
+            <Card className="rounded-none lg:w-[25%] md:w-[33%] w-[80%] bg-black text-white transform lg:scale-105 md:scale-110 scale-95 relative z-30">
               <CardContent className="flex flex-col justify-center items-center lg:gap-8 gap-4 md:px-6 px-2">
                 <div className="flex justify-center items-center lg:gap-8 gap-4">
                   <div className="flex flex-col items-start">
@@ -378,7 +378,7 @@ export const HomeView = () => {
               </CardContent>
             </Card>
 
-            <Card className="rounded-none lg:w-[25%] md:w-[30%] w-[75%]">
+            <Card className="rounded-none lg:w-[25%] md:w-[30%] w-[75%] transform md:scale-100 scale-95 relative z-10">
               <CardContent className="flex flex-col justify-center items-center lg:gap-8 gap-4 md:px-6 px-2">
                 <div className="flex justify-center items-center lg:gap-8 gap-4">
                   <div className="flex flex-col items-start">
@@ -413,13 +413,13 @@ export const HomeView = () => {
 
       <Card className=" px-2 py-3 lg:mx-[5vh] md:mx-[3vh] mx-[1vh] rounded-none mb-6">
         <CardContent className="flex justify-between md:px-6 px-2">
-          <p className="md:text-lg text-base font-medium">Wiora <span className="font-normal md:text-xs text-[10px]">© All Rights Reserved.</span></p>
+          <p className="md:text-lg text-base font-medium cursor-pointer">Wiora <span className="font-normal md:text-xs text-[10px]">© All Rights Reserved.</span></p>
           <div className="w-[40%] flex justify-end items-center md:gap-x-8 gap-x-3">
-            <p className="text-xs">Docs</p>
-            <p className="text-xs">Privacy</p>
-            <p className="text-xs md:block hidden">Terms</p>
-            <p className="text-xs md:block hidden">Help</p>
-            <p className="text-xs">Contact</p>
+            <p className="text-xs cursor-pointer">Docs</p>
+            <p className="text-xs cursor-pointer">Privacy</p>
+            <p className="text-xs cursor-pointer md:block hidden">Terms</p>
+            <p className="text-xs cursor-pointer md:block hidden">Help</p>
+            <p className="text-xs cursor-pointer">Contact</p>
           </div>
         </CardContent>
       </Card>
