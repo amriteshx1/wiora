@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { motion } from "framer-motion";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SquareCheck } from "lucide-react";
@@ -21,6 +23,8 @@ import { FileTextIcon } from "lucide-react";
 import { FileVideoIcon } from "lucide-react";
 import { SparklesIcon } from "lucide-react";
 import { CircleCheckIcon } from "lucide-react";
+
+const MotionCard = motion(Card);
 
 export const HomeView = () => {
 
@@ -66,7 +70,12 @@ export const HomeView = () => {
           </div>
 
           <div className="w-[40%] lg:flex hidden flex-col relative py-8">
-            <div className="w-[70%] h-[60%] self-start border-l border-b p-3 relative z-10 transform -rotate-6 shadow-xl">
+            <motion.div 
+              className="w-[70%] h-[60%] self-start border-l border-b p-3 relative z-10 transform -rotate-6 shadow-xl"
+              initial={{ rotate: 0 }}
+              animate={{ rotate: [0, -13, 0] }}
+              transition={{ duration: 1, ease: "easeInOut" }}
+              >
               <form className="space-y-2">
                 <GeneratedAvatar 
                   seed="X"
@@ -92,9 +101,14 @@ export const HomeView = () => {
                    </Button>
                  </div>
              </form>
-           </div>
+           </motion.div>
 
-           <div className="w-[70%] h-[60%] self-end border-t border-l p-3 -mt-25 relative z-30 bg-white transform rotate-6 shadow-lg">
+           <motion.div 
+            className="w-[70%] h-[60%] self-end border-t border-l p-3 -mt-25 relative z-30 bg-white transform rotate-6 shadow-lg"
+            initial={{ rotate: 0 }}
+            animate={{ rotate: [0, 13, 0] }}
+            transition={{ duration: 1, ease: "easeInOut" }}
+            >
             <form className="space-y-2">
               <GpuIcon size="30px" color="#5D1712" />
               <div className="space-y-2">
@@ -130,7 +144,7 @@ export const HomeView = () => {
                 <Button type="button">Create</Button>
               </div>
             </form>
-           </div>
+           </motion.div>
           </div>
         </CardContent>
       </Card>
@@ -176,8 +190,14 @@ export const HomeView = () => {
           <p className="lg:text-4xl md:text-3xl text-2xl font-semibold lg:p-4 md:p-2 p-1 border-b-2">Workflow</p>
 
           <div className="flex md:flex-row flex-col md:justify-between justify-center items-center w-full lg:px-32 px-2 md:pb-0 pb-6">
-            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75">
-              <Card className="rounded-none lg:w-[80%] w-[90%] lg:py-3 md:py-2 py-1">
+            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75 overflow-hidden">
+              <MotionCard 
+                className="rounded-none lg:w-[80%] w-[90%] lg:py-3 md:py-2 py-1"
+                initial={{ opacity: 0, y: 80 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                >
               <CardContent className="flex items-center lg:px-3 px-2">
                 <form className="space-y-2">
                   <GeneratedAvatar 
@@ -205,7 +225,7 @@ export const HomeView = () => {
                    </div>
                 </form>
               </CardContent>
-              </Card>
+              </MotionCard>
             </div>
             <div className="flex flex-col text-center md:gap-4 gap-2 md:mt-0 mt-3">
               <p className="lg:text-xl md:text-lg text-base font-medium">1. Create Your AI Agent</p>
@@ -222,8 +242,14 @@ export const HomeView = () => {
                 Set up a meeting, select your AI agent, and join the call.
               </p>
             </div>
-            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75">
-            <Card className="rounded-none lg:w-[80%] w-[90%] lg:py-3 md:py-2 py-1">
+            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75 overflow-hidden">
+            <MotionCard 
+              className="rounded-none lg:w-[80%] w-[90%] lg:py-3 md:py-2 py-1"
+              initial={{ opacity: 0, y: 80 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              >
               <CardContent className="flex items-center lg:px-3 px-2">
                 <form className="space-y-2">
                   <GpuIcon size="28px" color="#5D1712" />
@@ -261,13 +287,19 @@ export const HomeView = () => {
                   </div>
                 </form>
               </CardContent>
-            </Card>
+            </MotionCard>
             </div>
           </div>
 
           <div className="flex md:flex-row flex-col md:justify-between justify-center items-center w-full lg:px-32 px-2 md:pb-0 pb-6">
-            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75">
-            <Card className="rounded-none lg:w-[80%] w-[90%] lg:py-3 md:py-2 py-1">
+            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75 overflow-hidden">
+            <MotionCard 
+              className="rounded-none lg:w-[80%] w-[90%] lg:py-3 md:py-2 py-1"
+              initial={{ opacity: 0, y: 80 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              >
               <CardContent className="flex flex-col space-y-2 items-center px-2">
                 <div className="lg:h-[15vh] h-[8vh] w-[80%] border border-gray-400 flex flex-col justify-center items-center gap-1">
                   <BotIcon size={32} strokeWidth={1} className="border border-gray-800 rounded-full p-1" />
@@ -285,7 +317,7 @@ export const HomeView = () => {
                   <Button type="button" className="text-[10px] h-4 px-1 bg-red-600 text-white">End</Button>
                 </div>
               </CardContent>
-            </Card>
+            </MotionCard>
             </div>
             <div className="flex flex-col text-center md:gap-4 gap-2 md:mt-0 mt-3">
               <p className="lg:text-xl md:text-lg text-base font-medium">3. Join and Interact</p>
@@ -301,8 +333,14 @@ export const HomeView = () => {
                 Access summaries, searchable transcripts, and replays - all generated automatically.
               </p>
             </div>
-            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75">
-            <Card className="rounded-none lg:w-[80%] w-[90%] lg:py-6 md:py-3 py-2">
+            <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75 overflow-hidden">
+            <MotionCard 
+              className="rounded-none lg:w-[80%] w-[90%] lg:py-6 md:py-3 py-2"
+              initial={{ opacity: 0, y: 80 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              >
               <CardContent className="flex flex-wrap items-center lg:px-6 px-3">
                 <div className="w-[50%] flex flex-col justify-center items-center border p-6">
                   <BookOpenTextIcon size={18} strokeWidth={1} />
@@ -321,7 +359,7 @@ export const HomeView = () => {
                   <p className="text-xs font-normal">Ask AI</p>
                 </div>
               </CardContent>
-            </Card>
+            </MotionCard>
             </div>
           </div>
 
