@@ -317,7 +317,7 @@ export const HomeView = () => {
               className="rounded-none lg:w-[80%] w-[90%] lg:py-3 md:py-2 py-1"
               initial={{ opacity: 0, y: 80 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
+              viewport={{ once: true, amount: 0.4 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
               >
               <CardContent className="flex flex-col space-y-2 items-center px-2">
@@ -405,9 +405,9 @@ export const HomeView = () => {
                   <p className="font-medium text-sm mb-4">FEATURES</p>
                   <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Unlimited Agents</p>
                   <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Unlimited Meetings</p>
-                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Upto 300 minutes total</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Up to 300 minutes total</p>
                   <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Full Summaries + Transcripts</p>
-                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Real-time chat & Recording Playback</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-primary text-white" />Real-time chat & Recording playback</p>
                 </div>
               </CardContent>
             </Card>
@@ -417,7 +417,7 @@ export const HomeView = () => {
                 <div className="flex justify-center items-center lg:gap-8 gap-4">
                   <div className="flex flex-col items-start">
                     <h6 className="font-medium lg:text-xl md:text-lg text-base">Yearly</h6>
-                    <p className="text-xs text-neutral-300">For small teams or focused peers</p>
+                    <p className="text-xs text-neutral-300">For small teams and focused peers</p>
                   </div>
                   <h4 className="lg:text-3xl md:text-2xl text-xl font-medium flex">110$ <span className="text-xs self-end">/year</span></h4>
                 </div>
@@ -430,7 +430,7 @@ export const HomeView = () => {
                   <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-white text-black" />Unlimited Meetings</p>
                   <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-white text-black" />Upto 400 minutes total/month</p>
                   <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-white text-black" />Full Summaries + Transcripts</p>
-                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-white text-black" />Real-time chat & Recording Playback</p>
+                  <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-white text-black" />Real-time chat & Recording playback</p>
                   <p className="text-xs font-medium flex items-center gap-x-2.5"><CircleCheckIcon className="size-4 fill-white text-black" />Priority background processing</p>
                 </div>
               </CardContent>
@@ -441,9 +441,9 @@ export const HomeView = () => {
                 <div className="flex justify-center items-center lg:gap-8 gap-4">
                   <div className="flex flex-col items-start">
                     <h6 className="font-medium lg:text-xl md:text-lg text-base">Enterprise</h6>
-                    <p className="text-xs text-neutral-700">For startups, orgs or educators</p>
+                    <p className="text-xs text-neutral-700">For startups, orgs and educators</p>
                   </div>
-                  <h4 className="lg:text-3xl md:text-2xl text-xl font-medium flex">Custom</h4>
+                  <h4 className="lg:text-3xl md:text-2xl text-xl font-medium flex">749$ <span className="text-xs self-end">/year</span></h4>
                 </div>
                 <Link href="/sign-up" className="w-full">
                   <Button type="button" className="w-full">Select Plan</Button>
@@ -471,7 +471,7 @@ export const HomeView = () => {
 
       <Card className=" px-2 py-3 lg:mx-[5vh] md:mx-[3vh] mx-[1vh] rounded-none mb-6">
         <CardContent className="flex justify-between md:px-6 px-2">
-          <p className="md:text-lg text-base font-medium cursor-pointer">Wiora <span className="font-normal md:text-xs text-[10px]">© All Rights Reserved.</span></p>
+          <p className="md:text-lg text-base font-medium cursor-pointer">Wiora <span className="font-normal md:text-xs text-[10px] cursor-default">© All Rights Reserved.</span></p>
           <div className="w-[40%] flex justify-end items-center md:gap-x-8 gap-x-3">
             <p className="text-xs cursor-pointer">Docs</p>
             <p className="text-xs cursor-pointer">Privacy</p>
