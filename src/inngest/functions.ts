@@ -31,7 +31,7 @@ Example:
 - Feature X automatically does Y
 - Mention of integration with Z
   `.trim(),
-  model: openai({ model: "gpt-4o", apiKey: process.env.OPENAI_API_KEY }),
+  model: openai({ model: "gpt-4o-mini", apiKey: process.env.OPENAI_API_KEY }),
 });
 
 export const meetingsProcessing = inngest.createFunction(
@@ -119,7 +119,7 @@ export const meetingTimeoutEnd = inngest.createFunction(
   async ({ event, step }) => {
     const { meetingId } = event.data;
 
-    await step.sleep("wait-for-timeout", "59s");
+    await step.sleep("wait-for-timeout", "40s");
     
     const [existingMeeting] = await step.run("check-meeting-status", async() => {
         return db.select().from(meetings).where(eq(meetings.id, meetingId));
