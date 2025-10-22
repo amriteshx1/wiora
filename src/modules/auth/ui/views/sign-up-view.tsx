@@ -237,7 +237,7 @@ export const SignUpView = () => {
                     </Form>
 
                     <div className="bg-radial from-sidebar-accent to-sidebar relative hidden md:flex flex-col gap-y-4 items-center justify-center">
-                        <Image src="/logo.svg" alt="Image" width={92} height={92} className="h-[92px] w-[92px]" />
+                        <Image src="/logo.svg" alt="Image" width={82} height={82} className="lg:h-[82px] lg:w-[82px] h-[62px] w-[62px]" />
                         <p className="text-2xl font-semibold text-white">
                             Wiora
                         </p>
