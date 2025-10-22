@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 
 import { motion } from "framer-motion";
 
@@ -33,7 +34,7 @@ export const HomeView = () => {
       <Card className="overflow-hidden lg:px-2 md:px-1 px-0.5 lg:py-3 py-2 lg:mx-[5vh] md:mx-[3vh] mx-[1vh] rounded-none">
         <CardContent className="flex justify-between items-center lg:px-6 md:px-4 px-2">
           <div className='lg:w-[40%] w-[20%] flex justify-start items-center'>
-                <img src="/logo-black.svg" alt="Image" className="h-[32px] w-[32px]" />
+                <Image src="/logo-black.svg" alt="Image" width={32} height={32} className="h-[32px] w-[32px]" />
             </div>
 
             <div className='lg:w-[50%] w-[70%] flex lg:gap-[4vh] md:gap-[3vh] gap-[1vh] justify-end items-center'>
@@ -176,7 +177,7 @@ export const HomeView = () => {
                 <div className="flex lg:flex-row flex-col lg:gap-14 md:gap-10 gap-8">
                   <Card className="rounded-none lg:px-2 md:px-5 px-1 lg:py-10 md:py-5 py-3 flex-1">
                     <CardContent className="flex items-center lg:gap-4 md:gap-14 gap-8">
-                      <img src="/brain.svg" alt="Brain" className="lg:h-[100px] md:h-[82px] h-[62px] lg:w-[100px] md:w-[82px] w-[62px]" />
+                      <Image src="/brain.svg" alt="Brain" width={100} height={100} className="lg:h-[100px] md:h-[82px] h-[62px] lg:w-[100px] md:w-[82px] w-[62px]" />
                       <div className="flex flex-col lg:gap-4 md:gap-3 gap-2">
                         <p className="lg:text-xl md:text-lg text-base font-medium">Intelligent by Design</p>
                         <p className="lg:text-base md:text-sm text-xs">Join meetings with AI agents that actively understand, assist, and enhance collaboration.</p>
@@ -185,7 +186,7 @@ export const HomeView = () => {
                   </Card>
                   <Card className="rounded-none lg:px-2 md:px-5 px-1 lg:py-10 md:py-5 py-3 flex-1">
                     <CardContent className="flex items-center lg:gap-4 md:gap-14 gap-8">
-                      <img src="/flow.svg" alt="Flow" className="lg:h-[100px] md:h-[82px] h-[62px] lg:w-[100px] md:w-[82px] w-[62px]" />
+                      <Image src="/flow.svg" alt="Flow" width={100} height={100} className="lg:h-[100px] md:h-[82px] h-[62px] lg:w-[100px] md:w-[82px] w-[62px]" />
                       <div className="flex flex-col lg:gap-4 md:gap-3 gap-2">
                         <p className="lg:text-xl md:text-lg text-base font-medium">Built for Flow</p>
                         <p className="lg:text-base md:text-sm text-xs">Real-time chat, crystal-clear calls, and seamless sync across all your devices.</p>
@@ -194,7 +195,7 @@ export const HomeView = () => {
                   </Card>
                   <Card className="rounded-none lg:px-2 md:px-5 px-1 lg:py-10 md:py-5 py-3 flex-1">
                     <CardContent className="flex items-center lg:gap-4 md:gap-14 gap-8">
-                      <img src="/notes.svg" alt="Notes" className="lg:h-[100px] md:h-[82px] h-[62px] lg:w-[100px] md:w-[82px] w-[62px]" />
+                      <Image src="/notes.svg" alt="Notes" width={100} height={100} className="lg:h-[100px] md:h-[82px] h-[62px] lg:w-[100px] md:w-[82px] w-[62px]" />
                       <div className="flex flex-col lg:gap-4 md:gap-3 gap-2">
                         <p className="lg:text-xl md:text-lg text-base font-medium">Beyond the Call</p>
                         <p className="lg:text-base md:text-sm text-xs">Get instant summaries, searchable transcripts, and contextual insights that keep work moving.</p>
