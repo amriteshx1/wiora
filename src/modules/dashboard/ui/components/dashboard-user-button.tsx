@@ -33,7 +33,7 @@ export const DashboardUserButton = () => {
     authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.push("/sign-in");
+          router.push("/");
         }
       }
     })

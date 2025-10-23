@@ -115,7 +115,6 @@ export async function POST(req: NextRequest){
             call,
             openAiApiKey: process.env.OPENAI_API_KEY!,
             agentUserId: existingAgent.id,
-            model: "gpt-4o-mini-realtime-preview-2024-12-17",
         });
 
         realtimeClient.updateSession({
