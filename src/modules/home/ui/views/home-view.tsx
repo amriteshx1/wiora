@@ -172,7 +172,7 @@ export const HomeView = () => {
       <FeatureMarquee />
 
       <div id="features" className="flex flex-col justify-center items-center lg:gap-14 md:gap-10 gap-8 lg:py-10 py-5 lg:mx-[5vh] md:mx-[3vh] mx-[1vh]">
-                <p className="lg:text-4xl md:text-3xl text-2xl font-semibold lg:p-4 md:p-2 p-1 border-b-2">Features</p>
+                <p className="lg:text-[40px] md:text-3xl text-2xl font-semibold lg:p-3 md:p-2 p-1 border-b-2">Features</p>
 
                 <div className="flex lg:flex-row flex-col lg:gap-14 md:gap-10 gap-8">
                   <Card className="rounded-none lg:px-2 md:px-5 px-1 lg:py-10 md:py-5 py-3 flex-1">
@@ -207,7 +207,7 @@ export const HomeView = () => {
             </div>
 
       <div id="workflow" className="flex flex-col justify-center items-center lg:gap-14 md:gap-12 gap-10 py-5 lg:mx-[5vh] md:mx-[3vh] mx-[1vh]">
-          <p className="lg:text-4xl md:text-3xl text-2xl font-semibold lg:p-4 md:p-2 p-1 border-b-2">Workflow</p>
+          <p className="lg:text-[40px] md:text-3xl text-2xl font-semibold lg:p-3 md:p-2 p-1 border-b-2">Workflow</p>
 
           <div className="flex md:flex-row flex-col md:justify-between justify-center items-center w-full lg:px-32 px-2 md:pb-0 pb-6">
             <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75 overflow-hidden">
@@ -387,7 +387,7 @@ export const HomeView = () => {
       </div>
 
       <div className="flex flex-col justify-center items-center lg:gap-14 md:gap-12 gap-10 py-5 lg:mx-[5vh] md:mx-[3vh] mx-[1vh]">
-          <p className="lg:text-4xl md:text-3xl text-2xl font-semibold lg:p-4 md:p-2 p-1 border-b-2 md:mb-4 mb-2">Pricing Plans</p>
+          <p className="lg:text-[40px] md:text-3xl text-2xl font-semibold lg:p-3 md:p-2 p-1 border-b-2 md:mb-4 mb-2">Pricing Plans</p>
 
           <div className="flex md:flex-row flex-col justify-center items-center w-full lg:gap-4 gap-0 relative">
             <Card className="rounded-none lg:w-[25%] md:w-[30%] w-[75%] transform md:scale-100 scale-95 relative z-10">
@@ -462,9 +462,9 @@ export const HomeView = () => {
           </div>
       </div>
 
-      <div className="flex flex-col justify-center items-center lg:gap-4 gap-2 lg:py-20 py-10 lg:mx-[5vh] md:mx-[3vh] mx-[1vh]">
-          <p className="lg:text-4xl md:text-3xl text-2xl font-semibold text-center">Experience the future of meetings - powered by AI</p>
-          <p className="lg:text-lg md:text-base text-sm font-medium text-center text-black/75">Turn every conversation into insights, actions, and clarity.</p>
+      <div className="flex flex-col justify-center items-center lg:gap-4 gap-2 lg:py-20 py-10 lg:mx-[5vh] md:mx-[2vh] mx-[1vh]">
+          <p className="lg:text-[40px] md:text-3xl text-2xl font-semibold text-center flex md:flex-row flex-col-reverse justify-center items-center lg:gap-4 md:gap-3 gap-2">Experience the future of conversations with Wiora <Image src="/ai-voice.svg" alt="Ai" height={38} width={38} className="lg:h-[38px] lg:w-[38px] h-[27px] w-[27px]" /></p>
+          <p className="lg:text-lg md:text-base text-sm font-medium text-center text-black/75">Start your first AI-Powered meeting today and see how effortless collaboration can be.</p>
           <Link href="/sign-up" className="md:w-[20%] w-[40%] lg:h-[6vh] h-[3.5vh]">
             <Button className="w-full h-full lg:text-base text-xs">Get Started for Free</Button>
           </Link>
