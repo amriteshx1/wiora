@@ -104,9 +104,9 @@ export const HomeView = () => {
 
           <div className="w-[40%] lg:flex hidden flex-col relative py-8">
             <motion.div 
-              className="w-[70%] h-[60%] self-start border-l border-b p-3 relative z-10 transform -rotate-6 shadow-xl"
+              className="w-[70%] h-[60%] self-start border-l border-b p-3 relative z-10 shadow-xl"
               initial={{ rotate: 0 }}
-              animate={{ rotate: [0, -13, 0] }}
+              animate={{ rotate: -6 }}
               transition={{ duration: 1, ease: "easeInOut" }}
               >
               <form className="space-y-2">
@@ -137,9 +137,9 @@ export const HomeView = () => {
            </motion.div>
 
            <motion.div 
-            className="w-[70%] h-[60%] self-end border-t border-l p-3 -mt-25 relative z-30 bg-white transform rotate-6 shadow-lg"
+            className="w-[70%] h-[60%] self-end border-t border-l p-3 -mt-25 relative z-30 bg-white shadow-lg"
             initial={{ rotate: 0 }}
-            animate={{ rotate: [0, 13, 0] }}
+            animate={{ rotate: 6 }}
             transition={{ duration: 1, ease: "easeInOut" }}
             >
             <form className="space-y-2">
