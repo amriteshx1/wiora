@@ -38,7 +38,14 @@ export const HomeView = () => {
             </div>
 
             <div className='lg:w-[50%] w-[70%] flex lg:gap-[4vh] md:gap-[3vh] gap-[1vh] justify-end items-center'>
-                <p  className='lg:text-[1.05vw] md:block hidden text-[1.1vh] cursor-pointer'>About</p>
+                <p  
+                  onClick={() => {
+                    const el = document.getElementById("about");
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                  }}
+                  className='lg:text-[1.05vw] md:block hidden text-[1.1vh] cursor-pointer'>About</p>
                 <p  
                   onClick={() => {
                     const el = document.getElementById("features");
@@ -69,7 +76,7 @@ export const HomeView = () => {
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden lg:px-2 px-1 py-2 lg:mx-[5vh] md:mx-[3vh] mx-[1vh] rounded-none">
+      <Card id="about" className="overflow-hidden lg:px-2 px-1 py-2 lg:mx-[5vh] md:mx-[3vh] mx-[1vh] rounded-none">
         <CardContent className="flex justify-between items-center">
           <div className="lg:w-[60%] w-full flex flex-col gap-6 md:py-20 py-10">
             <div className="flex md:gap-5 gap-2">
@@ -84,7 +91,14 @@ export const HomeView = () => {
               <Link href="/sign-up">
                 <Button className="lg:text-base md:text-sm text-xs rounded-none">Create a meeting</Button>
               </Link>
-              <Button className="bg-white lg:text-base md:text-sm text-xs text-black border border-black hover:bg-neutral-100 rounded-none">Learn more</Button>
+              <Button 
+                onClick={() => {
+                    const el = document.getElementById("workflow");
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                  }}
+                className="bg-white lg:text-base md:text-sm text-xs text-black border border-black hover:bg-neutral-100 rounded-none">Learn more</Button>
             </div>
           </div>
 
