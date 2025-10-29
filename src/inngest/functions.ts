@@ -7,6 +7,9 @@ import { db } from "@/db";
 import { agents, meetings, user } from "@/db/schema";
 import { eq, inArray } from "drizzle-orm";
 import { streamVideo } from "@/lib/stream-video";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const summarizer = createAgent({
   name: "summarizer",
@@ -110,6 +113,15 @@ export const meetingsProcessing = inngest.createFunction(
         })
         .where(eq(meetings.id, event.data.meetingId))
     })
+
+    await step.run("trigger-smart-followup", async () => {
+      await inngest.send({
+        name: "meetings/smart-followup",
+        data: {
+          meetingId: event.data.meetingId,
+        },
+    });
+   });
   },
 );
 
@@ -151,4 +163,71 @@ export const meetingTimeoutEnd = inngest.createFunction(
         console.log(`Call for meeting ${meetingId} is not active. Skipping forced end.`);
     }
   },
+);
+
+export const smartFollowUp = inngest.createFunction(
+  { id: "meetings/smart-followup" },
+  { event: "meetings/smart-followup" },
+  async ({ event, step }) => {
+    const { meetingId } = event.data;
+
+    // wait 24 hours
+    await step.sleep("wait-24h", "1m");
+
+    const [meeting] = await step.run("fetch-meeting", async () => {
+      return db.select().from(meetings).where(eq(meetings.id, meetingId));
+    });
+
+    if (!meeting?.summary) return;
+
+    const [userData] = await step.run("fetch-user", async () => {
+      return db.select().from(user).where(eq(user.id, meeting.userId));
+    });
+
+    const { output } = await summarizer.run(`
+You are Wiora’s Smart Follow-Up Agent.
+
+Write a short, friendly **email message** (not a plain text paragraph) as a reminder for the user about their meeting.
+
+Format it properly like an email with:
+- A short greeting
+- 2–3 bullet points summarizing what was discussed or next steps
+- A closing line (e.g., “Talk soon” or “Your AI meeting assistant”)
+- Keep tone warm, concise, and professional.
+
+Meeting summary:
+${meeting.summary}
+`);
+
+
+    const emailText = (output[0] as TextMessage).content as string;
+
+    const listItems = emailText
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+      .map((line) => line.replace(/^(\*|-)\s*/, ''))
+      .map((line) => `<li>${line}</li>`)
+      .join("");
+
+    // Send email
+    await step.run("send-email", async () => {
+      await resend.emails.send({
+        from: "Wiora <noreply@resend.dev>",
+        to: userData.email,
+        subject: "Smart Follow-Up from Your AI Meeting",
+        html: `
+          <div style="font-family: Inter, sans-serif; line-height: 1.6; color: #333; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #111;">Hey ${userData.name || "there"}, 👋</h2>
+            <p>Here’s a quick follow-up from your AI-powered meeting yesterday:</p>
+            <ul style="margin: 12px 0; padding-left: 20px;">
+              ${listItems}
+            </ul>
+            <p style="margin-top: 16px;">Stay productive,<br><strong>— Wiora</strong></p>
+          </div>
+        `,
+        text: `Hey ${userData.name || "there"},\n\n${emailText}\n\n— Wiora`,
+      });
+    });
+  }
 );
