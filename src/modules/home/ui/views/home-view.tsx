@@ -365,7 +365,7 @@ export const HomeView = () => {
             <div className="flex flex-col text-center md:gap-4 gap-2 lg:pl-20 pl-5 md:mt-0 mt-3">
               <p className="lg:text-xl md:text-lg text-base font-medium">4. Get Post-Call Intelligence</p>
               <p className="lg:text-base md:text-sm text-xs">
-                Access summaries, searchable transcripts, and replays - all generated automatically.
+                Access summaries, searchable transcripts, replays, and chat with AI - all generated automatically.
               </p>
             </div>
             <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75 overflow-hidden">
