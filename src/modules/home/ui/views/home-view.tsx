@@ -273,7 +273,7 @@ export const HomeView = () => {
             <div className="flex flex-col text-center md:gap-4 gap-2 lg:pl-20 pl-5 md:mt-0 mt-3">
               <p className="lg:text-xl md:text-lg text-base font-medium">2. Schedule a Meeting</p>
               <p className="lg:text-base md:text-sm text-xs">
-                Set up a meeting, select your AI agent, and join the call.
+                Set up a meeting, select your AI agent, and step into the lobby.
               </p>
             </div>
             <div className="flex justify-center items-center rounded-none md:w-[45%] w-[90%] border-b-2 md:px-4 px-2 transform lg:scale-100 md:scale-95 scale-75 overflow-hidden">
