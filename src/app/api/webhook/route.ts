@@ -248,7 +248,7 @@ export async function POST(req: NextRequest){
             ...previousMessages,
             {role: "user", content: text},
         ],
-        model: "gpt-4o-mini",
+        model: "gpt-5-nano",
       });
 
       const GPTResponseText = GPTResponse.choices[0].message.content;
