@@ -70,7 +70,7 @@ export const HomeView = () => {
                   <Button className="bg-white md:text-sm text-xs text-black border border-black hover:bg-neutral-100 rounded-none">Sign in</Button>
                 </Link>
                 <Link href="/sign-up">
-                  <Button variant="default" className="rounded-none md:text-sm text-xs">Get Started</Button>
+                  <Button variant="default" className="rounded-none md:text-sm text-xs bg-primary">Get Started</Button>
                 </Link>
             </div>
         </CardContent>
@@ -89,7 +89,7 @@ export const HomeView = () => {
             <p className="lg:text-xl md:text-lg text-base font-medium">AI agents that join, listen, and contribute in real time.</p>
             <div className="flex md:gap-5 gap-2.5">
               <Link href="/sign-up">
-                <Button variant="default" className="lg:text-base md:text-sm text-xs rounded-none">Create a meeting</Button>
+                <Button variant="default" className="lg:text-base md:text-sm text-xs rounded-none bg-primary">Create a meeting</Button>
               </Link>
               <Button 
                 onClick={() => {
