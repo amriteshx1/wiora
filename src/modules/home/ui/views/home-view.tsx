@@ -70,7 +70,7 @@ export const HomeView = () => {
                   <Button className="bg-white md:text-sm text-xs text-black border border-black hover:bg-neutral-100 rounded-none">Sign in</Button>
                 </Link>
                 <Link href="/sign-up">
-                  <Button className="rounded-none md:text-sm text-xs">Get Started</Button>
+                  <Button variant="default" className="rounded-none md:text-sm text-xs">Get Started</Button>
                 </Link>
             </div>
         </CardContent>
@@ -80,16 +80,16 @@ export const HomeView = () => {
         <CardContent className="flex justify-between items-center">
           <div className="lg:w-[60%] w-full flex flex-col gap-6 md:py-20 py-10">
             <div className="flex md:gap-5 gap-2">
-                <div className="flex md:text-sm text-[10px] gap-1 font-medium border-b border-l border-black p-1"><SquareCheck size={20} />Customizable AI Roles</div>
-                <div className="flex md:text-sm text-[10px] gap-1 font-medium border-b border-black p-1"><SquareCheck size={20} />Context-Aware Responses</div>
-                <div className="flex md:text-sm text-[10px] gap-1 font-medium border-b border-r border-black p-1"><SquareCheck size={20} />Post-Call Intelligence</div>
+                <div className="flex md:items-center items-start md:text-sm text-[10px] gap-1.5 font-medium border-b border-l border-black py-0.5 px-2"><SquareCheck size={18} />Customizable AI Roles</div>
+                <div className="flex md:items-center items-start md:text-sm text-[10px] gap-1.5 font-medium border-b border-black py-0.5 px-2"><SquareCheck size={18} />Context-Aware Responses</div>
+                <div className="flex md:items-center items-start md:text-sm text-[10px] gap-1.5 font-medium border-b border-r border-black py-0.5 px-2"><SquareCheck size={18} />Post-Call Intelligence</div>
             </div>
             <p className="lg:text-6xl md:text-5xl text-4xl font-semibold">Conversations Reimagined.</p>
             <p className="lg:text-6xl md:text-5xl text-4xl font-semibold">Intelligence Included.</p>
             <p className="lg:text-xl md:text-lg text-base font-medium">AI agents that join, listen, and contribute in real time.</p>
             <div className="flex md:gap-5 gap-2.5">
               <Link href="/sign-up">
-                <Button className="lg:text-base md:text-sm text-xs rounded-none">Create a meeting</Button>
+                <Button variant="default" className="lg:text-base md:text-sm text-xs rounded-none">Create a meeting</Button>
               </Link>
               <Button 
                 onClick={() => {

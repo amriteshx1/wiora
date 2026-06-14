@@ -18,7 +18,13 @@ const FeatureMarquee = () => {
       <Marquee
         gradient={true}
         gradientColor= "white"
-        gradientWidth={80}
+        gradientWidth={
+          window.innerWidth < 768
+            ? 25
+            : window.innerWidth < 1024
+              ? 50
+              : 80
+        }
         speed={40}
         pauseOnHover={true}
       >
