@@ -1,4 +1,4 @@
-
+import React, { useState, useEffect } from "react";
 import Marquee from "react-fast-marquee";
 import { BotIcon } from "lucide-react";
 import { DramaIcon } from "lucide-react";
@@ -12,19 +12,36 @@ import { FileVideoIcon } from "lucide-react";
 import { SparklesIcon } from "lucide-react";
 
 const FeatureMarquee = () => {
+  const [gradientWidth, setGradientWidth] = useState(80);
+
+  useEffect(() => {
+    const updateGradientWidth = () => {
+      const width = window.innerWidth;
+
+      if (width < 768) {
+        setGradientWidth(25);
+      } else if (width < 1024) {
+        setGradientWidth(50);
+      } else {
+        setGradientWidth(80);
+      }
+    };
+
+    updateGradientWidth();
+    window.addEventListener("resize", updateGradientWidth);
+
+    return () => {
+      window.removeEventListener("resize", updateGradientWidth);
+    };
+  }, []);
+
   return (
     <div className="relative lg:mx-[5vh] md:mx-[3vh] mx-[1vh] lg:p-2 p-1">
 
       <Marquee
         gradient={true}
         gradientColor= "white"
-        gradientWidth={
-          window.innerWidth < 768
-            ? 25
-            : window.innerWidth < 1024
-              ? 50
-              : 80
-        }
+        gradientWidth={gradientWidth}
         speed={40}
         pauseOnHover={true}
       >
