@@ -1,6 +1,16 @@
 "use client";
 
 import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
+import Image from "next/image";
+import { useReducedMotion } from "framer-motion";
+import {
   BookOpenTextIcon,
   AudioLinesIcon,
   SearchIcon,
@@ -29,6 +39,16 @@ const situations = [
   },
 ];
 
+const moreConversations = [
+  "Presentations",
+  "Discovery calls",
+  "Salary conversations",
+  "Board updates",
+  "Performance reviews",
+  "Partnership talks",
+  "Stakeholder reviews",
+];
+
 const leftovers = [
   {
     title: "Summary",
@@ -52,11 +72,11 @@ const leftovers = [
   },
 ];
 
-function SeatMark() {
+function SeatMark({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 56 24"
-      className="mb-5 h-6 w-14 text-[var(--wiora-ink)]"
+      className={cn("mb-5 h-6 w-14 text-[var(--wiora-ink)]", className)}
       aria-hidden
     >
       <rect
@@ -113,6 +133,375 @@ export function LandingProblem() {
   );
 }
 
+function roundPx(n: number) {
+  return Math.round(n) + 0.5;
+}
+
+function pairPath(
+  wrap: DOMRect,
+  center: DOMRect,
+  left: DOMRect,
+  right: DOMRect,
+  edge: "top" | "bottom",
+) {
+  const cx = center.left + center.width / 2 - wrap.left;
+  const cEdge =
+    edge === "top" ? center.top - wrap.top : center.bottom - wrap.top;
+  const leftY = left.top + left.height / 2 - wrap.top;
+  const rightY = right.top + right.height / 2 - wrap.top;
+  const leftX = left.right - wrap.left - 1;
+  const rightX = right.left - wrap.left + 1;
+
+  return `M ${roundPx(leftX)} ${roundPx(leftY)} H ${roundPx(cx)} V ${roundPx(cEdge)} V ${roundPx(rightY)} H ${roundPx(rightX)}`;
+}
+
+function spinePairPath(wrap: DOMRect, first: DOMRect, second: DOMRect) {
+  const spineX = 11;
+  const firstY = first.top + first.height / 2 - wrap.top;
+  const secondY = second.top + second.height / 2 - wrap.top;
+  const firstX = first.left - wrap.left;
+  const secondX = second.left - wrap.left;
+
+  return `M ${roundPx(firstX)} ${roundPx(firstY)} H ${roundPx(spineX)} V ${roundPx(secondY)} H ${roundPx(secondX)}`;
+}
+
+function useNetworkPaths(
+  wrapRef: RefObject<HTMLDivElement | null>,
+  centerRef: RefObject<HTMLDivElement | null>,
+  variant: "corner" | "spine",
+) {
+  const [paths, setPaths] = useState<{ upper: string; lower: string }>({
+    upper: "",
+    lower: "",
+  });
+  const [size, setSize] = useState({ w: 0, h: 0 });
+
+  useLayoutEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+
+    const measure = () => {
+      const wrapBox = wrap.getBoundingClientRect();
+      const center = centerRef.current?.getBoundingClientRect();
+      if (!center) return;
+
+      setSize({ w: wrap.clientWidth, h: wrap.clientHeight });
+      if (wrap.clientWidth < 40) {
+        setPaths({ upper: "", lower: "" });
+        return;
+      }
+
+      const nodes = [...wrap.querySelectorAll<HTMLElement>("[data-situation-node]")];
+      nodes.sort(
+        (a, b) =>
+          Number(a.dataset.situationNode) - Number(b.dataset.situationNode),
+      );
+      if (nodes.length < 4) return;
+
+      const boxes = nodes.map((node) => node.getBoundingClientRect());
+      if (variant === "spine") {
+        setPaths({
+          upper: spinePairPath(wrapBox, boxes[0], boxes[1]),
+          lower: spinePairPath(wrapBox, boxes[2], boxes[3]),
+        });
+        return;
+      }
+
+      setPaths({
+        upper: pairPath(wrapBox, center, boxes[0], boxes[1], "top"),
+        lower: pairPath(wrapBox, center, boxes[2], boxes[3], "bottom"),
+      });
+    };
+
+    measure();
+    const raf = requestAnimationFrame(measure);
+    const ro = new ResizeObserver(measure);
+    ro.observe(wrap);
+    if (centerRef.current) ro.observe(centerRef.current);
+    wrap.querySelectorAll("[data-situation-node]").forEach((node) => {
+      ro.observe(node);
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, [variant, wrapRef, centerRef]);
+
+  return { paths, size };
+}
+
+function useTravelingDot(
+  d: string,
+  duration: number,
+  delay: number,
+  reduce: boolean | null,
+) {
+  const pathRef = useRef<SVGPathElement>(null);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+
+  useEffect(() => {
+    if (reduce || !d) {
+      setPos(null);
+      return;
+    }
+
+    let raf = 0;
+    let start: number | null = null;
+
+    const tick = (now: number) => {
+      const el = pathRef.current;
+      if (!el) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+
+      const total = el.getTotalLength();
+      if (!total) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+
+      if (start == null) start = now + delay;
+      if (now < start) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+
+      const elapsed = (now - start) % (duration * 2);
+      let t = elapsed / duration;
+      if (t > 1) t = 2 - t;
+      const eased = t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+      const point = el.getPointAtLength(eased * total);
+      setPos({ x: point.x, y: point.y });
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [d, duration, delay, reduce]);
+
+  return { pathRef, pos };
+}
+
+function ConnectorLayer({
+  width,
+  height,
+  upper,
+  lower,
+  className,
+}: {
+  width: number;
+  height: number;
+  upper: string;
+  lower: string;
+  className?: string;
+}) {
+  const reduce = useReducedMotion();
+  const upperDot = useTravelingDot(upper, 5200, 0, reduce);
+  const lowerDot = useTravelingDot(lower, 6400, 1600, reduce);
+
+  if (width === 0 || height === 0) return null;
+
+  return (
+    <svg
+      className={cn(
+        "pointer-events-none absolute inset-0 text-[var(--wiora-rule)]",
+        className,
+      )}
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      fill="none"
+      aria-hidden
+    >
+      {upper ? (
+        <path
+          ref={upperDot.pathRef}
+          d={upper}
+          stroke="currentColor"
+          strokeWidth="1"
+          strokeLinejoin="miter"
+          vectorEffect="non-scaling-stroke"
+        />
+      ) : null}
+      {lower ? (
+        <path
+          ref={lowerDot.pathRef}
+          d={lower}
+          stroke="currentColor"
+          strokeWidth="1"
+          strokeLinejoin="miter"
+          vectorEffect="non-scaling-stroke"
+        />
+      ) : null}
+      {upperDot.pos ? (
+        <rect
+          x={upperDot.pos.x - 1.5}
+          y={upperDot.pos.y - 1.5}
+          width="3"
+          height="3"
+          fill="var(--wiora-ink)"
+        />
+      ) : null}
+      {lowerDot.pos ? (
+        <rect
+          x={lowerDot.pos.x - 1.5}
+          y={lowerDot.pos.y - 1.5}
+          width="3"
+          height="3"
+          fill="var(--wiora-ink)"
+        />
+      ) : null}
+    </svg>
+  );
+}
+
+function CenterSeat() {
+  return (
+    <div className="flex flex-col items-center gap-3 bg-[var(--wiora-paper)]">
+      <Image
+        src="/logo-black.svg"
+        alt=""
+        width={36}
+        height={36}
+        className="size-9 lg:size-10"
+      />
+      <p className="landing-display text-xl leading-none lg:text-2xl">Wiora</p>
+      <p className="text-[11px] leading-none text-[var(--wiora-mute)] lg:text-xs">
+        The other seat
+      </p>
+    </div>
+  );
+}
+
+function SituationCopy({
+  item,
+  align = "start",
+}: {
+  item: (typeof situations)[number];
+  align?: "start" | "end";
+}) {
+  return (
+    <div className={cn(align === "end" && "text-right")}>
+      <p className="text-[0.95rem] font-medium md:text-base lg:text-[1.05rem]">
+        {item.title}
+      </p>
+      <p className="mt-2 max-w-[30ch] text-[13px] leading-relaxed text-[var(--wiora-mute)] md:text-sm">
+        {item.body}
+      </p>
+    </div>
+  );
+}
+
+function OpenFrame({
+  side,
+  nodeId,
+  children,
+  className,
+}: {
+  side: "left" | "right";
+  nodeId: number;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      data-situation-node={nodeId}
+      className={cn(
+        "relative bg-[var(--wiora-paper)] px-5 py-5 md:px-6 md:py-6",
+        "border-[var(--wiora-rule)]",
+        side === "left" && "border-y border-r",
+        side === "right" && "border-y border-l",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+function DesktopSituationNetwork() {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const centerRef = useRef<HTMLDivElement>(null);
+  const { paths, size } = useNetworkPaths(wrapRef, centerRef, "corner");
+
+  return (
+    <div
+      ref={wrapRef}
+      className="relative isolate hidden min-h-[29rem] overflow-visible md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:grid-rows-[1fr_auto_1fr] md:gap-x-10 lg:min-h-[36rem] lg:gap-x-14 xl:min-h-[40rem] xl:gap-x-20"
+    >
+      <div className="relative z-[1] col-start-1 row-start-1 min-w-0 self-start justify-self-start">
+        <OpenFrame side="left" nodeId={0} className="max-w-full lg:max-w-[23rem]">
+          <SituationCopy item={situations[0]} />
+        </OpenFrame>
+      </div>
+      <div className="relative z-[1] col-start-3 row-start-1 min-w-0 self-start justify-self-end">
+        <OpenFrame side="right" nodeId={1} className="max-w-full lg:max-w-[23rem]">
+          <SituationCopy item={situations[1]} align="end" />
+        </OpenFrame>
+      </div>
+      <div className="relative z-[1] col-start-2 row-start-2 flex items-center justify-center">
+        <div ref={centerRef} className="px-5 py-4 lg:px-8 lg:py-5">
+          <CenterSeat />
+        </div>
+      </div>
+      <div className="relative z-[1] col-start-1 row-start-3 min-w-0 self-end justify-self-start">
+        <OpenFrame side="left" nodeId={2} className="max-w-full lg:max-w-[23rem]">
+          <SituationCopy item={situations[2]} />
+        </OpenFrame>
+      </div>
+      <div className="relative z-[1] col-start-3 row-start-3 min-w-0 self-end justify-self-end">
+        <OpenFrame side="right" nodeId={3} className="max-w-full lg:max-w-[23rem]">
+          <SituationCopy item={situations[3]} align="end" />
+        </OpenFrame>
+      </div>
+      <ConnectorLayer
+        className="z-0 col-start-1 col-end-4 row-start-1 row-end-4"
+        width={size.w}
+        height={size.h}
+        upper={paths.upper}
+        lower={paths.lower}
+      />
+    </div>
+  );
+}
+
+function MobileSituationNetwork() {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const centerRef = useRef<HTMLDivElement>(null);
+  const { paths, size } = useNetworkPaths(wrapRef, centerRef, "spine");
+
+  return (
+    <div ref={wrapRef} className="relative isolate overflow-visible md:hidden">
+      <div ref={centerRef} className="relative z-[1] mb-10 flex justify-center">
+        <CenterSeat />
+      </div>
+      <div className="relative z-[1] flex flex-col gap-8 pl-7">
+        {situations.map((item, index) => (
+          <OpenFrame key={item.title} side="left" nodeId={index}>
+            <SituationCopy item={item} />
+          </OpenFrame>
+        ))}
+      </div>
+      <ConnectorLayer
+        width={size.w}
+        height={size.h}
+        upper={paths.upper}
+        lower={paths.lower}
+      />
+    </div>
+  );
+}
+
+function SituationNetwork() {
+  return (
+    <>
+      <DesktopSituationNetwork />
+      <MobileSituationNetwork />
+    </>
+  );
+}
+
 export function LandingSituations() {
   return (
     <section
@@ -130,24 +519,15 @@ export function LandingSituations() {
           </p>
         </Reveal>
 
-        <div className="grid sm:grid-cols-2">
-          {situations.map((item, index) => (
-            <Reveal
-              key={item.title}
-              delay={index * 0.06}
-              className={cn(
-                "bg-[var(--wiora-paper)] py-8 sm:px-8 sm:py-10",
-                index === 0 && "border-b border-[var(--wiora-rule)] sm:border-r",
-                index === 1 && "border-b border-[var(--wiora-rule)]",
-                index === 2 && "border-b border-[var(--wiora-rule)] sm:border-b-0 sm:border-r",
-              )}
-            >
-              <p className="text-base font-medium md:text-lg">{item.title}</p>
-              <p className="mt-3 max-w-[48ch] text-sm leading-relaxed text-[var(--wiora-mute)]">
-                {item.body}
-              </p>
-            </Reveal>
-          ))}
+        <SituationNetwork />
+
+        <div className="flex flex-col items-center gap-3 text-center">
+          <p className="landing-display text-[1.5rem] leading-tight md:text-[1.75rem]">
+            And a lot more.
+          </p>
+          <p className="max-w-[46rem] text-[13px] leading-relaxed text-[var(--wiora-mute)]">
+            {moreConversations.join("  ·  ")}
+          </p>
         </div>
       </div>
     </section>

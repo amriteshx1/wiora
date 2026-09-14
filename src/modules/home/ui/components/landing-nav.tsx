@@ -24,7 +24,12 @@ export function LandingNav() {
 
   return (
     <header className="sticky top-0 z-50 bg-[var(--wiora-paper)]">
-      <div className="landing-shell flex h-16 items-center justify-between border-b border-[var(--wiora-rule)]">
+      <div
+        className={cn(
+          "landing-shell flex h-16 items-center justify-between border-[var(--wiora-rule)]",
+          open ? "border-b-0 md:border-b" : "border-b",
+        )}
+      >
         <Link href="/" className="flex items-center gap-2.5">
           <Image
             src="/logo-black.svg"
@@ -72,7 +77,7 @@ export function LandingNav() {
 
       {open ? (
         <div className="bg-[var(--wiora-paper)] md:hidden">
-          <div className="landing-shell flex flex-col border-t border-[var(--wiora-rule)] py-3">
+          <div className="landing-shell flex flex-col border-b border-[var(--wiora-rule)] py-3">
             {navItems.map((item) => (
               <button
                 key={item.id}
