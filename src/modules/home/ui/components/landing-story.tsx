@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -9,7 +8,6 @@ import {
   type RefObject,
 } from "react";
 import Image from "next/image";
-import { useReducedMotion } from "framer-motion";
 import {
   BookOpenTextIcon,
   AudioLinesIcon,
@@ -230,59 +228,6 @@ function useNetworkPaths(
   return { paths, size };
 }
 
-function useTravelingDot(
-  d: string,
-  duration: number,
-  delay: number,
-  reduce: boolean | null,
-) {
-  const pathRef = useRef<SVGPathElement>(null);
-  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
-
-  useEffect(() => {
-    if (reduce || !d) {
-      setPos(null);
-      return;
-    }
-
-    let raf = 0;
-    let start: number | null = null;
-
-    const tick = (now: number) => {
-      const el = pathRef.current;
-      if (!el) {
-        raf = requestAnimationFrame(tick);
-        return;
-      }
-
-      const total = el.getTotalLength();
-      if (!total) {
-        raf = requestAnimationFrame(tick);
-        return;
-      }
-
-      if (start == null) start = now + delay;
-      if (now < start) {
-        raf = requestAnimationFrame(tick);
-        return;
-      }
-
-      const elapsed = (now - start) % (duration * 2);
-      let t = elapsed / duration;
-      if (t > 1) t = 2 - t;
-      const eased = t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
-      const point = el.getPointAtLength(eased * total);
-      setPos({ x: point.x, y: point.y });
-      raf = requestAnimationFrame(tick);
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [d, duration, delay, reduce]);
-
-  return { pathRef, pos };
-}
-
 function ConnectorLayer({
   width,
   height,
@@ -296,10 +241,6 @@ function ConnectorLayer({
   lower: string;
   className?: string;
 }) {
-  const reduce = useReducedMotion();
-  const upperDot = useTravelingDot(upper, 5200, 0, reduce);
-  const lowerDot = useTravelingDot(lower, 6400, 1600, reduce);
-
   if (width === 0 || height === 0) return null;
 
   return (
@@ -316,7 +257,6 @@ function ConnectorLayer({
     >
       {upper ? (
         <path
-          ref={upperDot.pathRef}
           d={upper}
           stroke="currentColor"
           strokeWidth="1"
@@ -326,30 +266,11 @@ function ConnectorLayer({
       ) : null}
       {lower ? (
         <path
-          ref={lowerDot.pathRef}
           d={lower}
           stroke="currentColor"
           strokeWidth="1"
           strokeLinejoin="miter"
           vectorEffect="non-scaling-stroke"
-        />
-      ) : null}
-      {upperDot.pos ? (
-        <rect
-          x={upperDot.pos.x - 1.5}
-          y={upperDot.pos.y - 1.5}
-          width="3"
-          height="3"
-          fill="var(--wiora-ink)"
-        />
-      ) : null}
-      {lowerDot.pos ? (
-        <rect
-          x={lowerDot.pos.x - 1.5}
-          y={lowerDot.pos.y - 1.5}
-          width="3"
-          height="3"
-          fill="var(--wiora-ink)"
         />
       ) : null}
     </svg>
