@@ -109,7 +109,7 @@ export function LandingWorkflow() {
                   step.reverse && "md:pl-5 lg:pl-8",
                 )}
               >
-                <p className="landing-display text-5xl text-[var(--wiora-ink)]/25 md:text-6xl">
+                <p className="landing-display text-4xl text-[var(--wiora-ink)]/25 md:text-5xl">
                   {step.n}
                 </p>
                 <p className="text-base font-medium md:text-lg lg:text-xl">
