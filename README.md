@@ -1,16 +1,17 @@
 # Wiora
 
-A next-generation AI-powered video meeting platform where intelligent agents join your calls, respond contextually, generate insights, and automate post-call summaries.
-Built with modern real-time tech and a fully serverless architecture to deliver seamless communication, automation, and collaboration.
+Wiora is a platform for practicing high-stakes professional conversations before they happen. You create an AI agent for the other seat (interviewer, investor, client, sales counterpart), join a live voice session, and leave with a summary, searchable transcript, recording, and Ask AI on that session.
+
+Built with modern real-time tech and a fully serverless architecture.
 
 ---
 
 ## ✨ Features
 
-- 🧠 **AI Agents in Live Calls** – Custom AI assistants join meetings, answer context-aware questions, and actively participate in discussions. 
-- 🎙️ **Real-Time Voice Intelligence** – Speech → understanding → response pipelines powered by Stream Video/Chat + OpenAI Realtime.
-- 📝 **Post-Call Insights** – Auto-generated transcripts, summaries, action items, and structured insights via Inngest workflows. 
-- 🪄 **Smart Dashboards** – View meeting history, insights, agent responses, and analytics. 
+- 🧠 **Custom AI Agents** – Give an agent a name and instructions so it stays in role for the conversation you need to rehearse.
+- 🎙️ **Real-Time Voice Practice** – Speak in a live session. Speech → understanding → response pipelines powered by Stream Video/Chat + OpenAI Realtime.
+- 📝 **Post-Session Insights** – Auto-generated transcripts, summaries, and structured notes via Inngest workflows, plus recording playback and Ask AI.
+- 🪄 **Session Dashboard** – View session history, summaries, transcripts, and agent context in one place.
 - 🔐 **Authentication & Billing** – Secure login with BetterAuth and Subscription management powered by Polar. 
 - 👀 **Serverless + Scalable Backend** – Neon (Postgres) + Drizzle ORM and tRPC API for end-to-end type-safety.
 - 🎨 **Modern UI/UX** – Next.js + React + TailwindCSS + shadcn/ui + smooth animations with Motion.
@@ -134,11 +135,10 @@ http://localhost:3000
 ## 🚀 Usage
 
 - Sign up using OAuth or email.
-- Create custom AI agent.
-- Create or join a video meeting.
-- Invite an AI agent into your call for contextual Q&A.
-- Get live assistance, suggestions, and responses.
-- After the meeting, view summaries, transcripts, and structured insights on your dashboard.
+- Create a custom AI agent for the role you need to practice against.
+- Start a session, select that agent, and join from the lobby.
+- Speak with the agent in real time.
+- After the session, review the summary, searchable transcript, recording, and Ask AI.
 - Manage billing & subscriptions via Polar.
 
 ---
