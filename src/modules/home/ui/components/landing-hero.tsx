@@ -74,8 +74,8 @@ export function LandingHero() {
         <div className="relative isolate hidden h-[480px] overflow-visible md:block lg:h-[520px]">
           <motion.div
             className="absolute left-[3%] top-[4%] z-10 w-[min(78%,308px)] origin-center"
-            initial={reduce ? false : { rotate: 0, opacity: 0 }}
-            animate={{ rotate: -6, opacity: 1 }}
+            initial={reduce ? false : { rotate: 0 }}
+            animate={{ rotate: -6 }}
             transition={{ duration: 1, ease: "easeInOut" }}
           >
             <ProductFrame path="wiora / agents / new">
@@ -84,8 +84,8 @@ export function LandingHero() {
           </motion.div>
           <motion.div
             className="absolute bottom-[6%] right-[3%] z-20 w-[min(84%,336px)] origin-center"
-            initial={reduce ? false : { rotate: 0, opacity: 0 }}
-            animate={{ rotate: 6, opacity: 1 }}
+            initial={reduce ? false : { rotate: 0 }}
+            animate={{ rotate: 6 }}
             transition={{ duration: 1, ease: "easeInOut", delay: 0.08 }}
           >
             <ProductFrame path="wiora / meetings / new">
