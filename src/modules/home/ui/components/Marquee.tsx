@@ -1,65 +1,77 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import { useReducedMotion } from "framer-motion";
 import Marquee from "react-fast-marquee";
-import { BotIcon } from "lucide-react";
-import { DramaIcon } from "lucide-react";
-import { ZapIcon } from "lucide-react";
-import { HeadsetIcon } from "lucide-react";
-import { TabletSmartphoneIcon } from "lucide-react";
-import { FlameKindlingIcon } from "lucide-react";
-import { BookOpenTextIcon } from "lucide-react";
-import { FileTextIcon } from "lucide-react";
-import { FileVideoIcon } from "lucide-react";
-import { SparklesIcon } from "lucide-react";
 
-const FeatureMarquee = () => {
-  const [gradientWidth, setGradientWidth] = useState(80);
+const forward = [
+  "Job interviews",
+  "Investor pitches",
+  "Client conversations",
+  "Sales calls",
+  "Negotiations",
+  "Presentations",
+];
 
-  useEffect(() => {
-    const updateGradientWidth = () => {
-      const width = window.innerWidth;
+const reverse = [
+  "Board updates",
+  "Performance reviews",
+  "Discovery calls",
+  "Salary conversations",
+  "Partnership talks",
+  "Stakeholder reviews",
+];
 
-      if (width < 768) {
-        setGradientWidth(25);
-      } else if (width < 1024) {
-        setGradientWidth(50);
-      } else {
-        setGradientWidth(80);
-      }
-    };
-
-    updateGradientWidth();
-    window.addEventListener("resize", updateGradientWidth);
-
-    return () => {
-      window.removeEventListener("resize", updateGradientWidth);
-    };
-  }, []);
-
+function Band({
+  items,
+  direction,
+}: {
+  items: string[];
+  direction: "left" | "right";
+}) {
   return (
-    <div className="relative lg:mx-[5vh] md:mx-[3vh] mx-[1vh] lg:p-2 p-1">
-
-      <Marquee
-        gradient={true}
-        gradientColor= "white"
-        gradientWidth={gradientWidth}
-        speed={40}
-        pauseOnHover={true}
-      >
-        <div className="flex lg:text-lg md:text-base text-sm lg:gap-8 md:gap-6 gap-4 hover:cursor-default lg:mr-8 md:mr-6 mr-4 font-light">
-          <div className="flex items-center md:gap-2 gap-1"><BotIcon strokeWidth={0.8} />Live AI Agents</div>
-          <div className="flex items-center md:gap-2 gap-1"><DramaIcon strokeWidth={0.8} />Custom Roles</div>
-          <div className="flex items-center md:gap-2 gap-1"><ZapIcon strokeWidth={0.8} />Instant Meetings</div>
-          <div className="flex items-center md:gap-2 gap-1"><HeadsetIcon strokeWidth={0.8} />Crystal-Clear Calls</div>
-          <div className="flex items-center md:gap-2 gap-1"><BookOpenTextIcon strokeWidth={0.8} />Instant Summaries</div>
-          <div className="flex items-center md:gap-2 gap-1"><FileTextIcon strokeWidth={0.8} />Searchable Transcripts</div>
-          <div className="flex items-center md:gap-2 gap-1"><FileVideoIcon strokeWidth={0.8} />Meeting Replays</div>
-          <div className="flex items-center md:gap-2 gap-1"><SparklesIcon strokeWidth={0.8} />Chat With AI</div>
-          <div className="flex items-center md:gap-2 gap-1"><TabletSmartphoneIcon strokeWidth={0.8} />Mobile-Ready</div>
-          <div className="flex items-center md:gap-2 gap-1"><FlameKindlingIcon strokeWidth={0.8} />Sleek Modern UI</div>
-        </div>
-      </Marquee>
+    <div className="flex gap-10 whitespace-nowrap pr-10 text-sm font-light text-[var(--wiora-mute)] md:gap-14 md:text-base lg:gap-16">
+      {items.map((label) => (
+        <span key={`${direction}-${label}`}>{label}</span>
+      ))}
     </div>
   );
-};
+}
 
-export default FeatureMarquee;
+function Track({
+  items,
+  direction,
+  reduce,
+}: {
+  items: string[];
+  direction: "left" | "right";
+  reduce: boolean | null;
+}) {
+  if (reduce) return <Band items={items} direction={direction} />;
+
+  return (
+    <Marquee gradient={false} speed={26} pauseOnHover direction={direction}>
+      <Band items={items} direction={direction} />
+    </Marquee>
+  );
+}
+
+export default function FeatureMarquee() {
+  const reduce = useReducedMotion();
+
+  return (
+    <div>
+      <div className="landing-shell border-b border-[var(--wiora-rule)] py-10 md:py-12">
+        <div className="relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+          <div className="relative h-[268px] md:h-[300px]">
+            <div className="absolute top-1/2 left-0 w-full origin-center -translate-y-1/2 -rotate-[8deg] border-y border-[var(--wiora-rule)] bg-white py-2.5">
+              <Track items={forward} direction="left" reduce={reduce} />
+            </div>
+            <div className="absolute top-1/2 left-0 w-full origin-center -translate-y-1/2 rotate-[8deg] border-y border-[var(--wiora-rule)] bg-white py-2.5">
+              <Track items={reverse} direction="right" reduce={reduce} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
