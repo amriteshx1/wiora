@@ -444,7 +444,7 @@ export function LandingSituations() {
 
         <div className="flex flex-col items-center gap-3 text-center">
           <p className="landing-display text-[1.5rem] leading-tight md:text-[1.75rem]">
-            And a lot more.
+            and a lot more.
           </p>
           <p className="max-w-[46rem] text-[13px] leading-relaxed text-[var(--wiora-mute)]">
             {moreConversations.join("  ·  ")}
