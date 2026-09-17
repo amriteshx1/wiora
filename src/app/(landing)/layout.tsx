@@ -1,12 +1,11 @@
-import { IBM_Plex_Serif } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import type { Metadata } from "next";
 
 import "@/modules/home/ui/styles/landing.css";
 
-const plexSerif = IBM_Plex_Serif({
+const display = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
+  weight: ["500", "600", "700"],
   variable: "--font-landing-display",
   display: "swap",
 });
@@ -22,5 +21,5 @@ export default function LandingLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className={`${plexSerif.variable} landing-root`}>{children}</div>;
+  return <div className={`${display.variable} landing-root`}>{children}</div>;
 }
