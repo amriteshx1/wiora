@@ -13,7 +13,7 @@ const display = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Wiora",
   description:
-    "Practice the conversations that matter. An AI agent takes the other seat for a live voice session, then you review the record before the one that counts.",
+    "Meet the other side before it matters. Wiora is AI counterparts for live conversations: a real-time voice session, then the recording, transcript, summary, and Ask AI.",
 };
 
 export default function LandingLayout({
