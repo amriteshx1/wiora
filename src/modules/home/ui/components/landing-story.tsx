@@ -21,11 +21,11 @@ import { cn } from "@/lib/utils";
 const situations = [
   {
     title: "Job interviews",
-    body: "First rounds, follow-ups, and the question you only hear once you start talking.",
+    body: "A counterpart who can leave the outline, including the question that only shows up once you are talking.",
   },
   {
     title: "Investor pitches",
-    body: "Tell the story out loud, then sit with the pushback before you are in the room.",
+    body: "Tell the story out loud, then sit with the pushback in the same session.",
   },
   {
     title: "Client and sales calls",
@@ -33,7 +33,7 @@ const situations = [
   },
   {
     title: "Negotiations and reviews",
-    body: "Give the agent a counterpart. Hear how your answers land while it is still practice.",
+    body: "A counterpart in the other seat, and a conversation that can turn while you are still in it.",
   },
 ];
 
@@ -56,17 +56,17 @@ const leftovers = [
   {
     title: "Transcript",
     icon: SearchIcon,
-    body: "Search the moment you stalled, hedged, or answered cleanly.",
+    body: "Search what was said, line by line.",
   },
   {
     title: "Recording",
     icon: AudioLinesIcon,
-    body: "Play the session back and hear yourself in the conversation.",
+    body: "Play the session back and hear the exchange.",
   },
   {
     title: "Ask AI",
     icon: SparklesIcon,
-    body: "Chat about that session. It already has the transcript.",
+    body: "Ask about this session. Replies use the summary and the chat that follows.",
   },
 ];
 
@@ -119,11 +119,10 @@ export function LandingProblem() {
         <Reveal delay={0.08} className="lg:border-l lg:border-[var(--wiora-rule)] lg:pl-14">
           <SeatMark />
           <p className="max-w-[62ch] text-sm leading-relaxed text-[var(--wiora-mute)] md:text-[1.05rem] md:leading-[1.65]">
-            The other person will not stay on your list. Questions, pressure, and
-            follow-ups arrive while you are still speaking. Notes cannot simulate
-            that. Wiora puts an agent in the other seat for a live voice session,
-            so you practice the conversation itself, then end the call when you
-            are done.
+            The other person will not stay on your list. Questions and
+            follow-ups arrive while you are still speaking. Notes cannot do
+            that. Wiora puts a counterpart in the other seat for a live voice
+            session, and keeps the meeting when you hang up.
           </p>
         </Reveal>
       </div>
@@ -435,8 +434,8 @@ export function LandingSituations() {
             Whatever the conversation, the other seat is ready.
           </h2>
           <p className="mt-4 max-w-[58ch] text-sm leading-relaxed text-[var(--wiora-mute)] md:text-base">
-            Interviews, pitches, client calls, negotiations. You choose the role.
-            The session is the same: speak, respond, review.
+            Interviews, pitches, client calls, negotiations. You choose who sits
+            across from you. The session is the same: speak, respond, keep it.
           </p>
         </Reveal>
 
@@ -466,7 +465,7 @@ export function LandingAfter() {
           <p className="mt-4 max-w-[58ch] text-sm leading-relaxed text-[var(--wiora-mute)] md:text-base">
             When you hang up, Wiora keeps a summary, a searchable transcript, the
             recording, and Ask AI on that session. The next day, a short follow-up
-            arrives by email. Run it again if you want another pass.
+            arrives by email. Open another session whenever you want another pass.
           </p>
         </Reveal>
 
