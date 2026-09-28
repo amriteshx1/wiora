@@ -14,7 +14,7 @@ export const NewAgentDialog = ({
     return(
         <ResponsiveDialog
          title="New Agent"
-         description="Create a new agent"
+         description="Name a counterpart and write the role they hold in the session."
          open={open}
          onOpenChange={onOpenChange}
         >
