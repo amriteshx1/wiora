@@ -15,7 +15,7 @@ import {
 
 const navItems = [
   { label: "About", id: "about", visibility: "md:block hidden" },
-  { label: "Practice", id: "features", visibility: "md:block hidden" },
+  { label: "Sessions", id: "features", visibility: "md:block hidden" },
   { label: "How it works", id: "workflow", visibility: "lg:block hidden" },
 ] as const;
 
