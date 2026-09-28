@@ -1,20 +1,30 @@
 # Wiora
 
-Wiora is a platform for practicing high-stakes professional conversations before they happen. You create an AI agent for the other seat (interviewer, investor, client, sales counterpart), join a live voice session, and leave with a summary, searchable transcript, recording, and Ask AI on that session.
+**AI counterparts for live conversations.**
 
-Built with modern real-time tech and a fully serverless architecture.
+Meet the other side before it matters. You define who sits across from you, meet them in a real-time voice session, and keep that meeting: recording, transcript, summary, and Ask AI.
+
+A counterpart is an agent with a name and instructions — interviewer, investor, client, or anyone else you can describe. The same session shape covers pitches, client conversations, sales, negotiations, and interviews. None of those is the product category.
+
+The product is three steps, already wired:
+
+1. **Define the counterpart.** Name them and write the role.
+2. **Enter the conversation.** Join a live voice session. OpenAI Realtime speaks as that counterpart on the Stream call.
+3. **Keep the conversation.** Transcript, recording, and a generated summary stay on the meeting. Ask AI answers from that summary and the chat you continue there. A follow-up email goes out the next day.
+
+This is not a custom-trained model, an autonomous agent workforce, or a guarantee of any outcome. It is a role-defined voice counterpart and a session you can reopen.
 
 ---
 
 ## ✨ Features
 
-- 🧠 **Custom AI Agents** – Give an agent a name and instructions so it stays in role for the conversation you need to rehearse.
-- 🎙️ **Real-Time Voice Practice** – Speak in a live session. Speech → understanding → response pipelines powered by Stream Video/Chat + OpenAI Realtime.
-- 📝 **Post-Session Insights** – Auto-generated transcripts, summaries, and structured notes via Inngest workflows, plus recording playback and Ask AI.
-- 🪄 **Session Dashboard** – View session history, summaries, transcripts, and agent context in one place.
-- 🔐 **Authentication & Billing** – Secure login with BetterAuth and Subscription management powered by Polar. 
-- 👀 **Serverless + Scalable Backend** – Neon (Postgres) + Drizzle ORM and tRPC API for end-to-end type-safety.
-- 🎨 **Modern UI/UX** – Next.js + React + TailwindCSS + shadcn/ui + smooth animations with Motion.
+- 🧠 **Role-defined counterparts** – A name and instructions. Those instructions are the prompt for the live session.
+- 🎙️ **Real-time voice** – You speak on a Stream call. OpenAI Realtime listens and answers in that role, including turns you did not script.
+- 📝 **A kept session** – Searchable transcript, recording, and a summary written after the call by a background job. Ask AI continues on that meeting from the summary and recent chat, not from an unlimited transcript dump.
+- 🪄 **Session history** – Meetings, summaries, transcripts, and the counterpart that was in the room.
+- 🔐 **Authentication & billing** – Better Auth, with subscriptions on Polar.
+- 👀 **Serverless backend** – Neon (Postgres), Drizzle, and tRPC.
+- 🎨 **App UI** – Next.js, React, Tailwind CSS, and the existing component set.
 
 ---
 
@@ -52,12 +62,12 @@ Built with modern real-time tech and a fully serverless architecture.
 
 ```bash
 wiora/
-│── app/                 # Next.js routes & UI
-│── server/              # tRPC routers, services, auth, workflows
-│── db/                  # Drizzle schema & migrations
-│── components/          # Reusable UI components
-│── hooks/               # Client-side hooks
-│── lib/                 # Utils, server configs
+│── src/app/             # Next.js routes, landing, dashboard, call, webhooks
+│── src/modules/         # Agents, meetings, call, home, auth, billing UI
+│── src/db/              # Drizzle schema
+│── src/inngest/         # Post-session summary and follow-up jobs
+│── src/components/      # Shared UI
+│── src/lib/             # Stream, auth, and server config
 │── public/              # Assets
 ```
 
@@ -134,21 +144,23 @@ http://localhost:3000
 
 ## 🚀 Usage
 
-- Sign up using OAuth or email.
-- Create a custom AI agent for the role you need to practice against.
-- Start a session, select that agent, and join from the lobby.
-- Speak with the agent in real time.
-- After the session, review the summary, searchable transcript, recording, and Ask AI.
-- Manage billing & subscriptions via Polar.
+- Sign up with OAuth or email.
+- Create a counterpart: a name and the instructions for their role.
+- Start a meeting, select that counterpart, and join from the lobby.
+- Speak with them in real time.
+- After the session, open the summary, searchable transcript, recording, and Ask AI.
+- Manage billing and subscriptions in Polar.
 
 ---
 
 ## 🔮 Future Enhancements
 
-- Multi-agent collaborative meeting rooms
-- Advanced analytics & similarity-based call retrieval
-- AI-powered topic timelines & highlight reels
-- Team spaces & shared meeting history
+Not built. Listed so the current product is not confused with them.
+
+- More than one counterpart in the same session
+- Search across past sessions
+- Timelines and highlight reels from a transcript
+- Shared session history for a team
 
 ---
 
