@@ -124,7 +124,7 @@ export const MeetingForm = ({
                     <FormItem>
                         <FormLabel>Name</FormLabel>
                         <FormControl>
-                            <Input {...field} placeholder="e.g. Math Consultations"/>
+                            <Input {...field} placeholder="e.g. Seed conversation"/>
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -155,7 +155,7 @@ export const MeetingForm = ({
                               onSelect={field.onChange}
                               onSearch={setAgentSearch}
                               value={field.value}
-                              placeholder="Select an agent"
+                              placeholder="Select a counterpart"
                             />
                         </FormControl>
                         <FormDescription>
@@ -165,7 +165,7 @@ export const MeetingForm = ({
                               className="text-primary hover:underline"
                               onClick={() => setOpenNewAgentDialog(true)}
                             >
-                                Create a new agent
+                                Create a new counterpart
                             </button>
                         </FormDescription>
                         <FormMessage />
