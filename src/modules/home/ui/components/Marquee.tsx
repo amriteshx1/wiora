@@ -4,11 +4,11 @@ import { useReducedMotion } from "framer-motion";
 import Marquee from "react-fast-marquee";
 
 const forward = [
-  "Job interviews",
   "Investor pitches",
   "Client conversations",
   "Sales calls",
   "Negotiations",
+  "Job interviews",
   "Presentations",
 ];
 
