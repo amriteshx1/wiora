@@ -8,7 +8,7 @@ const columns = [
     title: "Product",
     links: [
       { label: "About", id: "about" },
-      { label: "Practice", id: "features" },
+      { label: "Sessions", id: "features" },
       { label: "How it works", id: "workflow" },
     ],
   },
@@ -45,9 +45,8 @@ export function LandingFooter() {
             <span className="landing-display text-xl leading-none">Wiora</span>
           </div>
           <p className="mt-4 text-sm leading-relaxed text-[var(--wiora-mute)]">
-            Practice the conversation itself. An AI agent takes the other seat
-            so you can rehearse out loud, then review the session before the
-            real one.
+            AI counterparts for live conversations. Define who sits across
+            from you, meet them in real time, and keep the session.
           </p>
         </div>
 
