@@ -14,32 +14,32 @@ import { cn } from "@/lib/utils";
 const steps = [
   {
     n: "1",
-    title: "Create Your AI Agent",
-    body: "Name the person across the table and write their instructions. Interviewer, investor, client, sales counterpart: the agent stays in that role.",
+    title: "Define the counterpart",
+    body: "Name who sits across from you and write their instructions. Interviewer, investor, client, or sales counterpart: the live session follows that role.",
     path: "wiora / agents / new",
     reverse: false,
     demo: "agent" as const,
   },
   {
     n: "2",
-    title: "Schedule a Meeting",
-    body: "Name the session, pick the agent, and enter the lobby when you are ready to practice out loud.",
+    title: "Open the session",
+    body: "Name the meeting, choose the counterpart, and enter the lobby when you are ready to speak.",
     path: "wiora / meetings / new",
     reverse: true,
     demo: "meeting" as const,
   },
   {
     n: "3",
-    title: "Join and Interact",
-    body: "Speak. The agent listens, stays in role, and answers as the conversation turns, including follow-ups you did not write down.",
+    title: "Speak, live",
+    body: "You speak. The counterpart listens and answers in real time, including turns you did not write down.",
     path: "wiora / meetings / live",
     reverse: false,
     demo: "call" as const,
   },
   {
     n: "4",
-    title: "Get Post-Call Intelligence",
-    body: "A summary, searchable transcript, recording, and Ask AI are written when the session ends. Nothing extra to set up.",
+    title: "Keep the session",
+    body: "A summary, searchable transcript, recording, and Ask AI stay on that meeting when it ends. Nothing extra to set up.",
     path: "wiora / meetings / recap",
     reverse: true,
     demo: "postcall" as const,
@@ -67,9 +67,9 @@ export function LandingWorkflow() {
             Set the role. Then speak.
           </h2>
           <p className="mt-4 max-w-[58ch] text-sm leading-relaxed text-[var(--wiora-mute)] md:text-base">
-            Create the agent who sits across from you, start a session, and
-            answer as the conversation moves. When it ends, you have a record to
-            study before the one that counts.
+            Create the counterpart, join a live voice session, and speak as the
+            conversation moves. When it ends, the recording, transcript, summary,
+            and Ask AI stay with that meeting.
           </p>
         </Reveal>
 
