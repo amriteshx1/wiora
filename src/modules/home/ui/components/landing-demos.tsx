@@ -22,9 +22,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-const AGENT_NAME = "Hiring manager";
+const AGENT_NAME = "Seed investor";
 const AGENT_INSTRUCTIONS =
-  "You are a hiring manager running a first-round product interview. Ask follow-up questions, press on vague answers, and keep the conversation moving.";
+  "You are a skeptical investor in a first meeting. Press on the market, the numbers, and anything left vague. Keep the conversation moving.";
 
 function useTypedValue(text: string, active: boolean, speed = 36) {
   const [value, setValue] = useState("");
@@ -89,7 +89,7 @@ export function DemoAgentForm({
           Agent Name
         </Label>
         <Input
-          placeholder="e.g. Hiring manager"
+          placeholder="e.g. Seed investor"
           className={cn(
             compact && "h-6 text-xs placeholder:text-xs",
             framed && "h-7 placeholder:text-xs !text-xs md:!text-xs",
@@ -152,7 +152,7 @@ export function DemoMeetingForm({
           Meeting Name
         </Label>
         <Input
-          placeholder="e.g. Interview practice"
+          placeholder="e.g. Seed conversation"
           className={cn(
             compact && "h-6 text-xs placeholder:text-xs",
             framed && "h-7 placeholder:text-xs !text-xs md:!text-xs",
@@ -175,7 +175,7 @@ export function DemoMeetingForm({
                     variant="botttsNeutral"
                     className={cn("border", framed ? "size-4" : "size-5")}
                   />
-                  Hiring manager
+                  Seed investor
                 </span>
               ),
             },
@@ -183,7 +183,7 @@ export function DemoMeetingForm({
           value="demo-agent"
           onSelect={() => {}}
           onSearch={() => {}}
-          placeholder="Select an agent"
+          placeholder="Select a counterpart"
           className={cn(
             "pointer-events-none",
             framed && "h-7 px-2 text-xs [&_svg]:size-3.5",
@@ -198,7 +198,7 @@ export function DemoMeetingForm({
         >
           Not found what you&apos;re looking for?{" "}
           <button type="button" className="text-primary hover:underline">
-            Create a new agent
+            Create a new counterpart
           </button>
         </p>
       </div>
@@ -226,7 +226,7 @@ export function DemoCall({ live = false }: { live?: boolean }) {
     <div className="flex flex-col items-center space-y-3">
       {live ? (
         <div className="flex w-full items-center justify-between text-[11px] text-[var(--wiora-mute)]">
-          <span>Interview practice</span>
+          <span>Seed conversation</span>
           <span className="inline-flex items-center gap-1.5">
             <span className="size-1.5 rounded-full bg-black" />
             Live
@@ -239,7 +239,7 @@ export function DemoCall({ live = false }: { live?: boolean }) {
           strokeWidth={1}
           className="rounded-full border border-neutral-800 p-1"
         />
-        <p className="text-xs font-light">Hiring Manager Agent</p>
+        <p className="text-xs font-light">Seed investor</p>
       </div>
       <div className="flex items-center justify-center border border-neutral-200">
         <div className="flex h-14 w-[10vh] min-w-[88px] flex-col items-center justify-center gap-0 border border-neutral-300">
