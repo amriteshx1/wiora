@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 const plans = [
   {
     name: "Monthly",
-    blurb: "For people preparing on their own",
+    blurb: "For live sessions on your own",
     price: "12$",
     suffix: "/month",
     featured: false,
@@ -60,8 +60,7 @@ export function LandingPricing() {
         <Reveal className="mx-auto max-w-[36rem] text-center">
           <h2 className="landing-section-title">Plans</h2>
           <p className="mt-4 text-sm leading-relaxed text-[var(--wiora-mute)] md:text-base">
-            Unlimited agents and meetings. More minutes in session, and a record
-            after every call.
+            More time in live sessions, and a kept record after every call.
           </p>
         </Reveal>
 
