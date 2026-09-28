@@ -6,7 +6,7 @@ export const ProcessingState = () => {
             <EmptyState 
               image="/processing.svg"
               title="Meeting completed"
-              description="This meeting was completed, a summary will appear soon"
+              description="This session has ended. A summary will appear soon"
             />
         </div>
     )
