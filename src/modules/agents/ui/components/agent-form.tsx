@@ -114,7 +114,7 @@ export const AgentForm = ({
                     <FormItem>
                         <FormLabel>Name</FormLabel>
                         <FormControl>
-                            <Input {...field} placeholder="e.g. Math tutor"/>
+                            <Input {...field} placeholder="e.g. Seed investor"/>
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -129,7 +129,7 @@ export const AgentForm = ({
                         <FormControl>
                             <Textarea 
                               {...field} 
-                              placeholder="You are a helpful math assistant that can answer questions and help with assignments."
+                              placeholder="You are a skeptical investor in a first meeting. Press on the market, the numbers, and anything left vague."
                             />
                         </FormControl>
                         <FormMessage />
