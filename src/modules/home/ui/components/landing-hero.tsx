@@ -29,11 +29,11 @@ export function LandingHero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
-            <span>Interviews</span>
-            <span className="hidden h-3 w-px bg-[var(--wiora-rule)] sm:block" />
             <span>Pitches</span>
             <span className="hidden h-3 w-px bg-[var(--wiora-rule)] sm:block" />
             <span>Client conversations</span>
+            <span className="hidden h-3 w-px bg-[var(--wiora-rule)] sm:block" />
+            <span>Interviews</span>
           </motion.div>
           <motion.h1
             className="landing-hero-title max-w-[13ch]"
@@ -41,7 +41,7 @@ export function LandingHero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
           >
-            Practice the conversations that matter.
+            Meet the other side before it matters.
           </motion.h1>
           <motion.p
             className="max-w-[52ch] text-base leading-relaxed text-[var(--wiora-mute)] md:text-lg"
@@ -49,8 +49,8 @@ export function LandingHero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
           >
-            An AI agent takes the other seat. You answer out loud, in real time,
-            then review the session before the conversation that counts.
+            Explore high-stakes conversations, test your ideas, and discover
+            new perspectives with an AI counterpart that meets you in real time.
           </motion.p>
           <motion.div
             className="flex flex-wrap gap-2.5"
@@ -59,7 +59,7 @@ export function LandingHero() {
             transition={{ duration: 0.55, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
           >
             <Button asChild className={cn(landingPrimaryBtn, "h-10 text-xs md:text-sm lg:h-11 lg:text-base")}>
-              <Link href="/sign-up">Start practicing</Link>
+              <Link href="/sign-up">Start a session</Link>
             </Button>
             <Button
               type="button"
