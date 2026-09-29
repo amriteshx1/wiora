@@ -23,10 +23,10 @@ const heroDots =
   "[&>div>span:first-child>span:nth-child(2)]:bg-[#9a9a96] [&>div>span:first-child>span:nth-child(3)]:bg-[#3a3a3a]";
 
 const cardMotion = {
-  duration: 0.8,
+  duration: 1.1,
   ease,
-  zIndex: { delay: 0.4, duration: 0 },
-  boxShadow: { duration: 0.8, ease },
+  zIndex: { delay: 0.55, duration: 0 },
+  boxShadow: { duration: 1.1, ease },
 };
 
 const backCard = {
