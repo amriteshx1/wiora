@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -16,8 +17,47 @@ import {
   scrollToId,
 } from "@/modules/home/ui/components/landing-ui";
 
+const ease = [0.22, 1, 0.36, 1] as const;
+
+const heroDots =
+  "[&>div>span:first-child>span:nth-child(2)]:bg-[#9a9a96] [&>div>span:first-child>span:nth-child(3)]:bg-[#3a3a3a]";
+
+const cardMotion = {
+  duration: 0.8,
+  ease,
+  zIndex: { delay: 0.4, duration: 0 },
+  boxShadow: { duration: 0.8, ease },
+};
+
+const backCard = {
+  top: "2%",
+  left: "0%",
+  width: "100%",
+  scale: 0.975,
+  zIndex: 10,
+  boxShadow: "0 18px 44px -30px rgba(20,20,20,0.22)",
+};
+
+const frontCard = {
+  top: "34%",
+  left: "14%",
+  width: "86%",
+  scale: 1,
+  zIndex: 20,
+  boxShadow: "0 24px 50px -26px rgba(20,20,20,0.34)",
+};
+
 export function LandingHero() {
   const reduce = useReducedMotion();
+  const [lead, setLead] = useState<"meeting" | "agent">("meeting");
+
+  useEffect(() => {
+    if (reduce) return;
+    const id = window.setInterval(() => {
+      setLead((current) => (current === "meeting" ? "agent" : "meeting"));
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [reduce]);
 
   return (
     <section id="about" className="scroll-mt-24">
@@ -71,27 +111,54 @@ export function LandingHero() {
           </motion.div>
         </div>
 
-        <div className="relative isolate hidden h-[480px] overflow-visible md:block lg:h-[520px]">
+        <div className="relative isolate hidden h-[480px] min-w-0 overflow-hidden md:block lg:h-[540px]">
           <motion.div
-            className="absolute left-[3%] top-[4%] z-10 w-[min(78%,308px)] origin-center"
-            initial={reduce ? false : { rotate: 0 }}
-            animate={{ rotate: -6 }}
-            transition={{ duration: 1, ease: "easeInOut" }}
+            className="absolute"
+            style={{ transformOrigin: "left top" }}
+            initial={false}
+            animate={!reduce && lead === "agent" ? frontCard : backCard}
+            transition={cardMotion}
           >
-            <ProductFrame path="wiora / agents / new">
+            <ProductFrame
+              path="wiora / agents / new"
+              className={cn(
+                "shadow-none [&_form>div:last-child>button:last-child]:pointer-events-none [&_form>div:last-child>button:last-child]:opacity-0 [&_form>div:last-child>button:last-child]:[anchor-name:--hero-create-agent]",
+                heroDots,
+              )}
+            >
               <DemoAgentForm compact />
             </ProductFrame>
           </motion.div>
           <motion.div
-            className="absolute bottom-[6%] right-[3%] z-20 w-[min(84%,336px)] origin-center"
-            initial={reduce ? false : { rotate: 0 }}
-            animate={{ rotate: 6 }}
-            transition={{ duration: 1, ease: "easeInOut", delay: 0.08 }}
+            className="absolute"
+            style={{ transformOrigin: "left top" }}
+            initial={false}
+            animate={reduce || lead === "meeting" ? frontCard : backCard}
+            transition={cardMotion}
           >
-            <ProductFrame path="wiora / meetings / new">
+            <ProductFrame
+              path="wiora / meetings / new"
+              className={cn(
+                "shadow-none [&_form>div:last-child>button:last-child]:pointer-events-none [&_form>div:last-child>button:last-child]:opacity-0 [&_form>div:last-child>button:last-child]:[anchor-name:--hero-create-meeting]",
+                heroDots,
+              )}
+            >
               <DemoMeetingForm compact />
             </ProductFrame>
           </motion.div>
+          <div className="pointer-events-none absolute inset-0 z-30 bg-[linear-gradient(to_right,transparent_68%,var(--wiora-paper)_100%)]" />
+          <div
+            className={cn(
+              "absolute z-40 [top:anchor(top)] [left:anchor(left)]",
+              lead === "meeting"
+                ? "[position-anchor:--hero-create-meeting]"
+                : "[position-anchor:--hero-create-agent]",
+            )}
+          >
+            <Button type="button" className="h-6 px-2 text-xs">
+              Create
+            </Button>
+          </div>
         </div>
 
         <div className="md:hidden">
