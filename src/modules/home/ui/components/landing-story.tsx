@@ -146,10 +146,11 @@ function pairPath(
     edge === "top" ? center.top - wrap.top : center.bottom - wrap.top;
   const leftY = left.top + left.height / 2 - wrap.top;
   const rightY = right.top + right.height / 2 - wrap.top;
+  const railY = roundPx((leftY + rightY) / 2);
   const leftX = left.right - wrap.left - 1;
   const rightX = right.left - wrap.left + 1;
 
-  return `M ${roundPx(leftX)} ${roundPx(leftY)} H ${roundPx(cx)} V ${roundPx(cEdge)} V ${roundPx(rightY)} H ${roundPx(rightX)}`;
+  return `M ${roundPx(leftX)} ${railY} H ${roundPx(rightX)} M ${roundPx(cx)} ${railY} V ${roundPx(cEdge)}`;
 }
 
 function spinePairPath(wrap: DOMRect, first: DOMRect, second: DOMRect) {
