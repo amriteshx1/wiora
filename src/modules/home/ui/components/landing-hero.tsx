@@ -53,10 +53,18 @@ export function LandingHero() {
 
   useEffect(() => {
     if (reduce) return;
-    const id = window.setInterval(() => {
+    const swap = () => {
       setLead((current) => (current === "meeting" ? "agent" : "meeting"));
-    }, 5000);
-    return () => window.clearInterval(id);
+    };
+    let intervalId = 0;
+    const first = window.setTimeout(() => {
+      swap();
+      intervalId = window.setInterval(swap, 5000);
+    }, 60);
+    return () => {
+      window.clearTimeout(first);
+      window.clearInterval(intervalId);
+    };
   }, [reduce]);
 
   return (
