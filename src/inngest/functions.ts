@@ -163,7 +163,7 @@ export const meetingTimeoutEnd = inngest.createFunction(
   async ({ event, step }) => {
     const { meetingId } = event.data;
 
-    await step.sleep("wait-for-timeout", "30s");
+    await step.sleep("wait-for-timeout", "45s");
     
     const [existingMeeting] = await step.run("check-meeting-status", async() => {
         return db.select().from(meetings).where(eq(meetings.id, meetingId));
