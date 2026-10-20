@@ -48,7 +48,7 @@ const faqs = [
   },
   {
     q: "Can I try Wiora before choosing a paid plan?",
-    a: "Yes. The free plan includes 3 agents and 1 meeting. Paid plans add more minutes, processing, and workspace options.",
+    a: "Yes. The free plan includes 3 agents and 3 meetings. Paid plans add more minutes, processing, and workspace options.",
   },
 ];
 
