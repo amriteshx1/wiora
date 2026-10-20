@@ -1,6 +1,6 @@
 import JSONL from "jsonl-parse-stringify";
 
-import { createAgent, openai, TextMessage } from "@inngest/agent-kit";
+import { openai } from "inngest";
 import { inngest } from "@/inngest/client";
 import { StreamTranscriptItem } from "@/modules/meetings/types";
 import { db } from "@/db";
@@ -11,9 +11,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const summarizer = createAgent({
-  name: "summarizer",
-  system: `
+const summaryInstructions = `
     You are an expert summarizer. You write readable, concise, simple content. You are given a transcript of a meeting and you need to summarize it.
 
 Use the following markdown structure for every output:
@@ -33,9 +31,32 @@ Example:
 #### Next Section
 - Feature X automatically does Y
 - Mention of integration with Z
-  `.trim(),
-  model: openai({ model: "gpt-5-nano", apiKey: process.env.OPENAI_API_KEY }),
+  `.trim();
+
+const summaryModel = openai({
+  model: "gpt-5-nano",
+  apiKey: process.env.OPENAI_API_KEY,
 });
+
+function messageText(content: unknown) {
+  if (typeof content === "string") {
+    return content;
+  }
+
+  if (!Array.isArray(content)) {
+    return "";
+  }
+
+  return content
+    .map((part) => {
+      if (typeof part === "object" && part && "text" in part) {
+        return String(part.text);
+      }
+
+      return "";
+    })
+    .join("");
+}
 
 export const meetingsProcessing = inngest.createFunction(
   { id: "meetings/processing" },
@@ -99,16 +120,27 @@ export const meetingsProcessing = inngest.createFunction(
       });
     });
 
-    const { output } = await summarizer.run(
-      "Summarize the following transcript: " +
-        JSON.stringify(transcriptWithSpeakers)
-    );
+    const summaryCompletion = await step.ai.infer("summarize-meeting", {
+      model: summaryModel,
+      body: {
+        messages: [
+          { role: "system", content: summaryInstructions },
+          {
+            role: "user",
+            content:
+              "Summarize the following transcript: " +
+              JSON.stringify(transcriptWithSpeakers),
+          },
+        ],
+      },
+    });
+    const summaryText = messageText(summaryCompletion.choices[0]?.message.content);
 
     await step.run("save-summary", async () => {
       await db
         .update(meetings)
         .set({
-          summary: (output[0] as TextMessage).content as string,
+          summary: summaryText,
           status: "completed",
         })
         .where(eq(meetings.id, event.data.meetingId))
@@ -184,7 +216,14 @@ export const smartFollowUp = inngest.createFunction(
       return db.select().from(user).where(eq(user.id, meeting.userId));
     });
 
-    const { output } = await summarizer.run(`
+    const followUpCompletion = await step.ai.infer("follow-up-email", {
+      model: summaryModel,
+      body: {
+        messages: [
+          { role: "system", content: summaryInstructions },
+          {
+            role: "user",
+            content: `
 You are Wiora’s Smart Follow-Up Agent.
 
 Write a short, friendly **email message** (not a plain text paragraph) as a reminder for the user about their meeting.
@@ -197,10 +236,13 @@ Format it properly like an email with:
 
 Meeting summary:
 ${meeting.summary}
-`);
+`,
+          },
+        ],
+      },
+    });
 
-
-    const emailText = (output[0] as TextMessage).content as string;
+    const emailText = messageText(followUpCompletion.choices[0]?.message.content);
 
     const listItems = emailText
       .split("\n")
