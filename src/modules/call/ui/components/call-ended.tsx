@@ -32,7 +32,7 @@ export const CallEnded = ({ userId }: Props) => {
                     </Button>
                 </div>
                 {isFree && (
-                  <p className="text-xs mt-5 text-white/70 text-center">Free call ended after a minute. Kindly{" "} 
+                  <p className="text-xs mt-5 text-white/70 text-center">Free call ended after 45 seconds. Kindly{" "} 
                       <Link href="/upgrade" className="text-white underline">
                           Upgrade
                       </Link>{" "}
