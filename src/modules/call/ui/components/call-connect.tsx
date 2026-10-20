@@ -1,7 +1,7 @@
 "use client";
 
 import { LoaderIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import {
     Call,
@@ -35,6 +35,8 @@ export const CallConnect = ({
     const { mutateAsync: generateToken} = useMutation(
         trpc.meetings.generateToken.mutationOptions(),
     );
+    const generateTokenRef = useRef(generateToken);
+    generateTokenRef.current = generateToken;
 
     const [client, setClient] = useState<StreamVideoClient>();
     useEffect(() => {
@@ -45,7 +47,7 @@ export const CallConnect = ({
                 name: userName,
                 image: userImage,
             },
-            tokenProvider: generateToken,
+            tokenProvider: () => generateTokenRef.current(),
         });
 
         setClient(_client);
@@ -54,7 +56,7 @@ export const CallConnect = ({
             _client.disconnectUser();
             setClient(undefined);
         };
-    }, [userId, userName, userImage, generateToken]);
+    }, [userId, userName, userImage]);
 
     const [call, setCall] = useState<Call>();
     useEffect(() => {
