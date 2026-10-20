@@ -1,23 +1,16 @@
-import { useEffect, useState } from "react";
+"use client";
+
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 
-import { isFreeUser } from "@/lib/isFreeUser";
-
+import { useTRPC } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 
-interface Props {
-  userId: string;
-}
-
-export const CallEnded = ({ userId }: Props) => {
-    const [isFree, setIsFree] = useState<boolean | null>(null);
-
-    useEffect(() => {
-      (async () => {
-        const free = await isFreeUser(userId);
-        setIsFree(free);
-      })();
-    }, [userId]);
+export const CallEnded = () => {
+    const trpc = useTRPC();
+    const { data: freeUsage } = useQuery(
+        trpc.premium.getFreeUsage.queryOptions(),
+    );
 
     return (
         <div className="flex flex-col items-center justify-center h-full bg-radial from-sidebar-accent to-sidebar">
@@ -31,7 +24,7 @@ export const CallEnded = ({ userId }: Props) => {
                         <Link href="/meetings">Back to meetings</Link>
                     </Button>
                 </div>
-                {isFree && (
+                {freeUsage && (
                   <p className="text-xs mt-5 text-white/70 text-center">Free call ended after a minute. Kindly{" "} 
                       <Link href="/upgrade" className="text-white underline">
                           Upgrade
