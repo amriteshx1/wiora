@@ -1,7 +1,7 @@
 import { db } from '@/db';
 import { agents, meetings } from '@/db/schema';
 import { auth } from '@/lib/auth';
-import { polarClient } from '@/lib/polar';
+import { getPolarCustomerState } from '@/lib/polar-customer';
 import { MAX_FREE_AGENTS, MAX_FREE_MEETINGS } from '@/modules/premium/constants';
 import { initTRPC, TRPCError } from '@trpc/server';
 import { count, eq } from 'drizzle-orm';
@@ -40,8 +40,10 @@ export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
 });
 export const premiumProcedure = (entity: "meetings" | "agents") =>
   protectedProcedure.use(async ({ ctx, next }) => {
-    const customer = await polarClient.customers.getStateExternal({
-      externalId: ctx.auth.user.id,
+    const customer = await getPolarCustomerState({
+      id: ctx.auth.user.id,
+      email: ctx.auth.user.email,
+      name: ctx.auth.user.name,
     });
 
     const [userMeetings] = await db 

@@ -1,9 +1,24 @@
-import { polarClient } from "@/lib/polar";
+import { eq } from "drizzle-orm";
+
+import { db } from "@/db";
+import { user } from "@/db/schema";
+import { getPolarCustomerState } from "@/lib/polar-customer";
 
 export async function isFreeUser(userId: string) {
   try {
-    const customer = await polarClient.customers.getStateExternal({
-      externalId: userId,
+    const [existingUser] = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, userId));
+
+    if (!existingUser) {
+      return true;
+    }
+
+    const customer = await getPolarCustomerState({
+      id: existingUser.id,
+      email: existingUser.email,
+      name: existingUser.name,
     });
 
     const subscription = customer.activeSubscriptions?.[0];

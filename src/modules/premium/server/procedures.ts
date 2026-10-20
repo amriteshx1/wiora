@@ -4,12 +4,15 @@ import { db } from "@/db";
 import { agents, meetings } from "@/db/schema";
 
 import { polarClient } from "@/lib/polar";
+import { getPolarCustomerState } from "@/lib/polar-customer";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
 export const premiumRouter = createTRPCRouter({
     getCurrentSubscription: protectedProcedure.query(async ({ ctx }) => {
-      const customer = await polarClient.customers.getStateExternal({
-        externalId: ctx.auth.user.id,
+      const customer = await getPolarCustomerState({
+        id: ctx.auth.user.id,
+        email: ctx.auth.user.email,
+        name: ctx.auth.user.name,
       });
 
       const subscription = customer.activeSubscriptions[0];
@@ -34,8 +37,10 @@ export const premiumRouter = createTRPCRouter({
       return products.result.items;
     }),
     getFreeUsage: protectedProcedure.query(async ({ ctx }) => {
-        const customer = await polarClient.customers.getStateExternal({
-            externalId: ctx.auth.user.id,
+        const customer = await getPolarCustomerState({
+            id: ctx.auth.user.id,
+            email: ctx.auth.user.email,
+            name: ctx.auth.user.name,
         });
 
         const subscription = customer.activeSubscriptions[0];
