@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { and, eq, not } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 
 import { 
@@ -21,6 +21,22 @@ import { streamChat } from "@/lib/stream-chat";
 import { isFreeUser } from "@/lib/isFreeUser";
 
 const openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+
+export const maxDuration = 300;
+
+type AgentSocket = {
+    readyState: number;
+    once: (event: "close", listener: () => void) => void;
+};
+
+function untilAgentDisconnect(client: { realtime: { ws: AgentSocket | null } }) {
+    const ws = client.realtime.ws;
+    if (!ws || ws.readyState === 3) return Promise.resolve();
+
+    return new Promise<void>((resolve) => {
+        ws.once("close", () => resolve());
+    });
+}
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
     return streamVideo.verifyWebhook(body, signature);
@@ -120,6 +136,12 @@ export async function POST(req: NextRequest){
         realtimeClient.updateSession({
             instructions: existingAgent.instructions,
         });
+
+        after(() =>
+            untilAgentDisconnect(
+                realtimeClient as unknown as { realtime: { ws: AgentSocket | null } },
+            ),
+        );
     } else if (eventType === "call.session_participant_left"){
         const event = payload as CallSessionParticipantLeftEvent;
         const meetingId = event.call_cid.split(":")[1];
