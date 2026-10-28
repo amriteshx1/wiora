@@ -1,0 +1,17 @@
+services:
+  minio:
+    image: cgr.dev/chainguard/minio:latest
+    command: ["server", "/data", "--console-address", ":9001"]
+    ports:
+      - "9002:9000"
+      - "9003:9001"
+    environment:
+      MINIO_ROOT_USER: wiora
+      MINIO_ROOT_PASSWORD: wiora-local-secret
+      MINIO_API_CORS_ALLOW_ORIGIN: http://localhost:3000
+    user: "0:0"
+    volumes:
+      - minio_data:/data
+
+volumes:
+  minio_data:
