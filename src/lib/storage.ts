@@ -74,6 +74,20 @@ export async function headObject(key: string): Promise<{ byteSize: number }> {
   return { byteSize: result.ContentLength ?? 0 };
 }
 
+export async function getObjectBytes(key: string): Promise<Uint8Array> {
+  const result = await client().send(
+    new GetObjectCommand({
+      Bucket: bucket(),
+      Key: key,
+    }),
+  );
+  const bytes = await result.Body?.transformToByteArray();
+  if (!bytes) {
+    throw new Error("The stored file is empty");
+  }
+  return bytes;
+}
+
 export async function deleteObject(key: string): Promise<void> {
   await client().send(
     new DeleteObjectCommand({
