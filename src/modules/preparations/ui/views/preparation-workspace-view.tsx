@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 import { useTRPC } from "@/trpc/client";
@@ -15,6 +16,7 @@ import { JobInterviewForm } from "../forms/job-interview-form";
 import { LeadershipForm } from "../forms/leadership-form";
 import { NegotiationForm } from "../forms/negotiation-form";
 import { SalesCallForm } from "../forms/sales-call-form";
+import { SituationBrief } from "../components/situation-brief";
 
 interface Props {
   preparationId: string;
@@ -27,9 +29,34 @@ function asContext(value: unknown): IntakeContext {
   return {};
 }
 
-function followUpsSubmitted(context: IntakeContext) {
-  return context.followUpsSubmitted === true;
+function isSituationModel(value: unknown): value is {
+  knownFacts: string[];
+  unknowns: string[];
+  areas: {
+    id: string;
+    label: string;
+    whyItMatters: string;
+    priority: number;
+    exitCriteria: string;
+    documentAnchors: string[];
+  }[];
+  conversationStyle: {
+    depth: string;
+    skepticism: string;
+    detail: string;
+    pace: string;
+    interruption: string;
+    rationale: string;
+  };
+} {
+  return Boolean(value && typeof value === "object" && "conversationStyle" in value && "areas" in value);
 }
+
+const stepCopy: Record<string, string> = {
+  extracting: "Reading documents",
+  researching: "Researching",
+  synthesizing: "Preparing the brief",
+};
 
 const forms = {
   job_interview: JobInterviewForm,
@@ -43,10 +70,17 @@ const forms = {
 
 export const PreparationWorkspaceView = ({ preparationId }: Props) => {
   const trpc = useTRPC();
-  const { data } = useSuspenseQuery(
-    trpc.preparations.getOne.queryOptions({ id: preparationId }),
-  );
-  const [saved, setSaved] = useState(false);
+  const queryClient = useQueryClient();
+  const { data } = useSuspenseQuery({
+    ...trpc.preparations.getOne.queryOptions({ id: preparationId }),
+    refetchInterval: (query) => query.state.data?.status === "processing" ? 2000 : false,
+  });
+  const rerun = useMutation(trpc.preparations.rerun.mutationOptions({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(trpc.preparations.getOne.queryOptions({ id: preparationId }));
+    },
+    onError: (error) => toast.error(error.message),
+  }));
   const context = asContext(data.context);
   const pack = getPack(data.conversationType);
   const documents = Array.isArray(context.documents) ? context.documents : [];
@@ -73,14 +107,53 @@ export const PreparationWorkspaceView = ({ preparationId }: Props) => {
     );
   }
 
-  if (saved || followUpsSubmitted(context) || data.status !== "draft") {
+  if (data.status === "processing") {
     return (
       <div className="flex-1 px-4 py-8 md:px-8">
         <div className="max-w-xl rounded-lg border bg-background p-6">
-          <h5 className="text-xl font-medium">Preparation saved</h5>
+          <h5 className="text-xl font-medium">{data.title}</h5>
           <p className="mt-2 text-sm text-muted-foreground">
-            {data.title} is saved as a draft. Research and the live session are not part of this step.
+            {stepCopy[data.processingStep ?? ""] ?? "Preparing the brief"}
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (data.status === "failed") {
+    return (
+      <div className="flex-1 px-4 py-8 md:px-8">
+        <div className="max-w-xl space-y-4 rounded-lg border bg-background p-6">
+          <h5 className="text-xl font-medium">{data.title}</h5>
+          <p className="text-sm">{data.error || "The brief could not be prepared."}</p>
+          <Button type="button" disabled={rerun.isPending} onClick={() => rerun.mutate({ id: data.id })}>
+            Try again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (data.status === "ready" && isSituationModel(data.situationModel)) {
+    return (
+      <div className="flex-1 px-4 pb-10 md:px-8">
+        <div className="py-4">
+          <h5 className="font-medium text-xl">{data.title}</h5>
+          <p className="mt-1 text-sm text-muted-foreground">{pack.label}</p>
+        </div>
+        <div className="max-w-2xl rounded-lg border bg-background p-6">
+          <SituationBrief
+            preparationId={data.id}
+            conversationType={data.conversationType}
+            context={context}
+            model={data.situationModel}
+            findings={data.findings}
+            documents={data.documents.map((document) => ({
+              id: document.id,
+              fileName: document.fileName,
+              status: document.status,
+            }))}
+          />
         </div>
       </div>
     );
@@ -99,7 +172,7 @@ export const PreparationWorkspaceView = ({ preparationId }: Props) => {
           preparationId={data.id}
           initialContext={context}
           initialFiles={initialFiles}
-          onSaved={() => setSaved(true)}
+          onSaved={() => undefined}
         />
       </div>
     </div>
