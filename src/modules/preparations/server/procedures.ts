@@ -1,9 +1,10 @@
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, ilike } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, notExists } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/db";
-import { preparationDocuments, preparations } from "@/db/schema";
+import { preparationDocuments, preparations, researchFindings, simulationRuns } from "@/db/schema";
+import { inngest } from "@/inngest/client";
 import { respondJson } from "@/lib/openai-text";
 import { deleteObject, headObject, presignDownload, presignUpload } from "@/lib/storage";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
@@ -11,6 +12,7 @@ import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
 import {
   conversationTypes,
+  correctionSchema,
   followUpAnswerSchema,
   followUpSchema,
   getPack,
@@ -35,6 +37,40 @@ async function ownedPreparation(id: string, userId: string) {
   }
 
   return preparation;
+}
+
+async function enqueuePreparation(
+  preparationId: string,
+  situationVersion: number,
+  synthesizeOnly: boolean,
+) {
+  try {
+    await inngest.send({
+      name: "preparations/process",
+      data: {
+        preparationId,
+        situationVersion,
+        synthesizeOnly,
+      },
+    });
+  } catch {
+    await db
+      .update(preparations)
+      .set({
+        status: "failed",
+        processingStep: null,
+        error: "The preparation could not be queued. Try again.",
+        updatedAt: new Date(),
+      })
+      .where(and(
+        eq(preparations.id, preparationId),
+        eq(preparations.status, "processing"),
+      ));
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "The preparation could not be queued. Try again.",
+    });
+  }
 }
 
 async function readyDocumentIds(preparationId: string, userId: string) {
@@ -152,7 +188,13 @@ export const preparationsRouter = createTRPCRouter({
         )
         .orderBy(desc(preparationDocuments.createdAt));
 
-      return { ...preparation, documents };
+      const findings = await db
+        .select()
+        .from(researchFindings)
+        .where(eq(researchFindings.preparationId, preparation.id))
+        .orderBy(desc(researchFindings.createdAt));
+
+      return { ...preparation, documents, findings };
     }),
 
   getMany: protectedProcedure
@@ -461,11 +503,37 @@ export const preparationsRouter = createTRPCRouter({
         followUpsSubmitted: true,
       };
 
+      const unpaid = await db
+        .select({ id: preparations.id })
+        .from(preparations)
+        .where(and(
+          eq(preparations.userId, ctx.auth.user.id),
+          inArray(preparations.status, ["processing", "ready"]),
+          notExists(
+            db
+              .select({ id: simulationRuns.id })
+              .from(simulationRuns)
+              .where(and(
+                eq(simulationRuns.preparationId, preparations.id),
+                inArray(simulationRuns.status, ["paid", "active", "processing", "completed"]),
+              )),
+          ),
+        ));
+
+      if (unpaid.length >= 2) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You already have two preparations waiting for a paid session",
+        });
+      }
+
       const [updated] = await db
         .update(preparations)
         .set({
           context: nextContext,
-          status: "draft",
+          status: "processing",
+          processingStep: "extracting",
+          error: null,
           updatedAt: new Date(),
         })
         .where(
@@ -475,6 +543,113 @@ export const preparationsRouter = createTRPCRouter({
           ),
         )
         .returning();
+
+      await enqueuePreparation(updated.id, updated.situationVersion, false);
+
+      return updated;
+    }),
+
+  saveCorrections: protectedProcedure
+    .input(z.object({
+      id: z.string().min(1),
+      corrections: correctionSchema,
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const preparation = await ownedPreparation(input.id, ctx.auth.user.id);
+      if (preparation.status !== "ready") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Corrections can be saved when the brief is ready",
+        });
+      }
+
+      const pack = getPack(preparation.conversationType);
+      if (!pack) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Unknown conversation type" });
+      }
+
+      const context = asContext(preparation.context);
+      const allowed = new Set(pack.fields.map((field) => field.name));
+      const edited = { ...context };
+      for (const edit of input.corrections.fieldEdits ?? []) {
+        if (allowed.has(edit.field)) {
+          edited[edit.field] = edit.value;
+        }
+      }
+
+      const parsed = pack.schema.parse(edited) as IntakeContext;
+      const previous = asContext(context.corrections);
+      const previousFacts = Array.isArray(previous.addedFacts)
+        ? previous.addedFacts.filter((fact): fact is string => typeof fact === "string")
+        : [];
+      const nextContext = {
+        ...parsed,
+        documents: context.documents,
+        followUps: context.followUps,
+        followUpsSubmitted: true,
+        corrections: {
+          removedFindingIds: input.corrections.removedFindingIds ?? [],
+          addedFacts: [...previousFacts, ...(input.corrections.addedFacts ?? [])],
+          fieldEdits: input.corrections.fieldEdits ?? [],
+        },
+      };
+
+      const removed = input.corrections.removedFindingIds ?? [];
+      if (removed.length > 0) {
+        await db
+          .delete(researchFindings)
+          .where(and(
+            eq(researchFindings.preparationId, preparation.id),
+            inArray(researchFindings.id, removed),
+          ));
+      }
+
+      const [updated] = await db
+        .update(preparations)
+        .set({
+          context: nextContext,
+          status: "processing",
+          processingStep: "synthesizing",
+          error: null,
+          updatedAt: new Date(),
+        })
+        .where(and(
+          eq(preparations.id, preparation.id),
+          eq(preparations.userId, ctx.auth.user.id),
+        ))
+        .returning();
+
+      await enqueuePreparation(updated.id, updated.situationVersion, true);
+
+      return updated;
+    }),
+
+  rerun: protectedProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const preparation = await ownedPreparation(input.id, ctx.auth.user.id);
+      if (preparation.status !== "ready" && preparation.status !== "failed") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This preparation cannot be prepared again yet",
+        });
+      }
+
+      const [updated] = await db
+        .update(preparations)
+        .set({
+          status: "processing",
+          processingStep: "extracting",
+          error: null,
+          updatedAt: new Date(),
+        })
+        .where(and(
+          eq(preparations.id, preparation.id),
+          eq(preparations.userId, ctx.auth.user.id),
+        ))
+        .returning();
+
+      await enqueuePreparation(updated.id, updated.situationVersion, false);
 
       return updated;
     }),
