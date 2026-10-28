@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { BotIcon, StarIcon, VideoIcon } from "lucide-react";
+import { BotIcon, NotebookPenIcon, StarIcon, VideoIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import {Separator} from "@/components/ui/separator";
@@ -24,6 +24,11 @@ import { DashboardUserButton } from "./dashboard-user-button";
 
 const firstSection = [
     {
+        icon: NotebookPenIcon,
+        label: "Preparations",
+        href: "/preparations",
+    },
+    {
         icon: VideoIcon,
         label: "Meetings",
         href: "/meetings",
@@ -43,9 +48,15 @@ const secondSection = [
     },
 ];
 
+function isNavActive(pathname: string, href: string) {
+    if (href === "/preparations") {
+        return pathname === "/preparations" || pathname.startsWith("/preparations/");
+    }
+    return pathname === href;
+}
+
 export const DashboardSidebar = () => {
     const pathname = usePathname();
-    // const pathname = "/agents";
 
     return (
        <Sidebar>
@@ -68,9 +79,9 @@ export const DashboardSidebar = () => {
                                 asChild
                                 className={cn(
                                     "h-10 hover:bg-linear-to-r/oklch border border-transparent hover:border-[#5D6B68]/10 from-sidebar-accent from-5% via-30% via-sidebar/50 to-sidebar/50",
-                                    pathname === item.href && "bg-linear-to-r/oklch border-[#5D6B68]/10"
+                                    isNavActive(pathname, item.href) && "bg-linear-to-r/oklch border-[#5D6B68]/10"
                                 )}
-                                isActive={pathname === item.href}
+                                isActive={isNavActive(pathname, item.href)}
                                 >
                                     <Link href={item.href}>
                                       <item.icon className="size-5" />
@@ -96,9 +107,9 @@ export const DashboardSidebar = () => {
                                 asChild
                                 className={cn(
                                     "h-10 hover:bg-linear-to-r/oklch border border-transparent hover:border-[#5D6B68]/10 from-sidebar-accent from-5% via-30% via-sidebar/50 to-sidebar/50",
-                                    pathname === item.href && "bg-linear-to-r/oklch border-[#5D6B68]/10"
+                                    isNavActive(pathname, item.href) && "bg-linear-to-r/oklch border-[#5D6B68]/10"
                                 )}
-                                isActive={pathname === item.href}
+                                isActive={isNavActive(pathname, item.href)}
                                 >
                                     <Link href={item.href}>
                                       <item.icon className="size-5" />
