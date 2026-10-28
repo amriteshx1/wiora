@@ -34,10 +34,20 @@ export const followUpAnswerSchema = z.object({
   value: z.string(),
 });
 
+export const correctionSchema = z.object({
+  removedFindingIds: z.array(z.string()).optional(),
+  addedFacts: z.array(z.string()).optional(),
+  fieldEdits: z.array(z.object({
+    field: z.string(),
+    value: z.string(),
+  })).optional(),
+});
+
 const sharedContext = {
   documents: z.array(intakeDocumentSchema).optional(),
   followUps: z.array(followUpAnswerSchema).optional(),
   followUpsSubmitted: z.boolean().optional(),
+  corrections: correctionSchema.optional(),
 };
 
 const optionalText = z.string().optional();
