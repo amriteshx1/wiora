@@ -12,6 +12,8 @@
     "dev:webhook": "ngrok http --url=ardently-unfitted-gertrudis.ngrok-free.dev 3000"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1158.0",
+    "@aws-sdk/s3-request-presigner": "^3.1158.0",
     "@dicebear/collection": "^9.2.2",
     "@dicebear/core": "^9.2.2",
     "@hookform/resolvers": "^5.2.1",
