@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,7 @@ export function IntakeForm({
 }: Props) {
   const pack = preparationPacks[packId];
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const [files, setFiles] = useState<ReadyFile[]>(initialFiles);
   const [questions, setQuestions] = useState<FollowUpQuestion[] | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -88,6 +89,7 @@ export function IntakeForm({
       const result = await requestFollowUps.mutateAsync({ id: preparationId });
       if (result.questions.length === 0) {
         await submitFollowUps.mutateAsync({ id: preparationId, answers: [] });
+        await queryClient.invalidateQueries(trpc.preparations.getOne.queryOptions({ id: preparationId }));
         onSaved();
         return;
       }
@@ -115,6 +117,7 @@ export function IntakeForm({
         id: preparationId,
         answers: provided,
       });
+      await queryClient.invalidateQueries(trpc.preparations.getOne.queryOptions({ id: preparationId }));
       onSaved();
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not save the follow-ups";
