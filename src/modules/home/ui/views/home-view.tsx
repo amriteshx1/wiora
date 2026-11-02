@@ -28,15 +28,15 @@ import {
 const faqs = [
   {
     q: "What kinds of conversations can I run on Wiora?",
-    a: "Any conversation you can describe in a counterpart’s instructions: pitches, client calls, sales, negotiations, interviews, or presentations. You write the role. The session is the same.",
+    a: "Seven kinds stay: a job interview, an investor pitch, a sales call, a negotiation, a leadership conversation, a difficult conversation, or a custom situation. Each preparation is one of those.",
   },
   {
     q: "How do I define the counterpart?",
-    a: "Create an agent with a name and instructions. Those instructions are what the live voice session follows, so the counterpart stays in that role while you speak.",
+    a: "You describe the situation and add the documents. Wiora writes the brief, including how the conversation will feel. You do not pick a difficulty.",
   },
   {
     q: "How does a live session work?",
-    a: "Create a meeting, select the counterpart, and join from the lobby. You speak. They listen and answer in real time from the instructions you wrote.",
+    a: "After the brief is ready, pay $2, $3, or $4. Join one continuous voice session. The counterpart responds to what you just said until the paid time ends.",
   },
   {
     q: "Will they ask things I did not write down?",
@@ -44,11 +44,11 @@ const faqs = [
   },
   {
     q: "What stays after the session ends?",
-    a: "A summary, a searchable transcript, the recording, and Ask AI on that session. Ask AI answers from the summary and the chat you continue there. The next day, a short follow-up email arrives.",
+    a: "A report explains what went wrong, why, what was expected, and what a stronger answer needed. You can pay to practice one weakness again, or pay for the next practice. Both are new sessions.",
   },
   {
-    q: "Can I try Wiora before choosing a paid plan?",
-    a: "Yes. The free plan includes 3 agents and 3 meetings. Paid plans add more minutes, processing, and workspace options.",
+    q: "Is there a free tier or a subscription?",
+    a: "No. Each live session is a one-time payment: $2 for 30 minutes, $3 for 45, or $4 for 60.",
   },
 ];
 
@@ -95,10 +95,10 @@ export const HomeView = () => {
             Meet the other side.
           </h2>
           <p className="max-w-[52ch] text-sm text-[var(--wiora-mute)] md:text-base lg:text-lg">
-            Define the counterpart. Join the session. Keep what was said.
+            Prepare the situation. Practice it once. Read what to do next.
           </p>
           <Button asChild className={`${landingPrimaryBtn} h-11 px-6 lg:text-base text-xs`}>
-            <Link href="/sign-up">Get Started for Free</Link>
+            <Link href="/sign-up">Start a preparation</Link>
           </Button>
         </Reveal>
       </section>
