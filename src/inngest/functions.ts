@@ -6,10 +6,10 @@ import { StreamTranscriptItem } from "@/modules/meetings/types";
 import { db } from "@/db";
 import { agents, meetings, user } from "@/db/schema";
 import { eq, inArray } from "drizzle-orm";
+import { resend } from "@/lib/resend";
 import { streamVideo } from "@/lib/stream-video";
-import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+export { resend };
 
 const summaryInstructions = `
     You are an expert summarizer. You write readable, concise, simple content. You are given a transcript of a meeting and you need to summarize it.
