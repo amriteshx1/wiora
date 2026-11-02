@@ -97,8 +97,8 @@ export function LandingHero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
           >
-            Explore high-stakes conversations, test your ideas, and discover
-            new perspectives with an AI counterpart that meets you in real time.
+            Explore one real conversation before it happens. Prepare the situation,
+            practice it in a live voice session, then read what to do next.
           </motion.p>
           <motion.div
             className="flex flex-wrap gap-2.5"
