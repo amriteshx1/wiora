@@ -1,9 +1,11 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import {polar, checkout, portal} from "@polar-sh/better-auth";
+import {polar, checkout, portal, webhooks} from "@polar-sh/better-auth";
+import { after } from "next/server";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 import { polarClient } from "./polar";
+import { applyOrderPaid, applyOrderRefunded } from "@/modules/preparations/server/orders";
 
 export const auth = betterAuth({
   plugins: [
@@ -13,9 +15,34 @@ export const auth = betterAuth({
       use: [
         checkout({
           authenticatedUsersOnly: true,
-          successUrl: "/upgrade",
+          successUrl: "/preparations",
         }),
         portal(),
+        webhooks({
+          secret: process.env.POLAR_WEBHOOK_SECRET || "",
+          onOrderPaid: async (payload) => {
+            const order = {
+              id: payload.data.id,
+              productId: payload.data.productId,
+              checkoutId: payload.data.checkoutId,
+              metadata: payload.data.metadata,
+            };
+            after(async () => {
+              await applyOrderPaid(order);
+            });
+          },
+          onOrderRefunded: async (payload) => {
+            const order = {
+              id: payload.data.id,
+              productId: payload.data.productId,
+              checkoutId: payload.data.checkoutId,
+              metadata: payload.data.metadata,
+            };
+            after(async () => {
+              await applyOrderRefunded(order);
+            });
+          },
+        }),
       ],
     }),
   ],
