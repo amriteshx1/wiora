@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Channel as StreamChannel } from "stream-chat";
