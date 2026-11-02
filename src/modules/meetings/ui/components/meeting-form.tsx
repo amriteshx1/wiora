@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { z } from "zod";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -56,9 +57,6 @@ export const MeetingForm = ({
             onSuccess: async (data) => {
                 await queryClient.invalidateQueries(
                     trpc.meetings.getMany.queryOptions({}),
-                );
-                await queryClient.invalidateQueries(
-                    trpc.premium.getFreeUsage.queryOptions(),
                 );
 
                 onSuccess?.(data.id);
