@@ -88,7 +88,7 @@ async function uploadFile(cookie: string, preparationId: string, fileName: strin
   const put = await fetch(created.payload.uploadUrl, {
     method: "PUT",
     headers: { "content-type": contentType },
-    body: bytes,
+    body: new Uint8Array(bytes),
   });
   if (!put.ok) {
     throw new Error(`Upload failed with status ${put.status}`);
