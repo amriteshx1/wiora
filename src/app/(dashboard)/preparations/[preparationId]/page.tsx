@@ -32,6 +32,12 @@ const Page = async ({ params }: Props) => {
   void queryClient.prefetchQuery(
     trpc.preparations.getOne.queryOptions({ id: preparationId }),
   );
+  void queryClient.prefetchQuery(
+    trpc.runs.getLatest.queryOptions({ preparationId }),
+  );
+  void queryClient.prefetchQuery(
+    trpc.premium.getSessionProducts.queryOptions(),
+  );
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
