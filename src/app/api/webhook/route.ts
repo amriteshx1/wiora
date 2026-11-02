@@ -13,17 +13,30 @@ import {
 } from "@stream-io/node-sdk";
 
 import { db } from "@/db";
-import { agents, meetings } from "@/db/schema";
+import { agents, meetings, preparations, simulationRuns } from "@/db/schema";
 import { streamVideo } from "@/lib/stream-video";
 import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
-import { isFreeUser } from "@/lib/isFreeUser";
+import { endRunIfUserLeft, markRunActive, markRunProcessing } from "@/inngest/run-hard-stop";
+import { startWorker } from "@/modules/preparations/server/worker-client";
 
 const openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
     return streamVideo.verifyWebhook(body, signature);
+}
+
+async function lookupRun(payload: Record<string, unknown>) {
+    const call = payload.call as { id?: string; custom?: { runId?: string } } | undefined;
+    const cid = typeof payload.call_cid === "string" ? payload.call_cid.split(":")[1] : undefined;
+    const channelId = typeof payload.channel_id === "string" ? payload.channel_id : undefined;
+    const candidates = [call?.custom?.runId, call?.id, cid, channelId].filter((value): value is string => Boolean(value));
+    for (const id of [...new Set(candidates)]) {
+        const [run] = await db.select().from(simulationRuns).where(eq(simulationRuns.id, id));
+        if (run) return run;
+    }
+    return null;
 }
 
 export async function POST(req: NextRequest){
@@ -51,6 +64,98 @@ export async function POST(req: NextRequest){
     }
 
     const eventType = (payload as Record<string, unknown>)?.type;
+    const run = await lookupRun(payload as Record<string, unknown>);
+
+    if (run) {
+        if (eventType === "call.session_started") {
+            if (run.status === "paid") {
+                await markRunActive(run);
+            } else if (run.status === "active") {
+                await startWorker(run.id);
+            }
+        } else if (eventType === "call.session_participant_left") {
+            const event = payload as CallSessionParticipantLeftEvent;
+            await endRunIfUserLeft(run, event.participant?.user?.id);
+        } else if (eventType === "call.session_ended") {
+            if (run.status === "active") {
+                await markRunProcessing(run.id);
+            }
+        } else if (eventType === "call.transcription_ready") {
+            const event = payload as CallTranscriptionReadyEvent;
+            await db
+                .update(simulationRuns)
+                .set({
+                    transcriptUrl: event.call_transcription.url,
+                    updatedAt: new Date(),
+                })
+                .where(eq(simulationRuns.id, run.id));
+            await inngest.send({
+                name: "runs/report",
+                data: { runId: run.id },
+            });
+        } else if (eventType === "call.recording_ready") {
+            const event = payload as CallRecordingReadyEvent;
+            await db
+                .update(simulationRuns)
+                .set({
+                    recordingUrl: event.call_recording.url,
+                    updatedAt: new Date(),
+                })
+                .where(eq(simulationRuns.id, run.id));
+        }
+
+        if (eventType === "message.new") {
+            const event = payload as MessageNewEvent;
+            if (run.status !== "completed") {
+                return NextResponse.json({ status: "ok" });
+            }
+            const userId = event.user?.id;
+            const channelId = event.channel_id;
+            const text = event.message?.text;
+            if (!userId || !channelId || !text || userId === `cp_${run.id}`) {
+                return NextResponse.json({ status: "ok" });
+            }
+            const [preparation] = await db.select().from(preparations).where(eq(preparations.id, run.preparationId));
+            const instructions = [
+                "Answer questions about one completed practice session.",
+                "Use only the report and the situation model.",
+                `Report: ${JSON.stringify(run.report)}`,
+                `Situation: ${JSON.stringify(preparation?.situationModel ?? {})}`,
+            ].join("\n\n");
+            const channel = streamChat.channel("messaging", channelId);
+            await channel.watch();
+            const previousMessages = channel.state.messages
+                .slice(-5)
+                .filter((message) => message.text && message.text.trim() !== "")
+                .map<ChatCompletionMessageParam>((message) => ({
+                    role: message.user?.id === `cp_${run.id}` ? "assistant" : "user",
+                    content: message.text || "",
+                }));
+            const completion = await openaiClient.chat.completions.create({
+                model: process.env.OPENAI_TEXT_MODEL || "gpt-5.6-luna",
+                messages: [
+                    { role: "system", content: instructions },
+                    ...previousMessages,
+                    { role: "user", content: text },
+                ],
+            });
+            const reply = completion.choices[0]?.message.content;
+            if (reply) {
+                const counterpartName = run.counterpartName || "Counterpart";
+                await streamChat.upsertUser({
+                    id: `cp_${run.id}`,
+                    name: counterpartName,
+                });
+                await channel.sendMessage({
+                    text: reply,
+                    user: { id: `cp_${run.id}`, name: counterpartName },
+                });
+            }
+            return NextResponse.json({ status: "ok" });
+        }
+
+        return NextResponse.json({ status: "ok" });
+    }
 
     if(eventType === "call.session_started") {
         const event = payload as CallSessionStartedEvent;
@@ -75,22 +180,6 @@ export async function POST(req: NextRequest){
 
         if(!existingMeeting){
             return NextResponse.json({error: "Meeting not found"}, {status: 404});
-        }
-
-        const userId = existingMeeting.userId; 
-        
-        if (userId) {
-            const freeUser = await isFreeUser(userId);
-            
-            if (freeUser) {
-                
-                await inngest.send({
-                    name: "meetings/end-call-after-timeout",
-                    data: {
-                        meetingId: existingMeeting.id,
-                    },
-                });
-            }
         }
 
         await db
