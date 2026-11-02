@@ -15,7 +15,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Wiora",
   description:
-    "AI counterparts for live conversations. Define who sits across from you, meet them in a real-time voice session, and keep the recording, transcript, summary, and Ask AI.",
+    "Prepare for one real conversation, practice it live, and keep a report of what to do next. Sessions are $2, $3, or $4.",
 };
 
 export default function RootLayout({
