@@ -1,15 +1,19 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { StreamTheme, useCall } from "@stream-io/video-react-sdk";
 import { CallLobby } from "./call-lobby";
 import { CallActive } from "./call-active";
 import { CallEnded } from "./call-ended";
 
-interface Props{
+interface Props {
     meetingName: string;
-    userId: string;
-};
+    endedHref: string;
+    endedDetail: string;
+    hardEndAt?: string | null;
+}
 
-export const CallUI = ({ meetingName, userId }: Props) => {
+export const CallUI = ({ meetingName, endedHref, endedDetail, hardEndAt }: Props) => {
     const call = useCall();
     const [show, setShow] = useState<"lobby" | "call" | "ended">("lobby");
 
@@ -43,8 +47,10 @@ export const CallUI = ({ meetingName, userId }: Props) => {
     return (
         <StreamTheme className="h-full">
             {show === "lobby" && <CallLobby onJoin={handleJoin} />}
-            {show === "call" && <CallActive onLeave={handleLeave} meetingName={meetingName} />}
-            {show === "ended" && <CallEnded userId={userId} />}
+            {show === "call" && (
+              <CallActive onLeave={handleLeave} meetingName={meetingName} hardEndAt={hardEndAt} />
+            )}
+            {show === "ended" && <CallEnded href={endedHref} detail={endedDetail} />}
         </StreamTheme>
     );
 };
