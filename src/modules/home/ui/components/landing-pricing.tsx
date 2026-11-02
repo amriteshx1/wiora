@@ -9,46 +9,39 @@ import { cn } from "@/lib/utils";
 
 const plans = [
   {
-    name: "Monthly",
-    blurb: "For live sessions on your own",
-    price: "12$",
-    suffix: "/month",
+    name: "30 minutes",
+    blurb: "One practice session",
+    price: "$2",
+    suffix: "",
     featured: false,
     features: [
-      "Unlimited Agents",
-      "Unlimited Meetings",
-      "Up to 300 minutes total",
-      "Full Summaries + Transcripts",
-      "Real-time chat & Recording playback",
+      "One situation",
+      "One continuous session",
+      "A report when it ends",
     ],
   },
   {
-    name: "Yearly",
-    blurb: "For more time each month",
-    price: "110$",
-    suffix: "/year",
+    name: "45 minutes",
+    blurb: "More room to go deeper",
+    price: "$3",
+    suffix: "",
     featured: true,
     features: [
-      "Unlimited Agents",
-      "Unlimited Meetings",
-      "Up to 400 minutes total/month",
-      "Full Summaries + Transcripts",
-      "Real-time chat & Recording playback",
-      "Priority background processing",
+      "One situation",
+      "One continuous session",
+      "A report when it ends",
     ],
   },
   {
-    name: "Enterprise",
-    blurb: "For teams and programs",
-    price: "749$",
-    suffix: "/year",
+    name: "60 minutes",
+    blurb: "The longest single session",
+    price: "$4",
+    suffix: "",
     featured: false,
     features: [
-      "2 months free",
-      "Unlimited Agents + Meetings",
-      "Unlimited duration & usage",
-      "Custom Organizational Dashboard",
-      "Dedicated Discord Support",
+      "One situation",
+      "One continuous session",
+      "A report when it ends",
     ],
   },
 ];
@@ -58,7 +51,7 @@ export function LandingPricing() {
     <section>
       <div className="landing-shell flex flex-col gap-12 border-b border-[var(--wiora-rule)] py-16 md:gap-16 md:py-24">
         <Reveal className="mx-auto max-w-[36rem] text-center">
-          <h2 className="landing-section-title">Plans</h2>
+          <h2 className="landing-section-title">One session</h2>
           <p className="mt-4 text-sm leading-relaxed text-[var(--wiora-mute)] md:text-base">
             More time in live sessions, and a kept record after every call.
           </p>
@@ -85,7 +78,7 @@ export function LandingPricing() {
               </div>
 
               <Button asChild className={cn("w-full rounded-sm shadow-none", landingPrimaryBtn)}>
-                <Link href="/sign-up">Select Plan</Link>
+                <Link href="/sign-up">Start a preparation</Link>
               </Button>
 
               <div className="flex flex-col items-start gap-y-2.5">
