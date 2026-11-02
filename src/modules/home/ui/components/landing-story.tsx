@@ -121,8 +121,8 @@ export function LandingProblem() {
           <p className="max-w-[62ch] text-sm leading-relaxed text-[var(--wiora-mute)] md:text-[1.05rem] md:leading-[1.65]">
             The other person will not stay on your list. Questions and
             follow-ups arrive while you are still speaking. Notes cannot do
-            that. Wiora puts a counterpart in the other seat for a live voice
-            session, and keeps the meeting when you hang up.
+            that. Wiora prepares you for one situation, then runs one paid live
+            session and writes the report when you hang up.
           </p>
         </Reveal>
       </div>
@@ -464,9 +464,9 @@ export function LandingAfter() {
             The session ends. The record stays.
           </h2>
           <p className="mt-4 max-w-[58ch] text-sm leading-relaxed text-[var(--wiora-mute)] md:text-base">
-            When you hang up, Wiora keeps a summary, a searchable transcript, the
-            recording, and Ask AI on that session. The next day, a short follow-up
-            arrives by email. Open another session whenever you want another pass.
+            When you hang up, Wiora writes a report from what was said: what went
+            wrong, why, and what a stronger answer needed. You can pay to practice
+            that again, or pay for the next practice.
           </p>
         </Reveal>
 
