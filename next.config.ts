@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: [
+    "@stream-io/node-sdk",
+    "jsonwebtoken",
+    "resend",
+    "officeparser",
+  ],
 };
 
 export default nextConfig;
