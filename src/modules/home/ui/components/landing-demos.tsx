@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 
 const AGENT_NAME = "Seed investor";
 const AGENT_INSTRUCTIONS =
-  "You are a skeptical investor in a first meeting. Press on the market, the numbers, and anything left vague. Keep the conversation moving.";
+  "A seed investor will press on the market, the numbers, and anything left vague. Prepare for that conversation.";
 
 function useTypedValue(text: string, active: boolean, speed = 36) {
   const [value, setValue] = useState("");
