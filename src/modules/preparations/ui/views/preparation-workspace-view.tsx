@@ -1,6 +1,6 @@
 "use client";
 
-import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSuspenseQuery, useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import { LeadershipForm } from "../forms/leadership-form";
 import { NegotiationForm } from "../forms/negotiation-form";
 import { SalesCallForm } from "../forms/sales-call-form";
 import { SituationBrief } from "../components/situation-brief";
+import { SessionCheckout } from "../components/session-checkout";
+import { PreparationReport } from "../components/preparation-report";
 
 interface Props {
   preparationId: string;
@@ -81,6 +83,10 @@ export const PreparationWorkspaceView = ({ preparationId }: Props) => {
     },
     onError: (error) => toast.error(error.message),
   }));
+  const latest = useQuery({
+    ...trpc.runs.getLatest.queryOptions({ preparationId }),
+    refetchInterval: (query) => query.state.data?.status === "processing" ? 2000 : false,
+  });
   const context = asContext(data.context);
   const pack = getPack(data.conversationType);
   const documents = Array.isArray(context.documents) ? context.documents : [];
@@ -134,6 +140,33 @@ export const PreparationWorkspaceView = ({ preparationId }: Props) => {
     );
   }
 
+  if (data.status === "ready" && latest.data?.status === "processing") {
+    return (
+      <div className="flex-1 px-4 py-8 md:px-8">
+        <div className="max-w-xl rounded-lg border bg-background p-6">
+          <h5 className="text-xl font-medium">{data.title}</h5>
+          <p className="mt-2 text-sm text-muted-foreground">The report is being written.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (data.status === "ready" && latest.data?.status === "completed" && latest.data.report && typeof latest.data.report === "object") {
+    return (
+      <div className="flex-1 px-4 pb-10 md:px-8">
+        <div className="py-4">
+          <h5 className="font-medium text-xl">{data.title}</h5>
+          <p className="mt-1 text-sm text-muted-foreground">{pack?.label}</p>
+        </div>
+        <PreparationReport
+          runId={latest.data.id}
+          recordingUrl={latest.data.recordingUrl}
+          report={latest.data.report as never}
+        />
+      </div>
+    );
+  }
+
   if (data.status === "ready" && isSituationModel(data.situationModel)) {
     return (
       <div className="flex-1 px-4 pb-10 md:px-8">
@@ -154,6 +187,7 @@ export const PreparationWorkspaceView = ({ preparationId }: Props) => {
               status: document.status,
             }))}
           />
+          <SessionCheckout preparationId={data.id} />
         </div>
       </div>
     );
