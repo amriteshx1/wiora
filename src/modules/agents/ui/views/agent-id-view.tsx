@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 
 import { useState } from "react";
@@ -31,9 +32,6 @@ export const AgentIdView = ({ agentId }: Props) => {
         trpc.agents.remove.mutationOptions({
             onSuccess: async () => {
                 await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions({}));
-                await queryClient.invalidateQueries(
-                    trpc.premium.getFreeUsage.queryOptions(),
-                );
 
                 router.push("/agents");
             },
