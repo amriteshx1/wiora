@@ -1,11 +1,9 @@
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-
 import { Dispatch, SetStateAction, useState } from "react";
 
 import { CommandResponsiveDialog, CommandInput, CommandItem, CommandList, CommandGroup, CommandEmpty } from "@/components/ui/command";
 import { useTRPC } from "@/trpc/client";
-import { GeneratedAvatar } from "@/components/generated-avatar";
 
 interface Props {
     open: boolean;
@@ -15,16 +13,9 @@ interface Props {
 export const DashboardCommand = ({ open, setOpen }: Props) => {
     const router = useRouter();
     const [search, setSearch] = useState("");
-
     const trpc = useTRPC();
-    const meetings = useQuery(
-        trpc.meetings.getMany.queryOptions({
-            search,
-            pageSize: 100,
-        })
-    );
-    const agents = useQuery(
-        trpc.agents.getMany.queryOptions({
+    const preparations = useQuery(
+        trpc.preparations.getMany.queryOptions({
             search,
             pageSize: 100,
         })
@@ -32,50 +23,27 @@ export const DashboardCommand = ({ open, setOpen }: Props) => {
 
     return (
         <CommandResponsiveDialog shouldFilter={false} open={open} onOpenChange={setOpen}>
-            <CommandInput 
-             placeholder="Find a meeting or agent..."
+            <CommandInput
+             placeholder="Find a preparation..."
              value={search}
              onValueChange={(value) => setSearch(value)}
             />
             <CommandList>
-                <CommandGroup heading="Meetings">
+                <CommandGroup heading="Preparations">
                     <CommandEmpty>
                         <span className="text-muted-foreground text-sm">
-                            No meetings found
+                            No preparations found
                         </span>
                     </CommandEmpty>
-                    {meetings.data?.items.map((meeting) => (
+                    {preparations.data?.items.map((preparation) => (
                         <CommandItem
                           onSelect={() => {
-                            router.push(`/meetings/${meeting.id}`);
-                            setOpen(false)
+                            router.push(`/preparations/${preparation.id}`);
+                            setOpen(false);
                           }}
-                          key={meeting.id}
+                          key={preparation.id}
                         >
-                            {meeting.name}
-                        </CommandItem>
-                    ))}
-                </CommandGroup>
-                <CommandGroup heading="Agents">
-                    <CommandEmpty>
-                        <span className="text-muted-foreground text-sm">
-                            No agents found
-                        </span>
-                    </CommandEmpty>
-                    {agents.data?.items.map((agent) => (
-                        <CommandItem
-                          onSelect={() => {
-                            router.push(`/agents/${agent.id}`);
-                            setOpen(false)
-                          }}
-                          key={agent.id}
-                        >
-                            <GeneratedAvatar 
-                              seed={agent.name}
-                              variant="botttsNeutral"
-                              className="size-5"
-                            />
-                            {agent.name}
+                            {preparation.title}
                         </CommandItem>
                     ))}
                 </CommandGroup>
