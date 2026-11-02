@@ -14,35 +14,35 @@ import { cn } from "@/lib/utils";
 const steps = [
   {
     n: "1",
-    title: "Define the counterpart",
-    body: "Name who sits across from you and write their instructions. Interviewer, investor, client, or sales counterpart: the live session follows that role.",
-    path: "wiora / agents / new",
+    title: "Describe the situation",
+    body: "Write the conversation you are preparing for and add the documents that matter. The brief is built from that, not from a role you invent.",
+    path: "wiora / preparations / new",
     reverse: false,
     demo: "agent" as const,
   },
   {
     n: "2",
-    title: "Open the session",
-    body: "Name the meeting, choose the counterpart, and enter the lobby when you are ready to speak.",
-    path: "wiora / meetings / new",
+    title: "Read the brief",
+    body: "Check the facts, the unknowns, and how the conversation will feel. Correct anything that is wrong before you pay.",
+    path: "wiora / preparations / brief",
     reverse: true,
     demo: "meeting" as const,
   },
   {
     n: "3",
-    title: "Speak, live",
-    body: "You speak. The counterpart listens and answers in real time, including turns you did not write down.",
-    path: "wiora / meetings / live",
+    title: "Practice live",
+    body: "Pay $2, $3, or $4 for 30, 45, or 60 minutes. You speak. The counterpart listens and changes direction from what you just said.",
+    path: "wiora / call",
     reverse: false,
     demo: "call" as const,
   },
   {
     n: "4",
-    title: "Keep the session",
-    body: "A summary, searchable transcript, recording, and Ask AI stay on that meeting when it ends. Nothing extra to set up.",
-    path: "wiora / meetings / recap",
+    title: "Read the report",
+    body: "The report explains what went wrong, why, and what a stronger answer needed. Practice that again, or take the next practice, as a new paid session.",
+    path: "wiora / preparations / report",
     reverse: true,
-    demo: "postcall" as const,
+    demo: "recap" as const,
   },
 ];
 
@@ -67,9 +67,7 @@ export function LandingWorkflow() {
             Set the role. Then speak.
           </h2>
           <p className="mt-4 max-w-[58ch] text-sm leading-relaxed text-[var(--wiora-mute)] md:text-base">
-            Create the counterpart, join a live voice session, and speak as the
-            conversation moves. When it ends, the recording, transcript, summary,
-            and Ask AI stay with that meeting.
+            Prepare the situation, pay for one live session, then read the report.
           </p>
         </Reveal>
 
