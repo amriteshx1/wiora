@@ -22,6 +22,10 @@ interface Props{
     userId: string;
     userName: string;
     userImage: string;
+    tokenSource?: "run";
+    endedHref?: string;
+    endedDetail?: string;
+    hardEndAt?: string | null;
 };
 
 export const CallConnect = ({
@@ -30,13 +34,17 @@ export const CallConnect = ({
     userId,
     userName,
     userImage,
+    tokenSource = "run",
+    endedHref = "/meetings",
+    endedDetail = "Summary will appear in a few minutes.",
+    hardEndAt = null,
 }: Props) => {
     const trpc = useTRPC();
-    const { mutateAsync: generateToken} = useMutation(
-        trpc.meetings.generateToken.mutationOptions(),
+    const { mutateAsync: generateRunToken} = useMutation(
+        trpc.runs.generateToken.mutationOptions(),
     );
-    const generateTokenRef = useRef(generateToken);
-    generateTokenRef.current = generateToken;
+    const generateTokenRef = useRef(() => generateRunToken({ runId: meetingId }));
+    generateTokenRef.current = () => generateRunToken({ runId: meetingId });
 
     const [client, setClient] = useState<StreamVideoClient>();
     useEffect(() => {
@@ -70,7 +78,6 @@ export const CallConnect = ({
         return () => {
             if(_call.state.callingState !== CallingState.LEFT){
                 _call.leave();
-                _call.endCall();
                 setCall(undefined);
             }
         };
@@ -87,7 +94,12 @@ export const CallConnect = ({
     return (
         <StreamVideo client={client}>
             <StreamCall call={call}>
-                <CallUI meetingName={meetingName} userId={userId} />
+                <CallUI
+                  meetingName={meetingName}
+                  endedHref={endedHref}
+                  endedDetail={endedDetail}
+                  hardEndAt={hardEndAt}
+                />
             </StreamCall>
         </StreamVideo>
     );
