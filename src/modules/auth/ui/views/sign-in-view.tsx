@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import { WaitingButton } from "@/components/waiting-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { 
@@ -51,12 +52,12 @@ export const SignInView = () => {
             {
                 email: data.email,
                 password: data.password,
-                callbackURL: "/meetings",
+                callbackURL: "/preparations",
             },
             {
                 onSuccess: () => {
                     setPending(false);
-                    router.push("/meetings");
+                    router.push("/preparations");
                 },
                 onError: ({ error }) => {
                     setPending(false);
@@ -73,7 +74,7 @@ export const SignInView = () => {
         authClient.signIn.social(
             {
                 provider: provider,
-                callbackURL: "/meetings",
+                callbackURL: "/preparations",
             },
             {
                 onSuccess: () => {
@@ -95,11 +96,11 @@ export const SignInView = () => {
                         <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8">
                             <div className="flex flex-col gap-6">
                                 <div className="flex flex-col items-center text-center">
-                                    <h1 className="text-2xl font-bold">
-                                        Welcome back
+                                    <h1 className="text-2xl font-medium">
+                                        Sign in
                                     </h1>
                                     <p className="text-muted-foreground text-balance">
-                                        Login to your account
+                                        Continue a preparation
                                     </p>
                                 </div>
                                 <div className="grid gap-3">
@@ -146,13 +147,13 @@ export const SignInView = () => {
                                         <AlertTitle>{error}</AlertTitle>
                                     </Alert>
                                 )}
-                                <Button
-                                  disabled={pending}
+                                <WaitingButton
+                                  waiting={pending}
+                                  idle="Sign in"
+                                  busy="Signing in"
                                   type="submit"
                                   className="w-full"
-                                >
-                                    Sign in
-                                </Button>
+                                />
                                 <div className="after:border-border relative text-center text-sm after:absolute 
                                 after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                                     <span className="bg-card text-muted-foreground relative z-10 px-2">
@@ -189,9 +190,9 @@ export const SignInView = () => {
                         </form>
                     </Form>
 
-                    <div className="bg-radial from-sidebar-accent to-sidebar relative hidden md:flex flex-col gap-y-4 items-center justify-center">
-                        <Image src="/logo.svg" alt="Image" width={82} height={82} className="lg:h-[82px] lg:w-[82px] h-[62px] w-[62px]" />
-                        <p className="text-2xl font-semibold text-white">
+                    <div className="relative hidden flex-col items-center justify-center gap-y-4 bg-muted md:flex">
+                        <Image src="/logo-black.svg" alt="Wiora" width={48} height={48} />
+                        <p className="text-lg font-medium">
                             Wiora
                         </p>
                     </div>

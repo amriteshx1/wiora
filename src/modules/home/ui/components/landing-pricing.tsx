@@ -4,7 +4,7 @@ import Link from "next/link";
 import { CircleCheckIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Reveal, landingPrimaryBtn } from "@/modules/home/ui/components/landing-ui";
+import { Reveal, landingGhostBtn, landingPrimaryBtn } from "@/modules/home/ui/components/landing-ui";
 import { cn } from "@/lib/utils";
 
 export type LandingPlan = {
@@ -50,7 +50,7 @@ export function LandingPricing({ plans }: { plans: LandingPlan[] }) {
                 </p>
               </div>
 
-              <Button asChild className={cn("w-full rounded-sm shadow-none", landingPrimaryBtn)}>
+              <Button asChild className={cn("w-full rounded-sm shadow-none", plan.highlighted ? landingPrimaryBtn : landingGhostBtn)}>
                 <Link href="/sign-up">Start preparing</Link>
               </Button>
 

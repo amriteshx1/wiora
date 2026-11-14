@@ -2,12 +2,14 @@
 
 import { useSearchParams } from "next/navigation";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { CircleCheckIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { useTRPC } from "@/trpc/client";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
-import { PricingCard } from "../components/pricing-card";
+import { WaitingButton } from "@/components/waiting-button";
+import { cn } from "@/lib/utils";
 
 const entryLabel: Record<string, string> = {
   purchase: "Credits purchased",
@@ -38,58 +40,86 @@ export const UpgradeView = () => {
 
   return (
     <div className="flex-1 px-4 py-8 md:px-8">
-      <div className="mx-auto flex max-w-5xl flex-col gap-8">
+      <div className="flex flex-col gap-10">
         <div>
-          <h5 className="text-2xl font-medium md:text-3xl">Upgrade</h5>
+          <h5 className="text-2xl font-medium">Credits</h5>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            Preparation, documents, research, and the situation brief stay free. Plan names, prices, and features come from Polar. One credit starts one 30-minute interview.
+            Preparation stays free. One credit starts one 30-minute interview. Names, prices, and features come from Polar
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-lg border bg-background p-6">
-            <p className="text-sm text-muted-foreground">Available credits</p>
-            <p className="mt-2 text-4xl font-medium">{data.balance}</p>
+        <div className="grid gap-px overflow-hidden rounded-md border bg-border md:grid-cols-2">
+          <div className="bg-background p-6">
+            <p className="text-sm text-muted-foreground">Available</p>
+            <p className="mt-2 text-4xl font-medium tabular-nums">{data.balance}</p>
           </div>
-          <div className="rounded-lg border bg-background p-6">
+          <div className="bg-background p-6">
             <p className="text-sm text-muted-foreground">Latest bundle</p>
             <p className="mt-2 text-2xl font-medium">{planName ? planName : "None yet"}</p>
-            {data.plan ? (
-              <p className="mt-1 text-sm text-muted-foreground">{data.creditsInPlan} credits in that purchase</p>
-            ) : (
-              <p className="mt-1 text-sm text-muted-foreground">Buy a bundle whenever you want, including before a preparation.</p>
-            )}
+            <p className="mt-1 text-sm text-muted-foreground">
+              {data.plan
+                ? `${data.creditsInPlan} credits in that purchase`
+                : "Buy before a preparation, or when you run out"}
+            </p>
           </div>
         </div>
 
         {checkoutId && !confirmed ? (
-          <p className="text-sm text-muted-foreground">Confirming the payment. Credits appear here after Polar verifies it.</p>
+          <p className="text-sm text-muted-foreground">Confirming the payment</p>
         ) : null}
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid items-center gap-3 md:grid-cols-3 md:gap-4">
           {data.plans.map((plan) => (
-            <PricingCard
+            <article
               key={plan.id}
-              title={plan.name}
-              description={plan.description}
-              badge={plan.badge}
-              variant={plan.highlighted ? "highlighted" : "default"}
-              price={plan.priceAmount / 100}
-              priceSuffix={plan.priceSuffix}
-              features={plan.benefits}
-              buttonText={plan.archived ? "Unavailable" : "Upgrade"}
-              onClick={() => {
-                if (plan.archived || checkout.isPending) return;
-                checkout.mutate({ plan: plan.id });
-              }}
-            />
+              className={cn(
+                "flex min-w-0 flex-col gap-6 border bg-background p-6",
+                plan.highlighted && "bg-muted py-8 md:py-10",
+              )}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-medium md:text-xl">{plan.name}</h3>
+                  {plan.badge ? <p className="mt-1 text-xs text-muted-foreground">{plan.badge}</p> : null}
+                  {plan.description ? <p className="mt-1 text-xs text-muted-foreground">{plan.description}</p> : null}
+                </div>
+                <p className="flex text-2xl font-medium md:text-3xl">
+                  {plan.priceLabel}
+                  {plan.priceSuffix ? <span className="self-end text-xs font-normal text-muted-foreground">{plan.priceSuffix}</span> : null}
+                </p>
+              </div>
+
+              <WaitingButton
+                type="button"
+                className="w-full"
+                variant={plan.highlighted ? "default" : "outline"}
+                waiting={checkout.isPending}
+                idle={plan.archived ? "Unavailable" : "Buy credits"}
+                busy="Opening checkout"
+                disabled={plan.archived}
+                onClick={() => {
+                  if (plan.archived) return;
+                  checkout.mutate({ plan: plan.id });
+                }}
+              />
+
+              <div className="flex flex-col items-start gap-y-2.5">
+                <p className="mb-2 text-sm font-medium">Features</p>
+                {plan.benefits.map((feature) => (
+                  <p key={feature} className="flex items-center gap-x-2.5 text-xs font-medium">
+                    <CircleCheckIcon className="size-4 fill-primary text-white" />
+                    {feature}
+                  </p>
+                ))}
+              </div>
+            </article>
           ))}
         </div>
 
-        <div className="rounded-lg border bg-background p-6">
-          <h6 className="font-medium">Credit history</h6>
+        <div className="border p-6">
+          <h6 className="font-medium">History</h6>
           {data.history.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">Purchases and interviews will show up here.</p>
+            <p className="mt-3 text-sm text-muted-foreground">Purchases and interviews will show up here</p>
           ) : (
             <div className="mt-4 divide-y">
               {data.history.map((entry) => (
@@ -98,7 +128,7 @@ export const UpgradeView = () => {
                     <p>{entryLabel[entry.entryType] ?? entry.entryType}</p>
                     <p className="text-muted-foreground">{new Date(entry.createdAt).toLocaleString()}</p>
                   </div>
-                  <p className="font-medium">{entry.delta > 0 ? `+${entry.delta}` : entry.delta}</p>
+                  <p className="font-medium tabular-nums">{entry.delta > 0 ? `+${entry.delta}` : entry.delta}</p>
                 </div>
               ))}
             </div>
@@ -111,12 +141,12 @@ export const UpgradeView = () => {
 
 export const UpgradeViewLoading = () => {
   return (
-    <LoadingState title="Loading" description="This may take a few seconds" />
+    <LoadingState title="Loading credits" description="Opening billing" />
   );
 };
 
 export const UpgradeViewError = () => {
   return (
-    <ErrorState title="Error" description="Please try again later" />
+    <ErrorState title="Could not load credits" description="Try again in a moment" />
   );
 };
