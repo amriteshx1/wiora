@@ -52,13 +52,14 @@ export function PreparationReport({ runId, recordingUrl, report }: Props) {
     setTab("transcript");
   };
 
-  const tabClass = "text-muted-foreground rounded-none bg-background px-4 data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-b-foreground data-[state=active]:text-foreground h-full";
+  const tabClass =
+    "h-full rounded-none border-b-2 border-transparent bg-background px-4 text-muted-foreground shadow-none data-[state=active]:h-9 data-[state=active]:rounded-md data-[state=active]:border-b-0 data-[state=active]:bg-muted data-[state=active]:px-3 data-[state=active]:text-foreground data-[state=active]:shadow-none";
 
   return (
     <Tabs value={tab} onValueChange={setTab} className="gap-4">
       <div className="rounded-md border bg-background px-2 md:px-4">
         <ScrollArea>
-          <TabsList className="h-12 w-full justify-start gap-2 rounded-none bg-background p-0">
+          <TabsList className="h-12 w-full items-center justify-start gap-2 rounded-none bg-background p-0">
             <TabsTrigger value="report" className={tabClass}>
               <BookOpenTextIcon />
               Report
