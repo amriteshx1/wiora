@@ -465,8 +465,8 @@ export function LandingAfter() {
           </h2>
           <p className="mt-4 max-w-[58ch] text-sm leading-relaxed text-[var(--wiora-mute)] md:text-base">
             When you hang up, Wiora writes a report from what was said: what went
-            wrong, why, and what a stronger answer needed. You can pay to practice
-            that again, or pay for the next practice.
+            wrong, why, and what a stronger answer needed. Practicing that again,
+            or taking the next practice, uses another credit.
           </p>
         </Reveal>
 

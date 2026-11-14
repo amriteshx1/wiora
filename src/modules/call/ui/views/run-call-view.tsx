@@ -27,7 +27,7 @@ export const RunCallView = ({ runId }: Props) => {
       <div className="flex h-screen items-center justify-center">
         <ErrorState
           title="This session cannot be joined"
-          description="It has not been paid, or the paid time has ended."
+          description="It has not been started, or the interview time has ended."
         />
       </div>
     );

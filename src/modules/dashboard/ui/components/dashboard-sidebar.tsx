@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { NotebookPenIcon } from "lucide-react";
+import { CreditCardIcon, NotebookPenIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import {Separator} from "@/components/ui/separator";
@@ -26,6 +26,11 @@ const items = [
         icon: NotebookPenIcon,
         label: "Preparations",
         href: "/preparations",
+    },
+    {
+        icon: CreditCardIcon,
+        label: "Upgrade",
+        href: "/upgrade",
     },
 ];
 

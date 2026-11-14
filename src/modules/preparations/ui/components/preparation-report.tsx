@@ -47,20 +47,17 @@ export function PreparationReport({ runId, recordingUrl, report }: Props) {
   const trpc = useTRPC();
   const [tab, setTab] = useState("report");
   const [focusTs, setFocusTs] = useState<number | null>(null);
-  const drill = useMutation(trpc.runs.createDrill.mutationOptions({}));
-  const nextPractice = useMutation(trpc.runs.createNextPractice.mutationOptions({}));
-  const checkout = useMutation(trpc.runs.createCheckoutForExisting.mutationOptions({}));
-  const pending = drill.isPending || nextPractice.isPending || checkout.isPending;
+  const drill = useMutation(trpc.runs.startDrill.mutationOptions({}));
+  const nextPractice = useMutation(trpc.runs.startNextPractice.mutationOptions({}));
+  const pending = drill.isPending || nextPractice.isPending;
 
-  const payFor = async (createdRunId: string) => {
-    const result = await checkout.mutateAsync({ runId: createdRunId });
+  const openPractice = (result: { needsCredits: boolean; url: string }) => {
     window.location.assign(result.url);
   };
 
   const practice = async (weaknessId: string) => {
     try {
-      const created = await drill.mutateAsync({ runId, weaknessId });
-      await payFor(created.runId);
+      openPractice(await drill.mutateAsync({ runId, weaknessId }));
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Practice could not be opened");
     }
@@ -68,8 +65,7 @@ export function PreparationReport({ runId, recordingUrl, report }: Props) {
 
   const practiceNext = async () => {
     try {
-      const created = await nextPractice.mutateAsync({ runId });
-      await payFor(created.runId);
+      openPractice(await nextPractice.mutateAsync({ runId }));
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Next practice could not be opened");
     }
@@ -138,6 +134,7 @@ export function PreparationReport({ runId, recordingUrl, report }: Props) {
           </section>
           <section className="space-y-3">
             <h3 className="font-medium">What to practice</h3>
+            <p className="text-sm text-muted-foreground">Each practice is another 30-minute interview and uses one credit.</p>
             {report.weaknesses.map((item) => (
               <div key={item.id} className="space-y-1 rounded-md border p-3 text-sm">
                 <p>{item.whatWentWrong}</p>
@@ -160,7 +157,7 @@ export function PreparationReport({ runId, recordingUrl, report }: Props) {
             <p className="text-sm">{report.nextPractice.focus}</p>
             <p className="text-sm text-muted-foreground">{report.nextPractice.why}</p>
             <Button type="button" disabled={pending} onClick={() => void practiceNext()}>
-              Practice for {report.nextPractice.suggestedMinutes} minutes
+              Practice this next
             </Button>
           </section>
         </div>

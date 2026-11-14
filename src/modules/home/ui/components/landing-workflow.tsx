@@ -23,7 +23,7 @@ const steps = [
   {
     n: "2",
     title: "Read the brief",
-    body: "Check the facts, the unknowns, and how the conversation will feel. Correct anything that is wrong before you pay.",
+    body: "Check the facts, the unknowns, and how the conversation will feel. Correct anything that is wrong before you spend a credit.",
     path: "wiora / preparations / brief",
     reverse: true,
     demo: "meeting" as const,
@@ -31,7 +31,7 @@ const steps = [
   {
     n: "3",
     title: "Practice live",
-    body: "Pay $2, $3, or $4 for 30, 45, or 60 minutes. You speak. The counterpart listens and changes direction from what you just said.",
+    body: "Spend one credit for a 30-minute interview. You speak. The counterpart listens and changes direction from what you just said.",
     path: "wiora / call",
     reverse: false,
     demo: "call" as const,
@@ -39,7 +39,7 @@ const steps = [
   {
     n: "4",
     title: "Read the report",
-    body: "The report explains what went wrong, why, and what a stronger answer needed. Practice that again, or take the next practice, as a new paid session.",
+    body: "The report explains what went wrong, why, and what a stronger answer needed. Practice that again, or take the next practice. Each one uses another credit.",
     path: "wiora / preparations / report",
     reverse: true,
     demo: "recap" as const,
@@ -67,7 +67,7 @@ export function LandingWorkflow() {
             Set the role. Then speak.
           </h2>
           <p className="mt-4 max-w-[58ch] text-sm leading-relaxed text-[var(--wiora-mute)] md:text-base">
-            Prepare the situation, pay for one live session, then read the report.
+            Prepare the situation for free, spend one credit on the interview, then read the report.
           </p>
         </Reveal>
 

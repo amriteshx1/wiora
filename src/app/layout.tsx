@@ -15,7 +15,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Wiora",
   description:
-    "Prepare for one real conversation, practice it live, and keep a report of what to do next. Sessions are $2, $3, or $4.",
+    "Prepare for one real conversation for free, then spend a credit on a 30-minute interview.",
 };
 
 export default function RootLayout({

@@ -12,7 +12,7 @@ import {
 import FeatureMarquee from "../components/Marquee";
 import { LandingHero } from "../components/landing-hero";
 import { LandingNav } from "../components/landing-nav";
-import { LandingPricing } from "../components/landing-pricing";
+import { LandingPricing, type LandingPlan } from "../components/landing-pricing";
 import { LandingWorkflow } from "../components/landing-workflow";
 import { LandingFooter } from "../components/landing-footer";
 import {
@@ -36,7 +36,7 @@ const faqs = [
   },
   {
     q: "How does a live session work?",
-    a: "After the brief is ready, pay $2, $3, or $4. Join one continuous voice session. The counterpart responds to what you just said until the paid time ends.",
+    a: "After the brief is ready, spend one interview credit. Join one continuous 30-minute voice session. The counterpart responds to what you just said until the time ends.",
   },
   {
     q: "Will they ask things I did not write down?",
@@ -44,15 +44,15 @@ const faqs = [
   },
   {
     q: "What stays after the session ends?",
-    a: "A report explains what went wrong, why, what was expected, and what a stronger answer needed. You can pay to practice one weakness again, or pay for the next practice. Both are new sessions.",
+    a: "A report explains what went wrong, why, what was expected, and what a stronger answer needed. Practicing a weakness again, or taking the next practice, uses another credit.",
   },
   {
-    q: "Is there a free tier or a subscription?",
-    a: "No. Each live session is a one-time payment: $2 for 30 minutes, $3 for 45, or $4 for 60.",
+    q: "Is there a free interview or a subscription?",
+    a: "Preparation and research are free. There is no free interview and no subscription. Credits are a one-time purchase: PRO is 5 interviews, PLUS is 10, and SUPER is 15.",
   },
 ];
 
-export const HomeView = () => {
+export const HomeView = ({ plans }: { plans: LandingPlan[] }) => {
   return (
     <div className="relative flex w-full flex-col">
       <LandingNav />
@@ -62,7 +62,7 @@ export const HomeView = () => {
       <LandingSituations />
       <LandingWorkflow />
       <LandingAfter />
-      <LandingPricing />
+      <LandingPricing plans={plans} />
 
       <section>
         <div className="landing-shell flex flex-col gap-10 border-b border-[var(--wiora-rule)] py-16 md:gap-12 md:py-24">

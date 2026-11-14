@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -14,20 +13,12 @@ interface Props {
 
 export function SessionCheckout({ preparationId }: Props) {
   const trpc = useTRPC();
-  const search = useSearchParams();
-  const waitingForCheckout = Boolean(search.get("checkout_id"));
-  const products = useQuery(trpc.premium.getSessionProducts.queryOptions());
+  const balance = useQuery(trpc.premium.getBalance.queryOptions());
   const latest = useQuery({
     ...trpc.runs.getLatest.queryOptions({ preparationId }),
-    refetchInterval: (query) => {
-      const status = query.state.data?.status;
-      if (waitingForCheckout && status !== "paid" && status !== "active" && status !== "processing") {
-        return 2000;
-      }
-      return status === "unpaid" ? 2000 : false;
-    },
+    refetchInterval: (query) => query.state.data?.status === "processing" ? 2000 : false,
   });
-  const checkout = useMutation(trpc.runs.createCheckout.mutationOptions({
+  const start = useMutation(trpc.runs.startInterview.mutationOptions({
     onSuccess: (result) => {
       window.location.assign(result.url);
     },
@@ -38,7 +29,7 @@ export function SessionCheckout({ preparationId }: Props) {
   if (run?.status === "paid" || run?.status === "active") {
     return (
       <div className="mt-8 space-y-3 border-t pt-6">
-        <p className="text-sm">This session is paid.</p>
+        <p className="text-sm">This interview is ready.</p>
         <Button asChild>
           <Link href={`/call/${run.id}`}>Join</Link>
         </Button>
@@ -52,30 +43,31 @@ export function SessionCheckout({ preparationId }: Props) {
     );
   }
 
+  const credits = balance.data?.balance ?? 0;
+
   return (
     <div className="mt-8 space-y-3 border-t pt-6">
-      <h6 className="font-medium">Start a session</h6>
-      {products.data?.[0]?.localFree ? (
-        <p className="text-sm text-muted-foreground">Local only. Starting a session does not charge you.</p>
+      <h6 className="font-medium">Start the interview</h6>
+      <p className="text-sm text-muted-foreground">
+        Preparation stays free. One credit starts one 30-minute interview.
+        {balance.data ? ` You have ${credits} ${credits === 1 ? "credit" : "credits"}.` : ""}
+      </p>
+      {run?.status === "failed" ? <p className="text-sm">The last interview did not start.</p> : null}
+      {balance.isPending ? <p className="text-sm text-muted-foreground">Checking credits.</p> : null}
+      {!balance.isPending && credits > 0 ? (
+        <Button
+          type="button"
+          disabled={start.isPending}
+          onClick={() => start.mutate({ preparationId })}
+        >
+          Start interview
+        </Button>
       ) : null}
-      {run?.status === "unpaid" ? <p className="text-sm text-muted-foreground">Waiting for payment.</p> : null}
-      {run?.status === "failed" ? <p className="text-sm">This session could not be started.</p> : null}
-      <div className="flex flex-wrap gap-2">
-        {(products.data ?? []).map((product) => (
-          <Button
-            key={product.minutes}
-            type="button"
-            variant="outline"
-            disabled={checkout.isPending || (!product.localFree && !product.productId)}
-            onClick={() => checkout.mutate({
-              preparationId,
-              durationMinutes: product.minutes,
-            })}
-          >
-            {product.localFree ? `${product.minutes} minutes` : `${product.minutes} minutes ${product.price}`}
-          </Button>
-        ))}
-      </div>
+      {!balance.isPending && credits < 1 ? (
+        <Button asChild>
+          <Link href="/upgrade">Get credits</Link>
+        </Button>
+      ) : null}
     </div>
   );
 }

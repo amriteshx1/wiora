@@ -107,7 +107,7 @@ export function LandingHero() {
             transition={{ duration: 0.55, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
           >
             <Button asChild className={cn(landingPrimaryBtn, "h-10 text-xs md:text-sm lg:h-11 lg:text-base")}>
-              <Link href="/sign-up">Start a session</Link>
+              <Link href="/sign-up">Start preparing</Link>
             </Button>
             <Button
               type="button"
