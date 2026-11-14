@@ -49,7 +49,7 @@ async function createSession(label: string) {
   return { id, cookie: await signCookie(token, process.env.BETTER_AUTH_SECRET!) };
 }
 
-async function postPolar(orderId: string, productId: string, runId: string) {
+async function postPolar(orderId: string, productId: string, userId: string) {
   const now = new Date().toISOString();
   const payload = {
     type: "order.paid",
@@ -58,8 +58,8 @@ async function postPolar(orderId: string, productId: string, runId: string) {
       subtotal_amount: 200, discount_amount: 0, net_amount: 200, amount: 200, tax_amount: 0,
       total_amount: 200, refunded_amount: 0, refunded_tax_amount: 0, currency: "usd",
       billing_reason: "purchase", billing_address: null, customer_id: "cus_phase4", product_id: productId,
-      discount_id: null, subscription_id: null, checkout_id: "checkout_phase4", metadata: { runId },
-      customer: { id: "cus_phase4", created_at: now, modified_at: null, metadata: {}, external_id: null, email: "phase4@wiora.test", email_verified: false, name: "Phase 4", billing_address: null, tax_id: null, organization_id: "org_phase4", deleted_at: null, avatar_url: "https://example.com/a.png" },
+      discount_id: null, subscription_id: null, checkout_id: "checkout_phase4", metadata: { userId },
+      customer: { id: "cus_phase4", created_at: now, modified_at: null, metadata: {}, external_id: userId, email: "phase4@wiora.test", email_verified: false, name: "Phase 4", billing_address: null, tax_id: null, organization_id: "org_phase4", deleted_at: null, avatar_url: "https://example.com/a.png" },
       user_id: "user_phase4",
       product: { metadata: {}, created_at: now, modified_at: null, id: productId, name: "Session", description: null, recurring_interval: null, is_recurring: false, is_archived: false, organization_id: "org_phase4" },
       discount: null, subscription: null,
@@ -150,9 +150,14 @@ async function main() {
   const modelText = JSON.stringify(prep.situation_model ?? {});
   check("brief has anchors and a read-only style", prep.status === "ready" && modelText.includes(resumeAnchor) && modelText.includes("rationale"), prep.status);
 
-  const checkout = await trpc(owner.cookie, "runs.createCheckout", { preparationId, durationMinutes: 30 });
+  await postPolar(`order_${owner.id}`, process.env.POLAR_PRODUCT_PRO!, owner.id);
+  const credited = await waitFor("credits arrive", async () => {
+    const [row] = await sql`select balance from credit_accounts where user_id = ${owner.id}`;
+    return Number(row?.balance) === 5;
+  }, 30000);
+  if (!credited) return;
+  const checkout = await trpc(owner.cookie, "runs.startInterview", { preparationId });
   const runId = checkout.payload?.runId as string;
-  await postPolar(`order_${runId}`, process.env.POLAR_PRODUCT_30!, runId);
   const paid = await waitFor("session paid", async () => {
     const [row] = await sql`select status, brief_text from simulation_runs where id = ${runId}`;
     return row?.status === "paid" && typeof row.brief_text === "string";
@@ -187,14 +192,11 @@ async function main() {
   ));
 
   const weaknessId = weaknesses[0]?.id;
-  const drill = await trpc(owner.cookie, "runs.createDrill", { runId, weaknessId });
+  const drill = await trpc(owner.cookie, "runs.startDrill", { runId, weaknessId });
   const drillRunId = drill.payload?.runId as string;
-  check("practice creates a run without a form", Boolean(drillRunId), drill.error?.message || "");
+  check("practice starts without a checkout form", drill.payload?.needsCredits === false && Boolean(drillRunId), drill.error?.message || "");
   const [drillRun] = await sql`select duration_minutes, drill_strategy, kind from simulation_runs where id = ${drillRunId}`;
-  check("practice copies the duration", drillRun?.duration_minutes === 30 && drillRun.kind === "replay", String(drillRun?.duration_minutes));
-  const replayPay = await trpc(owner.cookie, "runs.createCheckoutForExisting", { runId: drillRunId });
-  check("practice opens checkout", typeof replayPay.payload?.url === "string" && replayPay.payload.durationMinutes === 30, replayPay.error?.message || "");
-  await postPolar(`order_${drillRunId}`, process.env.POLAR_PRODUCT_30!, drillRunId);
+  check("practice is a 30 minute interview", drillRun?.duration_minutes === 30 && drillRun.kind === "replay", String(drillRun?.duration_minutes));
   const drillReady = await waitFor("drill brief is rendered", async () => {
     const [row] = await sql`select status, brief_text from simulation_runs where id = ${drillRunId}`;
     return row?.status === "paid" && typeof row.brief_text === "string";

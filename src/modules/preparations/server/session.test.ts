@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import { renderBrief, type BriefSituation } from "./brief";
 import { eagerness } from "./eagerness";
-import { durationForProduct } from "./products";
 import { withClock, type SessionState } from "./steer";
 
 const situation: BriefSituation = {
@@ -97,18 +96,6 @@ describe("renderBrief", () => {
       drillStrategy: null,
       nextPracticeFocus: null,
     })).toThrow("The brief is too long");
-  });
-});
-
-describe("products", () => {
-  it("maps a product id to the right minutes", () => {
-    process.env.POLAR_PRODUCT_30 = "prod_30";
-    process.env.POLAR_PRODUCT_45 = "prod_45";
-    process.env.POLAR_PRODUCT_60 = "prod_60";
-    expect(durationForProduct("prod_30")).toBe(30);
-    expect(durationForProduct("prod_45")).toBe(45);
-    expect(durationForProduct("prod_60")).toBe(60);
-    expect(durationForProduct("other")).toBeNull();
   });
 });
 

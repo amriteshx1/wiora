@@ -63,14 +63,14 @@ async function createSession() {
   return { id, cookie: await signCookie(token, process.env.BETTER_AUTH_SECRET!) };
 }
 
-function orderPayload(orderId: string, productId: string, runId: string, status: "paid" | "refunded") {
+function orderPayload(orderId: string, productId: string, userId: string, status: "paid" | "refunded") {
   const now = new Date().toISOString();
   const customer = {
     id: "cus_phase3",
     created_at: now,
     modified_at: null,
     metadata: {},
-    external_id: null,
+    external_id: userId,
     email: "phase3@wiora.test",
     email_verified: false,
     name: "Phase 3",
@@ -116,7 +116,7 @@ function orderPayload(orderId: string, productId: string, runId: string, status:
       discount_id: null,
       subscription_id: null,
       checkout_id: "checkout_phase3",
-      metadata: { runId },
+      metadata: { userId },
       customer,
       user_id: "user_phase3",
       product,
@@ -241,102 +241,84 @@ async function main() {
   });
   const beforeHtml = await beforePay.text();
   check(
-    "duration picker is on the preparation",
-    beforeHtml.includes("30 minutes") && beforeHtml.includes("$2") && beforeHtml.includes("60 minutes") && beforeHtml.includes("$4"),
+    "interview start is on the preparation",
+    beforeHtml.includes("Start interview") && beforeHtml.includes("30-minute") && !beforeHtml.includes("$2") && !beforeHtml.includes("$4"),
   );
-  check("duration picker has no difficulty control", !beforeHtml.includes("<select") && !beforeHtml.includes("difficulty"));
+  check("interview start has no difficulty control", !beforeHtml.includes("<select") && !beforeHtml.includes("difficulty"));
 
-  const checkout = await trpc(owner.cookie, "runs.createCheckout", {
-    preparationId,
-    durationMinutes: 30,
+  const blocked = await trpc(owner.cookie, "runs.startInterview", { preparationId });
+  check("starting without credits asks for a purchase", blocked.payload?.needsCredits === true, blocked.error?.message || "");
+
+  const orderId = `order_${owner.id}`;
+  const paid = await postPolar(orderPayload(orderId, process.env.POLAR_PRODUCT_PRO!, owner.id, "paid"));
+  check("credit webhook accepted", paid.status === 200, paid.text);
+  const credited = await waitFor("pro pack grants 5 credits", async () => {
+    const [row] = await sql`select balance from credit_accounts where user_id = ${owner.id}`;
+    return Number(row?.balance) === 5;
   });
-  const runId = checkout.payload?.runId as string;
-  check("checkout opens for the 30 minute product", Boolean(runId) && typeof checkout.payload?.url === "string", checkout.error?.message || "");
+  if (!credited) return;
+  check("pro pack grants 5 credits", true);
 
-  const orderId = `order_${runId}`;
-  const paid = await postPolar(orderPayload(orderId, process.env.POLAR_PRODUCT_30!, runId, "paid"));
-  check("paid webhook accepted", paid.status === 200, paid.text);
-  const paidSettled = await waitFor("paying the 30 minute product marks the run paid", async () => {
-    const [row] = await sql`select status, brief_text from simulation_runs where id = ${runId}`;
-    if (row?.status === "failed") {
-      check("paying the 30 minute product marks the run paid", false, "failed");
-      return true;
-    }
+  const again = await postPolar(orderPayload(orderId, process.env.POLAR_PRODUCT_PRO!, owner.id, "paid"));
+  check("second credit webhook accepted", again.status === 200, again.text);
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  const [stillFive] = await sql`select balance from credit_accounts where user_id = ${owner.id}`;
+  check("second webhook does not grant credits twice", Number(stillFive?.balance) === 5, String(stillFive?.balance));
+
+  const mismatch = await postPolar(orderPayload(`order_mismatch_${owner.id}`, "not-a-product", owner.id, "paid"));
+  check("unknown product webhook accepted", mismatch.status === 200, mismatch.text);
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  const [afterMismatch] = await sql`select balance from credit_accounts where user_id = ${owner.id}`;
+  check("unknown product does not grant credits", Number(afterMismatch?.balance) === 5, String(afterMismatch?.balance));
+
+  const started = await trpc(owner.cookie, "runs.startInterview", { preparationId });
+  const liveId = started.payload?.runId as string;
+  check("a credit opens the interview", started.payload?.needsCredits === false && Boolean(liveId), started.error?.message || "");
+  const liveReady = await waitFor("interview is ready to join", async () => {
+    const [row] = await sql`select status, brief_text from simulation_runs where id = ${liveId}`;
+    if (row?.status === "failed") return true;
     return row?.status === "paid" && typeof row.brief_text === "string" && row.brief_text.includes("This is practice.");
   });
-  if (paidSettled) {
-    const [paidRun] = await sql`select status, brief_text from simulation_runs where id = ${runId}`;
-    check(
-      "paying the 30 minute product marks the run paid",
-      paidRun?.status === "paid",
-      paidRun?.status || "",
-    );
-    check(
-      "paid run stores the brief",
-      typeof paidRun?.brief_text === "string" &&
-        paidRun.brief_text.includes("This is practice. Never tell the user what answer to give.") &&
-        paidRun.brief_text.includes("Depth: deep") &&
-        paidRun.brief_text.includes("Inferred from the role and the supplied documents."),
-    );
-  }
-
-  const again = await postPolar(orderPayload(orderId, process.env.POLAR_PRODUCT_30!, runId, "paid"));
-  check("second paid webhook accepted", again.status === 200, again.text);
-  const [runCount] = await sql`select count(*)::int as count from simulation_runs where preparation_id = ${preparationId}`;
-  check("second webhook does not create a second run", runCount.count === 1, String(runCount.count));
-
-  const mismatchCheckout = await trpc(owner.cookie, "runs.createCheckout", {
-    preparationId,
-    durationMinutes: 30,
-  });
-  const mismatchId = mismatchCheckout.payload?.runId as string;
-  const mismatch = await postPolar(orderPayload(`order_${mismatchId}`, process.env.POLAR_PRODUCT_45!, mismatchId, "paid"));
-  check("mismatched webhook accepted", mismatch.status === 200, mismatch.text);
-  const [mismatchRun] = await sql`select status, polar_order_id from simulation_runs where id = ${mismatchId}`;
-  check("mismatched product does not mark the run paid", mismatchRun?.status === "unpaid" && mismatchRun.polar_order_id == null, mismatchRun?.status || "");
-
-  const refund = await postPolar(orderPayload(orderId, process.env.POLAR_PRODUCT_30!, runId, "refunded"));
-  check("refund webhook accepted", refund.status === 200, refund.text);
-  const refundSettled = await waitFor("refund of a paid run sets failed", async () => {
-    const [row] = await sql`select status from simulation_runs where id = ${runId}`;
-    return row?.status === "failed";
-  });
-  if (refundSettled) check("refund of a paid run sets failed", true);
-
-  const liveCheckout = await trpc(owner.cookie, "runs.createCheckout", {
-    preparationId,
-    durationMinutes: 30,
-  });
-  const liveId = liveCheckout.payload?.runId as string;
-  const livePaid = await postPolar(orderPayload(`order_${liveId}`, process.env.POLAR_PRODUCT_30!, liveId, "paid"));
-  check("live session payment accepted", livePaid.status === 200, livePaid.text);
-  const liveReady = await waitFor("live session paid", async () => {
-    const [row] = await sql`select status from simulation_runs where id = ${liveId}`;
-    return row?.status === "paid" || row?.status === "failed";
-  });
   if (!liveReady) return;
-  const [liveRow] = await sql`select status from simulation_runs where id = ${liveId}`;
-  check("live session paid", liveRow?.status === "paid", liveRow?.status || "");
+  const [liveRow] = await sql`select status, brief_text, duration_minutes from simulation_runs where id = ${liveId}`;
+  check("interview is ready to join", liveRow?.status === "paid" && liveRow.duration_minutes === 30, liveRow?.status || "");
+  check(
+    "ready interview stores the brief",
+    typeof liveRow?.brief_text === "string" &&
+      liveRow.brief_text.includes("This is practice. Never tell the user what answer to give.") &&
+      liveRow.brief_text.includes("Depth: deep") &&
+      liveRow.brief_text.includes("Inferred from the role and the supplied documents."),
+  );
   if (liveRow?.status !== "paid") return;
-  const started = await postStream({
+
+  const refund = await postPolar(orderPayload(orderId, process.env.POLAR_PRODUCT_PRO!, owner.id, "refunded"));
+  check("refund webhook accepted", refund.status === 200, refund.text);
+  const refundSettled = await waitFor("refund claws back unused credits", async () => {
+    const [row] = await sql`select balance from credit_accounts where user_id = ${owner.id}`;
+    return Number(row?.balance) === 0;
+  });
+  if (refundSettled) check("refund claws back unused credits", true);
+  const [heldRun] = await sql`select status from simulation_runs where id = ${liveId}`;
+  check("refund does not erase the interview that already reserved a credit", heldRun?.status === "paid", heldRun?.status || "");
+  const sessionStarted = await postStream({
     type: "call.session_started",
     call_cid: `default:${liveId}`,
     created_at: new Date().toISOString(),
     session_id: "phase3",
     call: { id: liveId, custom: { runId: liveId, preparationId } },
   });
-  check("session start accepted", started.status === 200, started.text);
+  check("session start accepted", sessionStarted.status === 200, sessionStarted.text);
   const becameActive = await waitFor("session start marks the run active", async () => {
     const [row] = await sql`select status, hard_end_at from simulation_runs where id = ${liveId}`;
     return row?.status === "active" && row.hard_end_at != null;
   });
   if (becameActive) check("session start marks the run active", true);
 
-  const activeRefund = await postPolar(orderPayload(`order_${liveId}`, process.env.POLAR_PRODUCT_30!, liveId, "refunded"));
-  check("refund after start accepted", activeRefund.status === 200, activeRefund.text);
-  await new Promise((resolve) => setTimeout(resolve, 4000));
+  const activeRefund = await postPolar(orderPayload(orderId, process.env.POLAR_PRODUCT_PRO!, owner.id, "refunded"));
+  check("second refund accepted", activeRefund.status === 200, activeRefund.text);
+  await new Promise((resolve) => setTimeout(resolve, 1500));
   const [stillActive] = await sql`select status from simulation_runs where id = ${liveId}`;
-  check("refund after active does not change the run", stillActive?.status === "active", stillActive?.status || "");
+  check("a second refund does not change the interview", stillActive?.status === "active", stillActive?.status || "");
 
   const steered = await waitFor("steering saved", async () => {
     const [row] = await sql`select session_state from simulation_runs where id = ${liveId}`;
