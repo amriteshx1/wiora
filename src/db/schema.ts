@@ -224,3 +224,37 @@ export const sessionTurns = pgTable(
     ),
   ],
 );
+
+export const creditAccounts = pgTable("credit_accounts", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  balance: integer("balance").notNull().default(0),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const creditLedger = pgTable(
+  "credit_ledger",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => nanoid()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    delta: integer("delta").notNull(),
+    balanceAfter: integer("balance_after").notNull(),
+    entryType: text("entry_type").notNull(),
+    plan: text("plan"),
+    runId: text("run_id").references(() => simulationRuns.id, { onDelete: "set null" }),
+    polarOrderId: text("polar_order_id"),
+    polarCheckoutId: text("polar_checkout_id"),
+    polarProductId: text("polar_product_id"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("credit_ledger_user_id_idx").on(table.userId),
+    unique("credit_ledger_order_entry").on(table.polarOrderId, table.entryType),
+    unique("credit_ledger_run_entry").on(table.runId, table.entryType),
+  ],
+);
