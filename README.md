@@ -23,8 +23,6 @@ npm run dev
 npm run worker
 ```
 
-Outside production, `TEST_SESSION_MINUTES` shortens the interview clock. A credit is still required.
-
 Object storage is S3-compatible: MinIO locally, Cloudflare R2 when deployed. The app uses the same `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, and `S3_SECRET_ACCESS_KEY` in both places.
 
 
