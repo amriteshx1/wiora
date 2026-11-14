@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 
 import { CommandResponsiveDialog, CommandInput, CommandItem, CommandList, CommandGroup, CommandEmpty } from "@/components/ui/command";
 import { useTRPC } from "@/trpc/client";
+import { preparationListLabels } from "@/modules/preparations/types";
 
 interface Props {
     open: boolean;
@@ -14,12 +15,13 @@ export const DashboardCommand = ({ open, setOpen }: Props) => {
     const router = useRouter();
     const [search, setSearch] = useState("");
     const trpc = useTRPC();
-    const preparations = useQuery(
-        trpc.preparations.getMany.queryOptions({
+    const preparations = useQuery({
+        ...trpc.preparations.getMany.queryOptions({
             search,
             pageSize: 100,
-        })
-    );
+        }),
+        enabled: open,
+    });
 
     return (
         <CommandResponsiveDialog shouldFilter={false} open={open} onOpenChange={setOpen}>
@@ -43,7 +45,7 @@ export const DashboardCommand = ({ open, setOpen }: Props) => {
                           }}
                           key={preparation.id}
                         >
-                            {preparation.title}
+                            {preparationListLabels(preparation.conversationType, preparation.context).company}
                         </CommandItem>
                     ))}
                 </CommandGroup>

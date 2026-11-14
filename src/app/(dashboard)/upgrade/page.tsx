@@ -1,10 +1,9 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import {
   UpgradeView,
   UpgradeViewError,
@@ -13,9 +12,7 @@ import {
 import { getQueryClient, trpc } from "@/trpc/server";
 
 const Page = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session) {
     redirect("/sign-in");

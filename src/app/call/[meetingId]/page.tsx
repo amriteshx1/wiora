@@ -1,9 +1,9 @@
-import { auth } from "@/lib/auth";
 import { RunCallView } from "@/modules/call/ui/views/run-call-view";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+
+import { getSession } from "@/lib/session";
 
 interface Props{
     params: Promise<{
@@ -13,9 +13,7 @@ interface Props{
 
 const Page = async ({ params }: Props) => {
     const { meetingId } = await params;
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const session = await getSession();
     if (!session) {
       redirect("/sign-in");
     }

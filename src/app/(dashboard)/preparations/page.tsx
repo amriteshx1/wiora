@@ -1,11 +1,10 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import type { SearchParams } from "nuqs/server";
 
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { loadSearchParams } from "@/modules/preparations/params";
 import { PreparationsListHeader } from "@/modules/preparations/ui/components/preparations-list-header";
 import {
@@ -21,9 +20,7 @@ interface Props {
 
 const Page = async ({ searchParams }: Props) => {
   const filters = await loadSearchParams(searchParams);
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSession();
 
   if (!session) {
     redirect("/sign-in");
