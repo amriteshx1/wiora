@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { XIcon } from "lucide-react";
+import { UploadIcon, XIcon } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { useTRPC } from "@/trpc/client";
-import { useMutation } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 
 import type { DocumentSlot } from "../../types";
 
@@ -26,6 +27,25 @@ interface Props {
   onRemoved: (documentId: string) => void;
 }
 
+function putFile(url: string, file: File, contentType: string, onProgress: (value: number) => void) {
+  return new Promise<void>((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open("PUT", url);
+    request.setRequestHeader("Content-Type", contentType);
+    request.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        onProgress(Math.round((event.loaded / event.total) * 100));
+      }
+    };
+    request.onload = () => {
+      if (request.status >= 200 && request.status < 300) resolve();
+      else reject(new Error("The upload did not finish"));
+    };
+    request.onerror = () => reject(new Error("The upload did not finish"));
+    request.send(file);
+  });
+}
+
 export function FileDropzone({
   preparationId,
   slot,
@@ -37,19 +57,19 @@ export function FileDropzone({
 }: Props) {
   const trpc = useTRPC();
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [dragOver, setDragOver] = useState(false);
   const slotFiles = files.filter((file) => file.slot === slot);
   const createUpload = useMutation(trpc.preparations.createUpload.mutationOptions({}));
   const confirmUpload = useMutation(trpc.preparations.confirmUpload.mutationOptions({}));
   const removeDocument = useMutation(trpc.preparations.removeDocument.mutationOptions({}));
+  const blocked = uploading || (!multiple && slotFiles.length > 0);
 
   const onSelect = async (list: FileList | null) => {
-    if (!list || list.length === 0) {
-      return;
-    }
-
+    if (!list || list.length === 0) return;
     const selected = multiple ? Array.from(list) : [list[0]];
     setUploading(true);
-
+    setProgress(0);
     try {
       for (const file of selected) {
         const created = await createUpload.mutateAsync({
@@ -58,17 +78,12 @@ export function FileDropzone({
           contentType: file.type || "application/octet-stream",
           byteSize: file.size,
         });
-
-        const response = await fetch(created.uploadUrl, {
-          method: "PUT",
-          body: file,
-          headers: { "Content-Type": file.type || "application/octet-stream" },
-        });
-
-        if (!response.ok) {
-          throw new Error("The upload did not finish");
-        }
-
+        await putFile(
+          created.uploadUrl,
+          file,
+          file.type || "application/octet-stream",
+          setProgress,
+        );
         await confirmUpload.mutateAsync({ documentId: created.documentId });
         onUploaded({
           id: created.documentId,
@@ -81,28 +96,52 @@ export function FileDropzone({
       toast.error(message);
     } finally {
       setUploading(false);
+      setProgress(0);
     }
   };
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-medium">{label}</p>
-        <label className="text-sm">
+      <p className="text-sm">{label}</p>
+      <div className="overflow-hidden rounded-md border border-dashed">
+        <label
+          className={cn(
+            "flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 px-4 py-6 text-sm text-muted-foreground",
+            dragOver && "bg-muted",
+            blocked && "cursor-not-allowed opacity-60",
+          )}
+          onDragOver={(event) => {
+            event.preventDefault();
+            if (!blocked) setDragOver(true);
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(event) => {
+            event.preventDefault();
+            setDragOver(false);
+            if (!blocked) void onSelect(event.dataTransfer.files);
+          }}
+        >
           <input
             className="hidden"
             type="file"
             multiple={multiple}
-            disabled={uploading || (!multiple && slotFiles.length > 0)}
+            disabled={blocked}
             onChange={(event) => {
               void onSelect(event.target.files);
               event.target.value = "";
             }}
           />
-          <span className="inline-flex h-8 cursor-pointer items-center rounded-md border px-3">
-            {uploading ? "Uploading" : "Upload"}
-          </span>
+          <UploadIcon className="size-4" />
+          <span>{uploading ? "Uploading" : "Drop a file here, or choose one"}</span>
         </label>
+        {uploading ? (
+          <div className="h-px w-full bg-border">
+            <div
+              className="h-px bg-foreground transition-[width] duration-150"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        ) : null}
       </div>
       {slotFiles.map((file) => (
         <div key={file.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">

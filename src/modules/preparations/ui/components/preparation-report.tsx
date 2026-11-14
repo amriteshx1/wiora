@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { BookOpenTextIcon, ClockFadingIcon, FileTextIcon, FileVideoIcon, SparklesIcon } from "lucide-react";
-import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { BookOpenTextIcon, ClockFadingIcon, FileTextIcon, FileVideoIcon, MessageSquareIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { LoadingState } from "@/components/loading-state";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTRPC } from "@/trpc/client";
@@ -44,32 +43,8 @@ interface Props {
 }
 
 export function PreparationReport({ runId, recordingUrl, report }: Props) {
-  const trpc = useTRPC();
   const [tab, setTab] = useState("report");
   const [focusTs, setFocusTs] = useState<number | null>(null);
-  const drill = useMutation(trpc.runs.startDrill.mutationOptions({}));
-  const nextPractice = useMutation(trpc.runs.startNextPractice.mutationOptions({}));
-  const pending = drill.isPending || nextPractice.isPending;
-
-  const openPractice = (result: { needsCredits: boolean; url: string }) => {
-    window.location.assign(result.url);
-  };
-
-  const practice = async (weaknessId: string) => {
-    try {
-      openPractice(await drill.mutateAsync({ runId, weaknessId }));
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Practice could not be opened");
-    }
-  };
-
-  const practiceNext = async () => {
-    try {
-      openPractice(await nextPractice.mutateAsync({ runId }));
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Next practice could not be opened");
-    }
-  };
 
   const openMoment = (startTs?: number) => {
     if (startTs == null) return;
@@ -77,29 +52,31 @@ export function PreparationReport({ runId, recordingUrl, report }: Props) {
     setTab("transcript");
   };
 
+  const tabClass = "text-muted-foreground rounded-none bg-background px-4 data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-b-foreground data-[state=active]:text-foreground h-full";
+
   return (
-    <Tabs value={tab} onValueChange={setTab}>
-      <div className="bg-white rounded-lg border px-3">
+    <Tabs value={tab} onValueChange={setTab} className="gap-4">
+      <div className="rounded-md border bg-background px-2 md:px-4">
         <ScrollArea>
-          <TabsList className="p-0 bg-background justify-start rounded-none h-13">
-            <TabsTrigger value="report" className="text-muted-foreground rounded-none bg-background data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-accent-foreground h-full">
+          <TabsList className="h-12 w-full justify-start gap-2 rounded-none bg-background p-0">
+            <TabsTrigger value="report" className={tabClass}>
               <BookOpenTextIcon />
               Report
             </TabsTrigger>
-            <TabsTrigger value="moments" className="text-muted-foreground rounded-none bg-background data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-accent-foreground h-full">
+            <TabsTrigger value="moments" className={tabClass}>
               <ClockFadingIcon />
               Moments
             </TabsTrigger>
-            <TabsTrigger value="transcript" className="text-muted-foreground rounded-none bg-background data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-accent-foreground h-full">
+            <TabsTrigger value="transcript" className={tabClass}>
               <FileTextIcon />
               Transcript
             </TabsTrigger>
-            <TabsTrigger value="recording" className="text-muted-foreground rounded-none bg-background data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-accent-foreground h-full">
+            <TabsTrigger value="recording" className={tabClass}>
               <FileVideoIcon />
               Recording
             </TabsTrigger>
-            <TabsTrigger value="ask" className="text-muted-foreground rounded-none bg-background data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-accent-foreground h-full">
-              <SparklesIcon />
+            <TabsTrigger value="ask" className={tabClass}>
+              <MessageSquareIcon />
               Ask
             </TabsTrigger>
           </TabsList>
@@ -107,15 +84,23 @@ export function PreparationReport({ runId, recordingUrl, report }: Props) {
         </ScrollArea>
       </div>
       <TabsContent value="report">
-        <div className="space-y-6 rounded-lg border bg-white px-4 py-5">
+        <div className="space-y-10 rounded-md border bg-background px-4 py-6 md:px-8">
           <div>
             <h2 className="text-2xl font-medium">{report.objectiveJudgment}</h2>
-            <p className="mt-2 text-sm">{report.preparedness}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{report.preparedness}</p>
           </div>
-          <section className="space-y-2">
+          <section className="space-y-3">
             <h3 className="font-medium">Dimensions</h3>
             {report.dimensions.map((item) => (
-              <p key={item.name} className="text-sm"><span className="font-medium">{item.name}.</span> {item.assessment}</p>
+              <div key={item.name} className="space-y-1 text-sm">
+                <p className="font-medium">{item.name}</p>
+                <p>{item.assessment}</p>
+                {item.quote ? (
+                  <button type="button" className="text-left text-muted-foreground underline-offset-4 hover:underline" onClick={() => openMoment(item.startTs)}>
+                    “{item.quote}”
+                  </button>
+                ) : null}
+              </div>
             ))}
           </section>
           <section className="space-y-2">
@@ -124,27 +109,33 @@ export function PreparationReport({ runId, recordingUrl, report }: Props) {
               <p key={item.statement} className="text-sm">{item.statement}</p>
             ))}
           </section>
-          <section className="space-y-1">
-            <h3 className="font-medium">Demonstrated</h3>
-            {report.demonstrated.map((item) => <p key={item} className="text-sm">{item}</p>)}
+          <section className="grid gap-8 md:grid-cols-2">
+            <div className="space-y-2">
+              <h3 className="font-medium">Demonstrated</h3>
+              {report.demonstrated.map((item) => <p key={item} className="text-sm">{item}</p>)}
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-medium">Uncertain</h3>
+              {report.uncertain.map((item) => <p key={item} className="text-sm">{item}</p>)}
+            </div>
           </section>
-          <section className="space-y-1">
-            <h3 className="font-medium">Uncertain</h3>
-            {report.uncertain.map((item) => <p key={item} className="text-sm">{item}</p>)}
-          </section>
-          <section className="space-y-3">
-            <h3 className="font-medium">What to practice</h3>
-            <p className="text-sm text-muted-foreground">Each practice is another 30-minute interview and uses one credit.</p>
+          <section className="space-y-4">
+            <div>
+              <h3 className="font-medium">What to practice</h3>
+              <p className="mt-1 text-sm text-muted-foreground">Each practice is another 30-minute interview and uses one credit</p>
+            </div>
             {report.weaknesses.map((item) => (
-              <div key={item.id} className="space-y-1 rounded-md border p-3 text-sm">
-                <p>{item.whatWentWrong}</p>
-                <p>{item.whyItWasProblematic}</p>
-                <p>{item.whatWasExpected}</p>
-                <p>{item.whatAStrongAnswerWouldHaveDemonstrated}</p>
-                {item.missingEvidence ? <p>{item.missingEvidence}</p> : null}
-                <Button type="button" variant="outline" disabled={pending} onClick={() => void practice(item.id)}>
-                  Practice This Again
-                </Button>
+              <div key={item.id} className="space-y-3 border-t py-4 text-sm">
+                <p><span className="text-muted-foreground">What went wrong. </span>{item.whatWentWrong}</p>
+                <p><span className="text-muted-foreground">Why it mattered. </span>{item.whyItWasProblematic}</p>
+                <p><span className="text-muted-foreground">What was expected. </span>{item.whatWasExpected}</p>
+                <p><span className="text-muted-foreground">A stronger answer. </span>{item.whatAStrongAnswerWouldHaveDemonstrated}</p>
+                {item.missingEvidence ? <p><span className="text-muted-foreground">Missing. </span>{item.missingEvidence}</p> : null}
+                {item.quote ? (
+                  <button type="button" className="text-left text-muted-foreground underline-offset-4 hover:underline" onClick={() => openMoment(item.startTs)}>
+                    “{item.quote}”
+                  </button>
+                ) : null}
               </div>
             ))}
           </section>
@@ -152,20 +143,17 @@ export function PreparationReport({ runId, recordingUrl, report }: Props) {
             <h3 className="font-medium">Counterpart concerns</h3>
             {report.counterpartConcerns.map((item) => <p key={item} className="text-sm">{item}</p>)}
           </section>
-          <section className="space-y-2">
+          <section className="space-y-3">
             <h3 className="font-medium">Next practice</h3>
             <p className="text-sm">{report.nextPractice.focus}</p>
             <p className="text-sm text-muted-foreground">{report.nextPractice.why}</p>
-            <Button type="button" disabled={pending} onClick={() => void practiceNext()}>
-              Practice this next
-            </Button>
           </section>
         </div>
       </TabsContent>
       <TabsContent value="moments">
-        <div className="space-y-3 rounded-lg border bg-white px-4 py-5">
+        <div className="divide-y rounded-md border bg-background">
           {report.moments.map((moment) => (
-            <button key={moment.id} type="button" className="block w-full rounded-md border p-3 text-left text-sm" onClick={() => openMoment(moment.startTs)}>
+            <button key={moment.id} type="button" className="block w-full p-4 text-left text-sm" onClick={() => openMoment(moment.startTs)}>
               <p className="font-medium">{moment.kind}</p>
               <p className="mt-1">{moment.statement}</p>
             </button>
@@ -173,16 +161,46 @@ export function PreparationReport({ runId, recordingUrl, report }: Props) {
         </div>
       </TabsContent>
       <TabsContent value="transcript">
-        <RunTranscript runId={runId} focusTs={focusTs} />
+        {tab === "transcript" ? <RunTranscript runId={runId} focusTs={focusTs} /> : null}
       </TabsContent>
       <TabsContent value="recording">
-        <div className="rounded-lg border bg-white px-4 py-5">
-          {recordingUrl ? <video src={recordingUrl} className="w-full rounded-lg" controls /> : <p className="text-sm">The recording is not ready yet.</p>}
-        </div>
+        {tab === "recording" ? <RunRecording runId={runId} recordingUrl={recordingUrl} /> : null}
       </TabsContent>
       <TabsContent value="ask">
-        <RunAsk runId={runId} />
+        {tab === "ask" ? <RunAsk runId={runId} /> : null}
       </TabsContent>
     </Tabs>
+  );
+}
+
+function RunRecording({ runId, recordingUrl }: { runId: string; recordingUrl: string | null }) {
+  const trpc = useTRPC();
+  const { data, isPending } = useQuery({
+    ...trpc.runs.getRecording.queryOptions({ runId }),
+    refetchInterval: (query) => query.state.data?.url ? false : 4000,
+    initialData: recordingUrl ? { url: recordingUrl } : undefined,
+  });
+  const url = data?.url ?? recordingUrl;
+
+  if (isPending && !url) {
+    return (
+      <div className="rounded-md border bg-background">
+        <LoadingState title="Opening recording" description="This is prepared after the interview ends" />
+      </div>
+    );
+  }
+
+  if (!url) {
+    return (
+      <div className="rounded-md border bg-background px-4 py-5">
+        <p className="text-sm text-muted-foreground">The recording is still being prepared</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-md border bg-background px-4 py-5">
+      <video src={url} className="w-full rounded-md" controls />
+    </div>
   );
 }

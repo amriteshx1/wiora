@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, ilike, inArray, notExists } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, notExists, or, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/db";
@@ -17,6 +17,7 @@ import {
   followUpSchema,
   getPack,
   limitFollowUps,
+  listRunStatus,
   type IntakeContext,
 } from "../types";
 import { safeFileName, uploadRejection } from "../uploads";
@@ -209,7 +210,12 @@ export const preparationsRouter = createTRPCRouter({
       const { page, pageSize, search } = input;
       const where = and(
         eq(preparations.userId, ctx.auth.user.id),
-        search ? ilike(preparations.title, `%${search}%`) : undefined,
+        search
+          ? or(
+              ilike(preparations.title, `%${search}%`),
+              sql`${preparations.context}::text ilike ${`%${search}%`}`,
+            )
+          : undefined,
       );
 
       const items = await db
@@ -225,8 +231,34 @@ export const preparationsRouter = createTRPCRouter({
         .from(preparations)
         .where(where);
 
+      const runRows = items.length === 0
+        ? []
+        : await db
+            .select({
+              preparationId: simulationRuns.preparationId,
+              status: simulationRuns.status,
+              createdAt: simulationRuns.createdAt,
+              updatedAt: simulationRuns.updatedAt,
+            })
+            .from(simulationRuns)
+            .where(and(
+              eq(simulationRuns.userId, ctx.auth.user.id),
+              inArray(simulationRuns.preparationId, items.map((item) => item.id)),
+            ))
+            .orderBy(desc(simulationRuns.createdAt));
+
+      const runsByPreparation = new Map<string, Array<{ status: string; updatedAt: Date | null }>>();
+      for (const row of runRows) {
+        const statuses = runsByPreparation.get(row.preparationId) ?? [];
+        statuses.push({ status: row.status, updatedAt: row.updatedAt });
+        runsByPreparation.set(row.preparationId, statuses);
+      }
+
       return {
-        items,
+        items: items.map((item) => ({
+          ...item,
+          latestRunStatus: listRunStatus(runsByPreparation.get(item.id) ?? []),
+        })),
         total: total.count,
         totalPages: Math.ceil(total.count / pageSize),
       };
@@ -456,6 +488,9 @@ export const preparationsRouter = createTRPCRouter({
           "Ask at most 3 follow-up questions, and only when the answer would change how the simulation is built.",
           "If nothing material is missing, return an empty questions array.",
           `Allowed field names: ${fieldNames}.`,
+          "The JSON context already contains the user's submitted answers.",
+          "Do not ask about a field that already has a non-empty value.",
+          "Do not rephrase a submitted job description, resume, company, role, or similar field as a new question.",
           "Do not ask for a difficulty, a personality, or a question list.",
           `Conversation type: ${pack.label}`,
           `Context: ${JSON.stringify(context)}`,

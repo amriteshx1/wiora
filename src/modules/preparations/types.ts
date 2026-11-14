@@ -155,6 +155,142 @@ export type PreparationPack = {
   fileSlots: FileSlotConfig[];
 };
 
+export type IntakeGroup = {
+  title: string;
+  fieldNames: string[];
+  slotNames?: DocumentSlot[];
+};
+
+const intakeGroupMap: Record<ConversationType, IntakeGroup[]> = {
+  job_interview: [
+    { title: "Role", fieldNames: ["company", "jobTitle", "interviewStage"] },
+    { title: "Materials", fieldNames: ["jobDescription"], slotNames: ["resume", "extra"] },
+    { title: "People", fieldNames: ["recruiterCommunication", "previousCommunication", "interviewerInformation"] },
+    { title: "You", fieldNames: ["portfolioUrl", "profileUrl", "concerns"] },
+  ],
+  investor_pitch: [
+    { title: "The company", fieldNames: ["startupDescription", "fundingStage", "amountRaising", "metrics"] },
+    { title: "Materials", fieldNames: [], slotNames: ["deck", "extra"] },
+    { title: "The investor", fieldNames: ["investor", "previousCommunication", "investorInformation", "objections"] },
+    { title: "You", fieldNames: ["desiredOutcome"] },
+  ],
+  sales_call: [
+    { title: "The call", fieldNames: ["client", "product", "pricing", "desiredOutcome"] },
+    { title: "Materials", fieldNames: [], slotNames: ["proposal", "supporting"] },
+    { title: "People", fieldNames: ["participants", "previousCommunication", "customerRequirements", "objections"] },
+  ],
+  negotiation: [
+    { title: "The deal", fieldNames: ["subject", "desiredOutcome", "minimumAcceptable", "constraints"] },
+    { title: "Materials", fieldNames: [], slotNames: ["proposal", "contract", "supporting"] },
+    { title: "The other side", fieldNames: ["counterparty", "counterpartyInformation", "previousCommunication"] },
+  ],
+  leadership: [
+    { title: "The conversation", fieldNames: ["situation", "desiredOutcome", "whatHappened"] },
+    { title: "People", fieldNames: ["people", "relationship"] },
+    { title: "Limits", fieldNames: ["constraints", "concerns"] },
+    { title: "Materials", fieldNames: [], slotNames: ["relevant"] },
+  ],
+  difficult_conversation: [
+    { title: "The conversation", fieldNames: ["situation", "desiredOutcome", "whatHappened"] },
+    { title: "People", fieldNames: ["people", "relationship"] },
+    { title: "Limits", fieldNames: ["constraints", "concerns"] },
+    { title: "Materials", fieldNames: [], slotNames: ["relevant"] },
+  ],
+  custom: [
+    { title: "The situation", fieldNames: ["description", "desiredOutcome", "people", "anythingElse"] },
+    { title: "Materials", fieldNames: [], slotNames: ["extra"] },
+  ],
+};
+
+export function intakeGroups(pack: PreparationPack): Array<{
+  title: string;
+  fields: IntakeField[];
+  slots: FileSlotConfig[];
+}> {
+  return intakeGroupMap[pack.id]
+    .map((group) => ({
+      title: group.title,
+      fields: pack.fields.filter((field) => group.fieldNames.includes(field.name)),
+      slots: pack.fileSlots.filter((slot) => group.slotNames?.includes(slot.slot)),
+    }))
+    .filter((group) => group.fields.length > 0 || group.slots.length > 0);
+}
+
+const WRITING_WINDOW_MS = 10 * 60 * 1000;
+
+export function isRecentRunUpdate(value?: Date | string | null): boolean {
+  if (!value) return false;
+  return Date.now() - new Date(value).getTime() < WRITING_WINDOW_MS;
+}
+
+export function preparationStatusLabel(status: string, runStatus?: string | null): string {
+  if (status === "draft") return "Draft";
+  if (status === "processing") return "Researching";
+  if (status === "failed") return "Could not prepare";
+  if (runStatus === "active") return "Interview";
+  if (runStatus === "processing") return "Writing report";
+  if (runStatus === "completed") return "Report";
+  if (runStatus === "paid") return "Interview";
+  if (status === "ready") return "Brief ready";
+  return status;
+}
+
+export function listRunStatus(
+  runs: Array<{ status: string; updatedAt?: Date | string | null }>,
+): string | null {
+  if (runs.length === 0) return null;
+  if (runs.some((run) => run.status === "active")) return "active";
+  if (runs.some((run) => run.status === "completed")) return "completed";
+  const latest = runs[0];
+  if (latest.status === "processing" && isRecentRunUpdate(latest.updatedAt)) {
+    return "processing";
+  }
+  if (latest.status === "processing") return "processing";
+  return latest.status;
+}
+
+export function preparationListLabels(conversationType: string, context: unknown): { company: string; role: string } {
+  const ctx = context && typeof context === "object" && !Array.isArray(context)
+    ? context as Record<string, unknown>
+    : {};
+  const pack = getPack(conversationType);
+  const fallback = pack?.label || "Preparation";
+  if (conversationType === "job_interview") {
+    return {
+      company: filled(ctx.company) || fallback,
+      role: filled(ctx.jobTitle) || "Role",
+    };
+  }
+  if (conversationType === "investor_pitch") {
+    return {
+      company: filled(ctx.investor) || fallback,
+      role: filled(ctx.startupDescription) || "Pitch",
+    };
+  }
+  if (conversationType === "sales_call") {
+    return {
+      company: filled(ctx.client) || fallback,
+      role: filled(ctx.product) || "Sales call",
+    };
+  }
+  if (conversationType === "negotiation") {
+    return {
+      company: filled(ctx.counterparty) || fallback,
+      role: filled(ctx.subject) || "Negotiation",
+    };
+  }
+  if (conversationType === "leadership" || conversationType === "difficult_conversation") {
+    return {
+      company: filled(ctx.people) || fallback,
+      role: filled(ctx.desiredOutcome) || filled(ctx.situation) || fallback,
+    };
+  }
+  return {
+    company: filled(ctx.people) || fallback,
+    role: filled(ctx.desiredOutcome) || filled(ctx.description) || fallback,
+  };
+}
+
 const sourcePriority =
   "When a company, role, or public situation is involved, search TakeYouForward and other interview-experience pages first, then LinkedIn posts and comments, then Reddit. After those, search official pages, news, forums, blogs, and other credible public sources. Reported questions are patterns, not a script. Do not invent an interviewer.";
 

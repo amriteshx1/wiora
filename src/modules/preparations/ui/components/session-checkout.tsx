@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { WaitingButton } from "@/components/waiting-button";
 import { useTRPC } from "@/trpc/client";
 
 interface Props {
@@ -16,7 +17,7 @@ export function SessionCheckout({ preparationId }: Props) {
   const balance = useQuery(trpc.premium.getBalance.queryOptions());
   const latest = useQuery({
     ...trpc.runs.getLatest.queryOptions({ preparationId }),
-    refetchInterval: (query) => query.state.data?.status === "processing" ? 2000 : false,
+    refetchInterval: (query) => query.state.data?.latest?.status === "processing" ? 2000 : false,
   });
   const start = useMutation(trpc.runs.startInterview.mutationOptions({
     onSuccess: (result) => {
@@ -25,13 +26,15 @@ export function SessionCheckout({ preparationId }: Props) {
     onError: (error) => toast.error(error.message),
   }));
 
-  const run = latest.data;
+  const run = latest.data?.latest;
+  const credits = balance.data?.balance ?? 0;
+
   if (run?.status === "paid" || run?.status === "active") {
     return (
-      <div className="mt-8 space-y-3 border-t pt-6">
-        <p className="text-sm">This interview is ready.</p>
-        <Button asChild>
-          <Link href={`/call/${run.id}`}>Join</Link>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm">The counterpart is ready</p>
+        <Button asChild className="shrink-0">
+          <Link href={`/call/${run.id}`}>Join the interview</Link>
         </Button>
       </div>
     );
@@ -39,32 +42,33 @@ export function SessionCheckout({ preparationId }: Props) {
 
   if (run?.status === "processing") {
     return (
-      <p className="mt-8 border-t pt-6 text-sm">The report is being written.</p>
+      <p className="text-sm text-muted-foreground">The report is being written</p>
     );
   }
 
-  const credits = balance.data?.balance ?? 0;
-
   return (
-    <div className="mt-8 space-y-3 border-t pt-6">
-      <h6 className="font-medium">Start the interview</h6>
-      <p className="text-sm text-muted-foreground">
-        Preparation stays free. One credit starts one 30-minute interview.
-        {balance.data ? ` You have ${credits} ${credits === 1 ? "credit" : "credits"}.` : ""}
-      </p>
-      {run?.status === "failed" ? <p className="text-sm">The last interview did not start.</p> : null}
-      {balance.isPending ? <p className="text-sm text-muted-foreground">Checking credits.</p> : null}
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0">
+        <p className="text-sm">One credit starts one 30-minute interview</p>
+        <p className="text-sm text-muted-foreground">
+          {balance.isPending
+            ? "Checking credits"
+            : `You have ${credits} ${credits === 1 ? "credit" : "credits"}`}
+          {run?.status === "failed" ? " · The last interview did not start" : ""}
+        </p>
+      </div>
       {!balance.isPending && credits > 0 ? (
-        <Button
+        <WaitingButton
           type="button"
-          disabled={start.isPending}
+          className="shrink-0"
+          waiting={start.isPending}
+          idle="Start interview"
+          busy="Starting"
           onClick={() => start.mutate({ preparationId })}
-        >
-          Start interview
-        </Button>
+        />
       ) : null}
       {!balance.isPending && credits < 1 ? (
-        <Button asChild>
+        <Button asChild className="shrink-0">
           <Link href="/upgrade">Get credits</Link>
         </Button>
       ) : null}
