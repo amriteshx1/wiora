@@ -1,14 +1,14 @@
 # Wiora
 
-Prepare for one real conversation, practice it in one paid live session, then read a report of what to do next.
+Prepare for one real conversation for free, spend one credit on a 30-minute interview, then read a report of what to do next.
 
 A preparation is one situation: a job interview, an investor pitch, a sales call, a negotiation, a leadership conversation, a difficult conversation, or a custom conversation. You do not pick a difficulty. The brief decides how the conversation will feel.
 
 1. **Describe the situation.** Add the documents that belong to it.
 2. **Read the brief.** Correct facts that are wrong.
-3. **Pay for one session.** $2 for 30 minutes, $3 for 45, or $4 for 60.
-4. **Practice live.** The counterpart responds to what you just said until the paid time ends.
-5. **Read the report.** Practice one weakness again, or take the next practice. Both are new paid sessions. There is no free tier and no subscription.
+3. **Spend one credit.** PRO is 5 interviews for $9.99, PLUS is 10 for $17.99, and SUPER is 15 for $24.99. Every interview is 30 minutes.
+4. **Practice live.** The counterpart responds to what you just said until the 30 minutes end.
+5. **Read the report.** Practice one weakness again, or take the next practice. Both spend another credit. There is no free interview and no subscription.
 
 ## Setup
 
@@ -16,14 +16,14 @@ A preparation is one situation: a job interview, an investor pitch, a sales call
 npm install
 ```
 
-Create `.env` with the database, Better Auth, OAuth, Stream, OpenAI, Polar, Resend, and S3 values used by the app. Non-voice model calls use `OPENAI_TEXT_MODEL`. Session length products use `POLAR_PRODUCT_30`, `POLAR_PRODUCT_45`, and `POLAR_PRODUCT_60`. Polar webhooks use `POLAR_WEBHOOK_SECRET`. The voice worker uses `WORKER_URL` and `WORKER_SECRET`.
+Create `.env` with the database, Better Auth, OAuth, Stream, OpenAI, Polar, Resend, and S3 values used by the app. Non-voice model calls use `OPENAI_TEXT_MODEL`. Credit packs use `POLAR_PRODUCT_PRO`, `POLAR_PRODUCT_PLUS`, and `POLAR_PRODUCT_SUPER`. Polar webhooks use `POLAR_WEBHOOK_SECRET`. The voice worker uses `WORKER_URL` and `WORKER_SECRET`.
 
 ```bash
 npm run dev
 npm run worker
 ```
 
-Outside production, `TEST_SESSION_MINUTES` shortens the paid clock.
+Outside production, `TEST_SESSION_MINUTES` shortens the interview clock. A credit is still required.
 
 Object storage is S3-compatible: MinIO locally, Cloudflare R2 when deployed. The app uses the same `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, and `S3_SECRET_ACCESS_KEY` in both places.
 
@@ -63,7 +63,7 @@ Object storage is S3-compatible: MinIO locally, Cloudflare R2 when deployed. The
 - Drizzle ORM
 - tRPC
 - BetterAuth
-- Polar (one session at a time: $2, $3, or $4)
+- Polar (prepaid credits: PRO, PLUS, and SUPER)
 
 ### Other Integrations
 - Resend (emails)
