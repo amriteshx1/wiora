@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Channel as StreamChannel } from "stream-chat";
 import{
@@ -38,14 +38,14 @@ export const ChatUI = ({
     );
 
     const [channel, setChannel] = useState<StreamChannel>();
+    const userData = useMemo(
+        () => ({ id: userId, name: userName, image: userImage }),
+        [userId, userName, userImage],
+    );
     const client = useCreateChatClient({
         apiKey: process.env.NEXT_PUBLIC_STREAM_CHAT_API_KEY!,
         tokenOrProvider: generateChatToken,
-        userData: {
-            id: userId,
-            name: userName,
-            image: userImage,
-        },
+        userData,
     });
 
     useEffect(() => {

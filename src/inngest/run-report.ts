@@ -1,7 +1,7 @@
 import { and, eq, isNull } from "drizzle-orm";
 
 import { db } from "@/db";
-import { simulationRuns } from "@/db/schema";
+import { sessionTurns, simulationRuns } from "@/db/schema";
 import { inngest } from "@/inngest/client";
 
 import { buildReport } from "@/modules/preparations/server/report";
@@ -12,11 +12,17 @@ export const runsReport = inngest.createFunction(
   async ({ event, step }) => {
     const initial = await step.run("load-run", async () => {
       const [run] = await db.select().from(simulationRuns).where(eq(simulationRuns.id, event.data.runId));
-      return run ?? null;
+      if (!run) return null;
+      const [turn] = await db
+        .select({ id: sessionTurns.id })
+        .from(sessionTurns)
+        .where(eq(sessionTurns.runId, run.id))
+        .limit(1);
+      return { ...run, hasTurns: Boolean(turn) };
     });
     if (!initial || initial.report) return;
 
-    if (!initial.transcriptUrl) {
+    if (!initial.transcriptUrl && !initial.hasTurns) {
       const endedAt = initial.endedAt ? new Date(initial.endedAt).getTime() : Date.now();
       const deadline = new Date(endedAt + 10 * 60 * 1000);
       if (deadline.getTime() > Date.now()) {
@@ -30,9 +36,21 @@ export const runsReport = inngest.createFunction(
         .from(simulationRuns)
         .where(and(eq(simulationRuns.id, event.data.runId), isNull(simulationRuns.report)));
       if (!run) return;
-      if (!run.transcriptUrl) {
-        const endedAt = run.endedAt ? new Date(run.endedAt).getTime() : 0;
-        if (Date.now() < endedAt + 10 * 60 * 1000) return;
+      const [turn] = await db
+        .select({ id: sessionTurns.id })
+        .from(sessionTurns)
+        .where(eq(sessionTurns.runId, run.id))
+        .limit(1);
+      if (!run.transcriptUrl && !turn) {
+        await db
+          .update(simulationRuns)
+          .set({ status: "failed", updatedAt: new Date() })
+          .where(and(
+            eq(simulationRuns.id, run.id),
+            eq(simulationRuns.status, "processing"),
+            isNull(simulationRuns.report),
+          ));
+        return;
       }
       await buildReport(run.id);
     });

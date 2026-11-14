@@ -67,15 +67,18 @@ async function insertTurn(runId: string, speaker: "user" | "counterpart", text: 
 
 export async function startRun(runId: string): Promise<void> {
   if (held.has(runId)) return;
+  held.set(runId, { stop: () => held.delete(runId) });
 
   const [run] = await db.select().from(simulationRuns).where(eq(simulationRuns.id, runId));
   if (!run) {
+    held.delete(runId);
     console.error("Session was not found");
     return;
   }
   const joinable = run.status === "paid"
     || (run.status === "active" && run.hardEndAt != null && run.hardEndAt.getTime() > Date.now());
   if (!joinable) {
+    held.delete(runId);
     console.error(`Session ${run.status} cannot be joined`);
     return;
   }
@@ -83,6 +86,7 @@ export async function startRun(runId: string): Promise<void> {
   const [preparation] = await db.select().from(preparations).where(eq(preparations.id, run.preparationId));
   const situation = asSituation(preparation?.situationModel);
   if (!situation || !run.briefText) {
+    held.delete(runId);
     console.error("Session brief is missing");
     return;
   }
@@ -94,12 +98,18 @@ export async function startRun(runId: string): Promise<void> {
 
   const client = streamClient();
   const call = client.video.call("default", run.id);
-  const realtime = await client.video.connectOpenAi({
-    call,
-    openAiApiKey: process.env.OPENAI_API_KEY!,
-    agentUserId: `cp_${run.id}`,
-    model: "gpt-realtime-2.1-mini" as never,
-  });
+  let realtime: Awaited<ReturnType<typeof client.video.connectOpenAi>>;
+  try {
+    realtime = await client.video.connectOpenAi({
+      call,
+      openAiApiKey: process.env.OPENAI_API_KEY!,
+      agentUserId: `cp_${run.id}`,
+      model: "gpt-realtime-2.1-mini" as never,
+    });
+  } catch (error) {
+    held.delete(runId);
+    throw error;
+  }
 
   let stopped = false;
   let responding = false;

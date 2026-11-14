@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import OpenAI from "openai";
 import { z } from "zod";
 
 import { db } from "@/db";
@@ -9,10 +10,10 @@ import { streamChat } from "@/lib/stream-chat";
 import { streamVideo } from "@/lib/stream-video";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
-import { markRunActive } from "@/inngest/run-hard-stop";
+import { finishRun, markRunActive } from "@/inngest/run-hard-stop";
 import { startWorker } from "./worker-client";
 import { openAuthorizedRun } from "./authorize-run";
-import { creditBalance, reserveCredit, restoreCredit } from "./credits";
+import { creditBalance } from "./credits";
 import { INTERVIEW_MINUTES } from "./credit-rules";
 import { createDrill, createNextPractice } from "./drill";
 
@@ -32,8 +33,8 @@ function needsCredits() {
 }
 
 async function authorizeRun(runId: string, userId: string, createdNow: boolean) {
-  const reserved = await reserveCredit(userId, runId);
-  if (reserved === "empty") {
+  const balance = await creditBalance(userId);
+  if (balance < 1) {
     if (createdNow) {
       await db.delete(simulationRuns).where(and(eq(simulationRuns.id, runId), eq(simulationRuns.status, "unpaid")));
     }
@@ -42,7 +43,6 @@ async function authorizeRun(runId: string, userId: string, createdNow: boolean) 
   try {
     await openAuthorizedRun(runId);
   } catch (error) {
-    await restoreCredit(runId);
     await db
       .update(simulationRuns)
       .set({ status: "failed", updatedAt: new Date() })
@@ -59,6 +59,8 @@ function canJoin(run: { status: string; hardEndAt: Date | null; startedAt: Date 
   if (run.hardEndAt && run.hardEndAt.getTime() <= Date.now()) return false;
   return true;
 }
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function assertNoOtherLiveSession(userId: string) {
   const [active] = await db
@@ -226,13 +228,25 @@ export const runsRouter = createTRPCRouter({
       if (!preparation) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Preparation not found" });
       }
-      const [run] = await db
+      const [latest] = await db
         .select()
         .from(simulationRuns)
         .where(eq(simulationRuns.preparationId, preparation.id))
         .orderBy(desc(simulationRuns.createdAt))
         .limit(1);
-      return run ?? null;
+      const [completed] = await db
+        .select()
+        .from(simulationRuns)
+        .where(and(
+          eq(simulationRuns.preparationId, preparation.id),
+          eq(simulationRuns.status, "completed"),
+        ))
+        .orderBy(desc(simulationRuns.createdAt))
+        .limit(1);
+      return {
+        latest: latest ?? null,
+        completed: completed ?? null,
+      };
     }),
 
   generateToken: protectedProcedure
@@ -244,11 +258,9 @@ export const runsRouter = createTRPCRouter({
       }
 
       if (process.env.NODE_ENV !== "production") {
-        if (run.status === "paid") {
-          await markRunActive(run);
-        } else if (run.status === "active") {
-          await startWorker(run.id);
-        }
+        await startWorker(run.id).catch(() => {
+          console.error("The session worker was not reached");
+        });
       }
 
       await streamVideo.upsertUsers([
@@ -272,6 +284,33 @@ export const runsRouter = createTRPCRouter({
       });
     }),
 
+  begin: protectedProcedure
+    .input(z.object({ runId: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const run = await ownedRun(input.runId, ctx.auth.user.id);
+      if (run.status !== "paid" && run.status !== "active") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "This session cannot be joined" });
+      }
+      try {
+        await markRunActive(run);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "The interview could not be started";
+        throw new TRPCError({ code: "FORBIDDEN", message });
+      }
+      return { ok: true as const };
+    }),
+
+  finish: protectedProcedure
+    .input(z.object({ runId: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const run = await ownedRun(input.runId, ctx.auth.user.id);
+      if (run.status !== "paid" && run.status !== "active" && run.status !== "processing") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "This session has already ended" });
+      }
+      await finishRun(run.id);
+      return { preparationId: run.preparationId };
+    }),
+
   generateChatToken: protectedProcedure
     .input(z.object({ runId: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
@@ -282,8 +321,93 @@ export const runsRouter = createTRPCRouter({
       const token = streamChat.createToken(ctx.auth.user.id);
       await streamChat.upsertUser({
         id: ctx.auth.user.id,
+        name: ctx.auth.user.name,
         role: "admin",
       });
+      const counterpartId = `cp_${run.id}`;
+      await streamChat.upsertUser({
+        id: counterpartId,
+        name: run.counterpartName || "Counterpart",
+      });
+      const channel = streamChat.channel("messaging", run.id, {
+        members: [ctx.auth.user.id, counterpartId],
+        created_by_id: ctx.auth.user.id,
+      });
+      await channel.create().catch(() => channel.watch());
       return token;
+    }),
+
+  getRecording: protectedProcedure
+    .input(z.object({ runId: z.string().min(1) }))
+    .query(async ({ ctx, input }) => {
+      const run = await ownedRun(input.runId, ctx.auth.user.id);
+      if (run.recordingUrl) return { url: run.recordingUrl };
+      try {
+        const listed = await streamVideo.video.call("default", run.id).listRecordings();
+        const url = listed.recordings?.[0]?.url ?? null;
+        if (!url) return { url: null };
+        await db
+          .update(simulationRuns)
+          .set({ recordingUrl: url, updatedAt: new Date() })
+          .where(eq(simulationRuns.id, run.id));
+        return { url };
+      } catch {
+        return { url: null };
+      }
+    }),
+
+  ask: protectedProcedure
+    .input(z.object({
+      runId: z.string().min(1),
+      text: z.string().min(1),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const run = await ownedRun(input.runId, ctx.auth.user.id);
+      if (run.status !== "completed") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Ask is available after the report is ready" });
+      }
+      const [preparation] = await db.select().from(preparations).where(eq(preparations.id, run.preparationId));
+      const counterpartId = `cp_${run.id}`;
+      const counterpartName = run.counterpartName || "Counterpart";
+      await streamChat.upsertUser({ id: counterpartId, name: counterpartName });
+      const channel = streamChat.channel("messaging", run.id);
+      await channel.watch();
+      const messages = channel.state.messages;
+      const last = messages.at(-1);
+      const previousUser = messages.at(-2);
+      if (last?.user?.id === counterpartId && previousUser?.text === input.text) {
+        return { ok: true as const };
+      }
+      const previous = channel.state.messages
+        .slice(-6)
+        .filter((message) => message.text?.trim())
+        .map((message) => ({
+          role: message.user?.id === counterpartId ? "assistant" as const : "user" as const,
+          content: message.text || "",
+        }));
+      const completion = await openai.chat.completions.create({
+        model: process.env.OPENAI_TEXT_MODEL || "gpt-5.6-luna",
+        messages: [
+          {
+            role: "system",
+            content: [
+              "Answer questions about one completed practice session.",
+              "Use only the report and the situation model.",
+              `Report: ${JSON.stringify(run.report)}`,
+              `Situation: ${JSON.stringify(preparation?.situationModel ?? {})}`,
+            ].join("\n\n"),
+          },
+          ...previous,
+          { role: "user", content: input.text },
+        ],
+      });
+      const reply = completion.choices[0]?.message.content;
+      if (reply) {
+        await channel.sendMessage({
+          text: reply,
+          user: { id: counterpartId, name: counterpartName },
+        });
+      }
+      return { ok: true as const };
     }),
 });

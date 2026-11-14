@@ -1,26 +1,49 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { StreamTheme, useCall } from "@stream-io/video-react-sdk";
+import { toast } from "sonner";
+
+import { useTRPC } from "@/trpc/client";
+
 import { CallLobby } from "./call-lobby";
 import { CallActive } from "./call-active";
 import { CallEnded } from "./call-ended";
 
 interface Props {
+    runId: string;
     meetingName: string;
     endedHref: string;
     endedDetail: string;
     hardEndAt?: string | null;
 }
 
-export const CallUI = ({ meetingName, endedHref, endedDetail, hardEndAt }: Props) => {
+export const CallUI = ({ runId, meetingName, endedHref, endedDetail, hardEndAt }: Props) => {
     const call = useCall();
+    const trpc = useTRPC();
     const [show, setShow] = useState<"lobby" | "call" | "ended">("lobby");
+    const { mutate: finishRun } = useMutation(trpc.runs.finish.mutationOptions());
+    const { mutateAsync: beginRun } = useMutation(trpc.runs.begin.mutationOptions());
+    const finishRef = useRef(finishRun);
+    finishRef.current = finishRun;
+
+    const closeInterview = () => {
+        finishRef.current({ runId });
+        setShow("ended");
+    };
 
     const handleJoin = async () => {
         if(!call) return;
 
         await call.join();
+        try {
+            await beginRun({ runId });
+        } catch (error) {
+            await call.leave().catch(() => undefined);
+            toast.error(error instanceof Error ? error.message : "The interview could not be started");
+            return;
+        }
 
         setShow("call");
     };
@@ -29,28 +52,28 @@ export const CallUI = ({ meetingName, endedHref, endedDetail, hardEndAt }: Props
         if(!call) return;
 
         call.endCall();
-        setShow("ended");
+        closeInterview();
     };
 
     useEffect(() => {
       if (!call) return;
   
       const unsubscribe = call.on("callEnded", () => {
-        setShow("ended");
+        closeInterview();
       });
   
       return () => {
         unsubscribe?.();
       };
-    }, [call]);
+    }, [call, runId]);
 
     return (
         <StreamTheme className="h-full">
-            {show === "lobby" && <CallLobby onJoin={handleJoin} />}
+            {show === "lobby" && <CallLobby onJoin={handleJoin} cancelHref={endedHref} />}
             {show === "call" && (
-              <CallActive onLeave={handleLeave} meetingName={meetingName} hardEndAt={hardEndAt} />
+              <CallActive onLeave={handleLeave} meetingName={meetingName} hardEndAt={hardEndAt} backHref={endedHref} />
             )}
-            {show === "ended" && <CallEnded href={endedHref} detail={endedDetail} />}
+            {show === "ended" && <CallEnded href={endedHref} detail={endedDetail} counterpartName={meetingName} />}
         </StreamTheme>
     );
 };

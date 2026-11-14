@@ -35,8 +35,8 @@ export const CallConnect = ({
     userName,
     userImage,
     tokenSource = "run",
-    endedHref = "/meetings",
-    endedDetail = "Summary will appear in a few minutes.",
+    endedHref = "/preparations",
+    endedDetail = "The report is being written on your preparation",
     hardEndAt = null,
 }: Props) => {
     const trpc = useTRPC();
@@ -85,8 +85,8 @@ export const CallConnect = ({
 
     if(!client || !call){
         return (
-            <div className="flex h-screen items-center justify-center bg-radial from-sidebar-accent to-sidebar">
-                <LoaderIcon className="size-6 animate-spin text-white" />
+            <div className="flex h-screen items-center justify-center bg-background">
+                <LoaderIcon className="size-6 text-foreground" />
             </div>
         );
     };
@@ -95,6 +95,7 @@ export const CallConnect = ({
         <StreamVideo client={client}>
             <StreamCall call={call}>
                 <CallUI
+                  runId={meetingId}
                   meetingName={meetingName}
                   endedHref={endedHref}
                   endedDetail={endedDetail}

@@ -18,7 +18,7 @@ import { streamVideo } from "@/lib/stream-video";
 import { inngest } from "@/inngest/client";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
-import { endRunIfUserLeft, markRunActive, markRunProcessing } from "@/inngest/run-hard-stop";
+import { endRunIfUserLeft, finishRun, markRunActive } from "@/inngest/run-hard-stop";
 import { startWorker } from "@/modules/preparations/server/worker-client";
 
 const openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest){
             await endRunIfUserLeft(run, event.participant?.user?.id);
         } else if (eventType === "call.session_ended") {
             if (run.status === "active") {
-                await markRunProcessing(run.id);
+                await finishRun(run.id);
             }
         } else if (eventType === "call.transcription_ready") {
             const event = payload as CallTranscriptionReadyEvent;

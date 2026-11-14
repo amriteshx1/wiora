@@ -2,7 +2,7 @@ import { inngest } from "@/inngest/client";
 import { streamVideo } from "@/lib/stream-video";
 
 import { sessionMinutes } from "@/modules/preparations/server/clock";
-import { consumeCredit, restoreCredit } from "@/modules/preparations/server/credits";
+import { consumeCredit, reserveCredit, restoreCredit } from "@/modules/preparations/server/credits";
 import { startWorker } from "@/modules/preparations/server/worker-client";
 import { db } from "@/db";
 import { simulationRuns } from "@/db/schema";
@@ -29,11 +29,27 @@ export const runsHardStop = inngest.createFunction(
           updatedAt: new Date(),
         })
         .where(and(eq(simulationRuns.id, run.id), eq(simulationRuns.status, "active")));
+      await inngest.send({
+        name: "runs/report",
+        data: { runId: run.id },
+      }).catch(() => {
+        console.error("The report was not queued");
+      });
     });
   },
 );
 
 export async function markRunActive(run: RunRow): Promise<void> {
+  if (run.status === "active") {
+    await startWorker(run.id).catch(() => {
+      console.error("The session worker was not reached");
+    });
+    return;
+  }
+  const reserved = await reserveCredit(run.userId, run.id);
+  if (reserved === "empty") {
+    throw new Error("You need a credit to start this interview");
+  }
   const minutes = sessionMinutes(run.durationMinutes);
   const startedAt = new Date();
   const hardEndAt = new Date(startedAt.getTime() + minutes * 60_000);
@@ -69,6 +85,11 @@ export async function markRunActive(run: RunRow): Promise<void> {
     throw error;
   }
   await consumeCredit(run.id);
+  await streamVideo.video.call("default", run.id).startRecording({
+    recording_type: "video",
+  }).catch(() => {
+    console.error("Recording did not start");
+  });
   await inngest.send({
     name: "runs/hard-stop",
     data: {
@@ -96,4 +117,14 @@ export async function markRunProcessing(runId: string): Promise<void> {
       updatedAt: new Date(),
     })
     .where(and(eq(simulationRuns.id, runId), eq(simulationRuns.status, "active")));
+}
+
+export async function finishRun(runId: string): Promise<void> {
+  await markRunProcessing(runId);
+  await inngest.send({
+    name: "runs/report",
+    data: { runId },
+  }).catch(() => {
+    console.error("The report was not queued");
+  });
 }

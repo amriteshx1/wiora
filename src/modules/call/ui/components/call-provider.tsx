@@ -27,8 +27,8 @@ export const CallProvider = ({
 
     if(!data || isPending){
         return (
-            <div className="flex h-screen items-center justify-center bg-radial from-sidebar-accent to-sidebar">
-                <LoaderIcon className="size-6 animate-spin text-white" />
+            <div className="flex h-screen items-center justify-center bg-background">
+                <LoaderIcon className="size-6 text-foreground" />
             </div>
         )
     }
