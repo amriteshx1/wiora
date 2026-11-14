@@ -6,14 +6,6 @@ import { generateAvatarUri } from "@/lib/avatar";
 import { streamVideo } from "@/lib/stream-video";
 
 import { renderBrief, type BriefSituation, type DrillStrategy } from "./brief";
-import { durationForProduct } from "./products";
-
-type PaidOrder = {
-  id: string;
-  productId: string;
-  checkoutId: string | null;
-  metadata: Record<string, string | number | boolean> | null;
-};
 
 function asSituation(value: unknown): BriefSituation | null {
   if (!value || typeof value !== "object") return null;
@@ -41,42 +33,22 @@ async function failRun(runId: string, message: string) {
     .where(eq(simulationRuns.id, runId));
 }
 
-export async function applyOrderPaid(order: PaidOrder): Promise<void> {
-  const runId = typeof order.metadata?.runId === "string" ? order.metadata.runId : "";
-  if (!runId) {
-    console.error("Paid order has no run");
-    return;
-  }
-
+export async function openAuthorizedRun(runId: string): Promise<void> {
   const [run] = await db.select().from(simulationRuns).where(eq(simulationRuns.id, runId));
-  if (!run) {
-    console.error(`Paid order did not match a session ${runId}`);
-    return;
-  }
+  if (!run) throw new Error("Session not found");
+  if (run.status === "paid" || run.status === "active") return;
+  if (run.status !== "unpaid") throw new Error("This session cannot be started");
 
-  const minutes = durationForProduct(order.productId);
-  if (minutes !== run.durationMinutes) {
-    console.error(`Paid product ${order.productId} does not match the ${run.durationMinutes}-minute session ${run.id}`);
-    return;
-  }
-
-  if (run.polarOrderId === order.id) {
-    return;
-  }
-
-  const [preparation] = await db
-    .select()
-    .from(preparations)
-    .where(eq(preparations.id, run.preparationId));
+  const [preparation] = await db.select().from(preparations).where(eq(preparations.id, run.preparationId));
   if (!preparation) {
     await failRun(run.id, "The preparation for this session is missing");
-    return;
+    throw new Error("The preparation for this session is missing");
   }
 
   const situation = asSituation(preparation.situationModel);
   if (!situation) {
     await failRun(run.id, "The situation brief is missing");
-    return;
+    throw new Error("The situation brief is missing");
   }
 
   const findings = await db
@@ -89,7 +61,10 @@ export async function applyOrderPaid(order: PaidOrder): Promise<void> {
 
   let nextPracticeFocus: string | null = null;
   if (run.kind === "next_practice" && run.sourceRunId) {
-    const [source] = await db.select({ report: simulationRuns.report }).from(simulationRuns).where(eq(simulationRuns.id, run.sourceRunId));
+    const [source] = await db
+      .select({ report: simulationRuns.report })
+      .from(simulationRuns)
+      .where(eq(simulationRuns.id, run.sourceRunId));
     const focus = (source?.report as { nextPractice?: { focus?: string } } | null)?.nextPractice?.focus;
     nextPracticeFocus = typeof focus === "string" ? focus : null;
   }
@@ -108,14 +83,12 @@ export async function applyOrderPaid(order: PaidOrder): Promise<void> {
   } catch (error) {
     const message = error instanceof Error ? error.message : "The brief could not be rendered";
     await failRun(run.id, message);
-    return;
+    throw new Error(message);
   }
 
-  const [paid] = await db
+  const [opened] = await db
     .update(simulationRuns)
     .set({
-      polarOrderId: order.id,
-      polarCheckoutId: order.checkoutId,
       paidAt: new Date(),
       status: "paid",
       counterpartName: situation.counterpartName,
@@ -125,9 +98,7 @@ export async function applyOrderPaid(order: PaidOrder): Promise<void> {
     .where(and(eq(simulationRuns.id, run.id), eq(simulationRuns.status, "unpaid")))
     .returning();
 
-  if (!paid) {
-    return;
-  }
+  if (!opened) return;
 
   try {
     const call = streamVideo.video.call("default", run.id);
@@ -165,21 +136,6 @@ export async function applyOrderPaid(order: PaidOrder): Promise<void> {
   } catch (error) {
     const message = error instanceof Error ? error.message : "The call could not be created";
     await failRun(run.id, message);
+    throw new Error(message);
   }
-}
-
-export async function applyOrderRefunded(order: PaidOrder): Promise<void> {
-  const runId = typeof order.metadata?.runId === "string" ? order.metadata.runId : "";
-  if (!runId) return;
-
-  const [run] = await db.select().from(simulationRuns).where(eq(simulationRuns.id, runId));
-  if (!run || run.status !== "paid") return;
-
-  await db
-    .update(simulationRuns)
-    .set({
-      status: "failed",
-      updatedAt: new Date(),
-    })
-    .where(and(eq(simulationRuns.id, run.id), eq(simulationRuns.status, "paid")));
 }

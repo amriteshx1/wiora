@@ -5,6 +5,8 @@ import { db } from "@/db";
 import { preparationDocuments, preparations, researchFindings, sessionTurns, simulationRuns } from "@/db/schema";
 import { respondJson } from "@/lib/openai-responses";
 
+import { INTERVIEW_MINUTES } from "./credit-rules";
+
 const drillSchema = z.object({
   skill: z.string(),
   whyTheLastAnswerFailed: z.string(),
@@ -97,7 +99,7 @@ export async function createDrill(input: { runId: string; weaknessId: string; us
       sourceRunId: run.id,
       drillStrategy: strategy,
       situationVersion: preparation.situationVersion,
-      durationMinutes: run.durationMinutes,
+      durationMinutes: INTERVIEW_MINUTES,
       status: "unpaid",
       counterpartName: situation?.counterpartName || run.counterpartName,
     })
@@ -116,9 +118,8 @@ export async function createNextPractice(input: { runId: string; userId: string 
     ));
   if (!run) throw new Error("Completed session not found");
   const report = run.report as ReportShape | null;
-  const minutes = report?.nextPractice?.suggestedMinutes;
-  if (minutes !== 30 && minutes !== 45 && minutes !== 60) {
-    throw new Error("The report has no next practice length");
+  if (!report?.nextPractice?.focus) {
+    throw new Error("The report has no next practice");
   }
   const [preparation] = await db.select().from(preparations).where(eq(preparations.id, run.preparationId));
   if (!preparation) throw new Error("Preparation not found");
@@ -132,7 +133,7 @@ export async function createNextPractice(input: { runId: string; userId: string 
       sourceRunId: run.id,
       drillStrategy: null,
       situationVersion: preparation.situationVersion,
-      durationMinutes: minutes,
+      durationMinutes: INTERVIEW_MINUTES,
       status: "unpaid",
       counterpartName: situation?.counterpartName || run.counterpartName,
     })

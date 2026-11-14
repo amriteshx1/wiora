@@ -1,19 +1,19 @@
 import { TRPCError } from "@trpc/server";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/db";
 import { preparations, sessionTurns, simulationRuns, user } from "@/db/schema";
 import { generateAvatarUri } from "@/lib/avatar";
-import { polarClient } from "@/lib/polar";
 import { streamChat } from "@/lib/stream-chat";
 import { streamVideo } from "@/lib/stream-video";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
 import { markRunActive } from "@/inngest/run-hard-stop";
 import { startWorker } from "./worker-client";
-import { applyOrderPaid } from "./orders";
-import { localProductId, localSessionsAreFree, productForDuration } from "./products";
+import { openAuthorizedRun } from "./authorize-run";
+import { creditBalance, reserveCredit, restoreCredit } from "./credits";
+import { INTERVIEW_MINUTES } from "./credit-rules";
 import { createDrill, createNextPractice } from "./drill";
 
 async function ownedRun(runId: string, userId: string) {
@@ -27,36 +27,30 @@ async function ownedRun(runId: string, userId: string) {
   return run;
 }
 
-async function checkoutUrl(run: { id: string; preparationId: string; durationMinutes: number }, userId: string) {
-  if (run.durationMinutes !== 30 && run.durationMinutes !== 45 && run.durationMinutes !== 60) {
-    throw new TRPCError({ code: "BAD_REQUEST", message: "This session has no price" });
-  }
-  if (localSessionsAreFree()) {
-    await applyOrderPaid({
-      id: `local-${run.id}`,
-      productId: localProductId(run.durationMinutes),
-      checkoutId: null,
-      metadata: { runId: run.id },
-    });
-    const [updated] = await db
-      .select({ status: simulationRuns.status })
-      .from(simulationRuns)
-      .where(eq(simulationRuns.id, run.id));
-    if (updated?.status !== "paid") {
-      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "The local session could not be opened" });
-    }
-    return `/call/${run.id}`;
-  }
+function needsCredits() {
+  return { needsCredits: true as const, runId: null, url: "/upgrade" };
+}
 
-  const productId = productForDuration(run.durationMinutes);
-  const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const checkout = await polarClient.checkouts.create({
-    products: [productId],
-    customerExternalId: userId,
-    metadata: { runId: run.id },
-    successUrl: `${origin}/preparations/${run.preparationId}?checkout_id={CHECKOUT_ID}`,
-  });
-  return checkout.url;
+async function authorizeRun(runId: string, userId: string, createdNow: boolean) {
+  const reserved = await reserveCredit(userId, runId);
+  if (reserved === "empty") {
+    if (createdNow) {
+      await db.delete(simulationRuns).where(and(eq(simulationRuns.id, runId), eq(simulationRuns.status, "unpaid")));
+    }
+    return needsCredits();
+  }
+  try {
+    await openAuthorizedRun(runId);
+  } catch (error) {
+    await restoreCredit(runId);
+    await db
+      .update(simulationRuns)
+      .set({ status: "failed", updatedAt: new Date() })
+      .where(eq(simulationRuns.id, runId));
+    const message = error instanceof Error ? error.message : "The interview could not be started";
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message });
+  }
+  return { needsCredits: false as const, runId, url: `/call/${runId}` };
 }
 
 function canJoin(run: { status: string; hardEndAt: Date | null; startedAt: Date | null }): boolean {
@@ -66,12 +60,22 @@ function canJoin(run: { status: string; hardEndAt: Date | null; startedAt: Date 
   return true;
 }
 
+async function assertNoOtherLiveSession(userId: string) {
+  const [active] = await db
+    .select({ id: simulationRuns.id })
+    .from(simulationRuns)
+    .where(and(
+      eq(simulationRuns.userId, userId),
+      eq(simulationRuns.status, "active"),
+    ));
+  if (active) {
+    throw new TRPCError({ code: "FORBIDDEN", message: "You already have a live session" });
+  }
+}
+
 export const runsRouter = createTRPCRouter({
-  createCheckout: protectedProcedure
-    .input(z.object({
-      preparationId: z.string().min(1),
-      durationMinutes: z.union([z.literal(30), z.literal(45), z.literal(60)]),
-    }))
+  startInterview: protectedProcedure
+    .input(z.object({ preparationId: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const [preparation] = await db
         .select()
@@ -84,63 +88,86 @@ export const runsRouter = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND", message: "Preparation not found" });
       }
       if (preparation.status !== "ready") {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "This preparation is not ready for a session" });
+        throw new TRPCError({ code: "BAD_REQUEST", message: "This preparation is not ready for an interview" });
       }
 
-      const [active] = await db
-        .select({ id: simulationRuns.id })
+      const [open] = await db
+        .select()
         .from(simulationRuns)
         .where(and(
+          eq(simulationRuns.preparationId, preparation.id),
           eq(simulationRuns.userId, ctx.auth.user.id),
-          eq(simulationRuns.status, "active"),
-        ));
-      if (active) {
-        throw new TRPCError({ code: "FORBIDDEN", message: "You already have a live session" });
+          inArray(simulationRuns.status, ["unpaid", "paid", "active"]),
+        ))
+        .orderBy(desc(simulationRuns.createdAt))
+        .limit(1);
+
+      if (open?.status === "paid" || open?.status === "active") {
+        return { needsCredits: false as const, runId: open.id, url: `/call/${open.id}` };
       }
 
-      const [run] = await db
-        .insert(simulationRuns)
-        .values({
-          preparationId: preparation.id,
-          userId: ctx.auth.user.id,
-          kind: "full",
-          sourceWeaknessId: null,
-          sourceRunId: null,
-          drillStrategy: null,
-          situationVersion: preparation.situationVersion,
-          durationMinutes: input.durationMinutes,
-          status: "unpaid",
-        })
-        .returning();
+      await assertNoOtherLiveSession(ctx.auth.user.id);
 
+      if (open?.status === "unpaid") {
+        return authorizeRun(open.id, ctx.auth.user.id, false);
+      }
+
+      let runId = "";
       try {
-        const url = await checkoutUrl(run, ctx.auth.user.id);
-        return { runId: run.id, url };
+        const [run] = await db
+          .insert(simulationRuns)
+          .values({
+            preparationId: preparation.id,
+            userId: ctx.auth.user.id,
+            kind: "full",
+            sourceWeaknessId: null,
+            sourceRunId: null,
+            drillStrategy: null,
+            situationVersion: preparation.situationVersion,
+            durationMinutes: INTERVIEW_MINUTES,
+            status: "unpaid",
+          })
+          .returning();
+        runId = run.id;
       } catch (error) {
-        await db.delete(simulationRuns).where(eq(simulationRuns.id, run.id));
-        const message = error instanceof Error ? error.message : "Checkout could not be opened";
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message });
+        const message = error instanceof Error ? error.message : "";
+        const code = typeof error === "object" && error && "code" in error ? String(error.code) : "";
+        const cause = typeof error === "object" && error && "cause" in error ? error.cause : null;
+        const causeCode = typeof cause === "object" && cause && "code" in cause ? String(cause.code) : "";
+        const causeMessage = cause instanceof Error ? cause.message : "";
+        const duplicate = code === "23505"
+          || causeCode === "23505"
+          || message.includes("simulation_runs_one_open_idx")
+          || causeMessage.includes("simulation_runs_one_open_idx");
+        if (!duplicate) throw error;
+        const [existing] = await db
+          .select()
+          .from(simulationRuns)
+          .where(and(
+            eq(simulationRuns.preparationId, preparation.id),
+            inArray(simulationRuns.status, ["unpaid", "paid", "active"]),
+          ))
+          .limit(1);
+        if (!existing) throw error;
+        if (existing.status === "paid" || existing.status === "active") {
+          return { needsCredits: false as const, runId: existing.id, url: `/call/${existing.id}` };
+        }
+        return authorizeRun(existing.id, ctx.auth.user.id, false);
       }
+
+      return authorizeRun(runId, ctx.auth.user.id, true);
     }),
 
-  createCheckoutForExisting: protectedProcedure
-    .input(z.object({ runId: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      const run = await ownedRun(input.runId, ctx.auth.user.id);
-      if (run.status !== "unpaid" || (run.kind !== "replay" && run.kind !== "next_practice")) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "This session is not waiting for payment" });
-      }
-      const url = await checkoutUrl(run, ctx.auth.user.id);
-      return { runId: run.id, url, durationMinutes: run.durationMinutes };
-    }),
-
-  createDrill: protectedProcedure
+  startDrill: protectedProcedure
     .input(z.object({ runId: z.string().min(1), weaknessId: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
+      await assertNoOtherLiveSession(ctx.auth.user.id);
+      if (await creditBalance(ctx.auth.user.id) < 1) return needsCredits();
       try {
         const runId = await createDrill({ ...input, userId: ctx.auth.user.id });
-        return { runId };
+        return authorizeRun(runId, ctx.auth.user.id, true);
       } catch (error) {
+        if (error instanceof TRPCError) throw error;
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: error instanceof Error ? error.message : "The practice session could not be created",
@@ -148,13 +175,16 @@ export const runsRouter = createTRPCRouter({
       }
     }),
 
-  createNextPractice: protectedProcedure
+  startNextPractice: protectedProcedure
     .input(z.object({ runId: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
+      await assertNoOtherLiveSession(ctx.auth.user.id);
+      if (await creditBalance(ctx.auth.user.id) < 1) return needsCredits();
       try {
         const runId = await createNextPractice({ runId: input.runId, userId: ctx.auth.user.id });
-        return { runId };
+        return authorizeRun(runId, ctx.auth.user.id, true);
       } catch (error) {
+        if (error instanceof TRPCError) throw error;
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: error instanceof Error ? error.message : "The next practice could not be created",

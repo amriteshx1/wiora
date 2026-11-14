@@ -2,6 +2,7 @@ import { inngest } from "@/inngest/client";
 import { streamVideo } from "@/lib/stream-video";
 
 import { sessionMinutes } from "@/modules/preparations/server/clock";
+import { consumeCredit, restoreCredit } from "@/modules/preparations/server/credits";
 import { startWorker } from "@/modules/preparations/server/worker-client";
 import { db } from "@/db";
 import { simulationRuns } from "@/db/schema";
@@ -46,8 +47,28 @@ export async function markRunActive(run: RunRow): Promise<void> {
     })
     .where(and(eq(simulationRuns.id, run.id), eq(simulationRuns.status, "paid")))
     .returning({ id: simulationRuns.id });
-  await startWorker(run.id);
-  if (!updated) return;
+  if (!updated) {
+    if (run.status === "active") {
+      await startWorker(run.id).catch(() => {
+        console.error("The session worker was not reached");
+      });
+    }
+    return;
+  }
+  try {
+    await startWorker(run.id);
+  } catch (error) {
+    await restoreCredit(run.id);
+    await db
+      .update(simulationRuns)
+      .set({
+        status: "failed",
+        updatedAt: new Date(),
+      })
+      .where(and(eq(simulationRuns.id, run.id), eq(simulationRuns.status, "active")));
+    throw error;
+  }
+  await consumeCredit(run.id);
   await inngest.send({
     name: "runs/hard-stop",
     data: {

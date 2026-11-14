@@ -5,7 +5,12 @@ import { after } from "next/server";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 import { polarClient } from "./polar";
-import { applyOrderPaid, applyOrderRefunded } from "@/modules/preparations/server/orders";
+import { grantCredits, refundCredits } from "@/modules/preparations/server/credits";
+
+function orderUserId(metadata: Record<string, string | number | boolean> | null | undefined, externalId: string | null | undefined) {
+  if (typeof metadata?.userId === "string" && metadata.userId) return metadata.userId;
+  return externalId || "";
+}
 
 export const auth = betterAuth({
   plugins: [
@@ -15,31 +20,37 @@ export const auth = betterAuth({
       use: [
         checkout({
           authenticatedUsersOnly: true,
-          successUrl: "/preparations",
+          successUrl: "/upgrade",
         }),
         portal(),
         webhooks({
           secret: process.env.POLAR_WEBHOOK_SECRET || "",
           onOrderPaid: async (payload) => {
+            const metadata = payload.data.metadata ?? null;
+            const externalId = payload.data.customer?.externalId ?? null;
+            const userId = orderUserId(metadata, externalId);
             const order = {
-              id: payload.data.id,
+              userId,
+              orderId: payload.data.id,
               productId: payload.data.productId,
               checkoutId: payload.data.checkoutId,
-              metadata: payload.data.metadata,
             };
             after(async () => {
-              await applyOrderPaid(order);
+              if (!order.userId) {
+                console.error("Paid order has no user");
+                return;
+              }
+              await grantCredits(order);
             });
           },
           onOrderRefunded: async (payload) => {
             const order = {
-              id: payload.data.id,
+              orderId: payload.data.id,
               productId: payload.data.productId,
               checkoutId: payload.data.checkoutId,
-              metadata: payload.data.metadata,
             };
             after(async () => {
-              await applyOrderRefunded(order);
+              await refundCredits(order);
             });
           },
         }),

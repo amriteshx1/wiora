@@ -2,8 +2,7 @@ export async function startWorker(runId: string): Promise<void> {
   const base = process.env.WORKER_URL;
   const secret = process.env.WORKER_SECRET;
   if (!base || !secret) {
-    console.error("The session worker is not configured");
-    return;
+    throw new Error("The session worker is not configured");
   }
 
   const response = await fetch(`${base.replace(/\/$/, "")}/runs/${encodeURIComponent(runId)}/start`, {
@@ -11,6 +10,6 @@ export async function startWorker(runId: string): Promise<void> {
     headers: { authorization: `Bearer ${secret}` },
   });
   if (!response.ok) {
-    console.error(`The session worker did not start the run (${response.status})`);
+    throw new Error("The session worker did not start the interview");
   }
 }

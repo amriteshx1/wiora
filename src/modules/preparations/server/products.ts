@@ -1,51 +1,108 @@
-const durations = [30, 45, 60] as const;
+import { polarClient } from "@/lib/polar";
 
-export type SessionMinutes = (typeof durations)[number];
+import {
+  INTERVIEW_MINUTES,
+  PLAN_CREDITS,
+  PLAN_IDS,
+  productIdForPlan,
+  type PlanId,
+} from "./credit-rules";
 
-function productEnv(minutes: SessionMinutes): string | undefined {
-  if (minutes === 30) return process.env.POLAR_PRODUCT_30;
-  if (minutes === 45) return process.env.POLAR_PRODUCT_45;
-  return process.env.POLAR_PRODUCT_60;
+export type PlanOffer = {
+  id: PlanId;
+  name: string;
+  description: string | null;
+  benefits: string[];
+  badge: string | null;
+  highlighted: boolean;
+  credits: number;
+  priceLabel: string;
+  priceAmount: number;
+  currency: string;
+  priceSuffix: string;
+  recurring: boolean;
+  archived: boolean;
+};
+
+const PLAN_NAMES: Record<PlanId, string> = {
+  pro: "Pro",
+  plus: "Premium",
+  super: "Super",
+};
+
+const fallbackPrices: Record<PlanId, number> = {
+  pro: 999,
+  plus: 1799,
+  super: 2499,
+};
+
+function money(cents: number, currency: string): string {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(cents / 100);
 }
 
-export function localSessionsAreFree(): boolean {
-  return process.env.NODE_ENV !== "production";
+export function fallbackOffers(): PlanOffer[] {
+  return PLAN_IDS.map((id) => {
+    const cents = fallbackPrices[id];
+    return {
+      id,
+      name: PLAN_NAMES[id],
+      description: null,
+      benefits: [],
+      badge: id === "plus" ? "Best value" : null,
+      highlighted: id === "plus",
+      credits: PLAN_CREDITS[id],
+      priceLabel: money(cents, "usd"),
+      priceAmount: cents,
+      currency: "usd",
+      priceSuffix: "",
+      recurring: false,
+      archived: false,
+    };
+  });
 }
 
-export function localProductId(minutes: SessionMinutes): string {
-  return `local-${minutes}`;
+function fixedPrice(prices: Array<{ amountType?: string; isArchived?: boolean; priceAmount?: number; priceCurrency?: string; recurringInterval?: string | null }>) {
+  return prices.find((price) => price.amountType === "fixed" && !price.isArchived && typeof price.priceAmount === "number");
 }
 
-export function durationForProduct(productId: string): SessionMinutes | null {
-  if (localSessionsAreFree()) {
-    for (const minutes of durations) {
-      if (localProductId(minutes) === productId) {
-        return minutes;
-      }
+function benefitLines(benefits: Array<{ description?: string | null }>): string[] {
+  return benefits.flatMap((benefit) => {
+    const description = benefit.description?.trim();
+    return description ? [description] : [];
+  });
+}
+
+export async function listPlanOffers(): Promise<PlanOffer[]> {
+  const offers = await Promise.all(PLAN_IDS.map(async (id) => {
+    const productId = productIdForPlan(id);
+    if (!productId) {
+      throw new Error(`${id.toUpperCase()} is not configured`);
     }
-  }
-  for (const minutes of durations) {
-    const configured = productEnv(minutes);
-    if (configured && configured === productId) {
-      return minutes;
+    const product = await polarClient.products.get({ id: productId });
+    const price = fixedPrice(product.prices);
+    if (!price || typeof price.priceAmount !== "number" || !price.priceCurrency) {
+      throw new Error(`${product.name} has no fixed price`);
     }
-  }
-  return null;
+    const metadata = product.metadata ?? {};
+    const badge = metadata.badge;
+    const variant = metadata.variant;
+    return {
+      id,
+      name: product.name,
+      description: product.description,
+      benefits: benefitLines(product.benefits),
+      badge: typeof badge === "string" ? badge : null,
+      highlighted: variant === "highlighted",
+      credits: PLAN_CREDITS[id],
+      priceLabel: money(price.priceAmount, price.priceCurrency),
+      priceAmount: price.priceAmount,
+      currency: price.priceCurrency,
+      priceSuffix: price.recurringInterval ? `/${price.recurringInterval}` : "",
+      recurring: product.isRecurring,
+      archived: product.isArchived,
+    } satisfies PlanOffer;
+  }));
+  return offers;
 }
 
-export function productForDuration(minutes: SessionMinutes): string {
-  const productId = productEnv(minutes);
-  if (!productId) {
-    throw new Error(`POLAR_PRODUCT_${minutes} is not set`);
-  }
-  return productId;
-}
-
-export function sessionProducts(): { minutes: SessionMinutes; productId: string; price: string; localFree: boolean }[] {
-  const localFree = localSessionsAreFree();
-  return [
-    { minutes: 30, productId: process.env.POLAR_PRODUCT_30 ?? "", price: "$2", localFree },
-    { minutes: 45, productId: process.env.POLAR_PRODUCT_45 ?? "", price: "$3", localFree },
-    { minutes: 60, productId: process.env.POLAR_PRODUCT_60 ?? "", price: "$4", localFree },
-  ];
-}
+export { INTERVIEW_MINUTES };
