@@ -31,7 +31,7 @@ const columns = [
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-[var(--wiora-rule)]">
+    <footer>
       <div className="landing-shell grid gap-12 py-14 md:grid-cols-4 md:gap-10 md:py-16">
         <div className="md:col-span-1">
           <div className="flex items-center gap-2">

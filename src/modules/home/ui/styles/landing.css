@@ -42,23 +42,23 @@
 
 .landing-room {
   background:
-    radial-gradient(120% 90% at 12% 92%, rgba(196, 160, 122, 0.78), transparent 52%),
-    radial-gradient(80% 70% at 92% 8%, rgba(70, 100, 140, 0.62), transparent 48%),
-    linear-gradient(158deg, #141a22 0%, #2f3c4c 42%, #5a4c3e 100%);
+    radial-gradient(ellipse 145% 48% at 48% -18%, rgba(70, 100, 140, 0.62), transparent 62%),
+    radial-gradient(ellipse 68% 110% at -12% 78%, rgba(196, 160, 122, 0.78), transparent 64%),
+    linear-gradient(204deg, #141a22 0%, #2f3c4c 58%, #5a4c3e 100%);
 }
 
 .landing-soft-cool {
   background:
-    radial-gradient(120% 90% at 12% 92%, rgba(196, 160, 122, 0.09), transparent 58%),
-    radial-gradient(80% 70% at 92% 8%, rgba(70, 100, 140, 0.14), transparent 55%),
-    linear-gradient(158deg, #f6f4f2 0%, #e9eef3 42%, #f3ebe4 100%);
+    radial-gradient(ellipse 70% 90% at 108% 92%, rgba(70, 100, 140, 0.14), transparent 68%),
+    radial-gradient(ellipse 95% 28% at 18% -8%, rgba(196, 160, 122, 0.09), transparent 72%),
+    linear-gradient(28deg, #f6f4f2 0%, #e9eef3 52%, #f3ebe4 100%);
 }
 
 .landing-soft-warm {
   background:
-    radial-gradient(120% 90% at 12% 92%, rgba(196, 160, 122, 0.12), transparent 58%),
-    radial-gradient(80% 70% at 92% 8%, rgba(70, 100, 140, 0.11), transparent 55%),
-    linear-gradient(158deg, #f5f3f1 0%, #e8ecf1 42%, #f2eae3 100%);
+    radial-gradient(ellipse 120% 42% at 50% 118%, rgba(196, 160, 122, 0.12), transparent 58%),
+    radial-gradient(circle at 0% 8%, rgba(70, 100, 140, 0.11), transparent 46%),
+    linear-gradient(248deg, #f5f3f1 0%, #e8ecf1 48%, #f2eae3 100%);
 }
 
 article.landing-soft-cool > p,
@@ -78,16 +78,16 @@ article.landing-soft-warm > p:last-of-type {
 
 .landing-research {
   background:
-    radial-gradient(90% 80% at 88% 12%, rgba(120, 148, 168, 0.35), transparent 50%),
-    radial-gradient(70% 60% at 8% 90%, rgba(196, 160, 122, 0.22), transparent 46%),
-    linear-gradient(165deg, #ece8e2 0%, #dfe6ea 55%, #e7e0d6 100%);
+    radial-gradient(ellipse 42% 130% at -6% 50%, rgba(120, 148, 168, 0.35), transparent 72%),
+    radial-gradient(ellipse 88% 36% at 62% -12%, rgba(196, 160, 122, 0.22), transparent 64%),
+    linear-gradient(94deg, #ece8e2 0%, #dfe6ea 42%, #e7e0d6 100%);
 }
 
 .landing-ember {
   background:
-    radial-gradient(90% 70% at 20% 80%, rgba(196, 160, 122, 0.55), transparent 55%),
-    radial-gradient(80% 60% at 90% 10%, rgba(90, 110, 130, 0.28), transparent 50%),
-    linear-gradient(150deg, #2a2420 0%, #4a4038 55%, #6d5c4c 100%);
+    radial-gradient(circle at 78% 112%, rgba(196, 160, 122, 0.55), transparent 48%),
+    radial-gradient(ellipse 36% 90% at 108% 28%, rgba(90, 110, 130, 0.28), transparent 68%),
+    linear-gradient(112deg, #2a2420 0%, #4a4038 40%, #6d5c4c 100%);
 }
 
 .landing-whisper {
@@ -95,6 +95,65 @@ article.landing-soft-warm > p:last-of-type {
     rgba(0, 0, 0, 0.4) 0 0 1px 0,
     rgba(0, 0, 0, 0.04) 0 1px 1px 0,
     rgba(0, 0, 0, 0.04) 0 2px 4px 0;
+}
+
+.landing-price-cross {
+  position: relative;
+}
+
+.landing-price-cross > article {
+  position: relative;
+  z-index: 0;
+}
+
+.landing-price-cross::before,
+.landing-price-cross::after,
+.landing-price-cross > .landing-price-cross-x,
+.landing-price-cross > .landing-price-cross-y {
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+  border-color: color-mix(in srgb, var(--wiora-ink) 16%, transparent);
+}
+
+.landing-price-cross::before,
+.landing-price-cross::after {
+  content: "";
+  top: -2.75rem;
+  bottom: -2.75rem;
+  width: 0;
+  border-left: 1px dashed;
+}
+
+.landing-price-cross::before {
+  left: 0;
+}
+
+.landing-price-cross::after {
+  right: 0;
+}
+
+.landing-price-cross-x {
+  left: -2.75rem;
+  right: -2.75rem;
+  top: 0;
+  height: 0;
+  border-top: 1px dashed;
+}
+
+.landing-price-cross-y {
+  left: -2.75rem;
+  right: -2.75rem;
+  bottom: 0;
+  height: 0;
+  border-top: 1px dashed;
+}
+
+.landing-close {
+  background:
+    radial-gradient(ellipse 95% 80% at 22% 12%, rgba(58, 96, 92, 0.16), transparent 58%),
+    radial-gradient(ellipse 90% 85% at 82% 92%, rgba(92, 74, 118, 0.14), transparent 60%),
+    linear-gradient(180deg, #f3efe6 0%, #e6ebe8 48%, #ece6f0 100%);
 }
 
 @media (min-width: 768px) {

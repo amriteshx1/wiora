@@ -31,27 +31,25 @@ export function LandingPricing({ plans }: { plans: LandingPlan[] }) {
           </p>
         </Reveal>
 
-        <div className="grid items-stretch gap-3 md:grid-cols-3">
-          {plans.map((plan) => (
+        <div className="grid items-stretch gap-3 overflow-visible py-10 md:grid-cols-3">
+          {plans.map((plan) => {
+            const card = (
             <article
-              key={plan.id}
               className={cn(
-                "flex flex-col gap-6 rounded-[24px] bg-[var(--wiora-mist)] p-7",
-                plan.highlighted && "bg-[#141414] text-white md:py-9",
+                "flex h-full flex-col gap-6 bg-transparent p-7",
+                plan.highlighted
+                  ? "bg-[var(--wiora-mist)] md:py-9"
+                  : "rounded-[24px]",
               )}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-medium tracking-tight">{plan.name}</h3>
                   {plan.badge ? (
-                    <p className={cn("mt-1 text-xs", plan.highlighted ? "text-white/60" : "text-[var(--wiora-mute)]")}>
-                      {plan.badge}
-                    </p>
+                    <p className="mt-1 text-xs text-[var(--wiora-mute)]">{plan.badge}</p>
                   ) : null}
                   {plan.description ? (
-                    <p className={cn("mt-1 text-xs", plan.highlighted ? "text-white/60" : "text-[var(--wiora-mute)]")}>
-                      {plan.description}
-                    </p>
+                    <p className="mt-1 text-xs text-[var(--wiora-mute)]">{plan.description}</p>
                   ) : null}
                 </div>
                 <p className="flex text-2xl font-medium tracking-tight md:text-[1.75rem]">
@@ -66,7 +64,7 @@ export function LandingPricing({ plans }: { plans: LandingPlan[] }) {
                 asChild
                 className={cn(
                   "w-full rounded-full shadow-none",
-                  plan.highlighted ? landingGhostBtn : landingPrimaryBtn,
+                  plan.highlighted ? landingPrimaryBtn : landingGhostBtn,
                 )}
               >
                 <Link href="/sign-up">Start preparing</Link>
@@ -76,23 +74,28 @@ export function LandingPricing({ plans }: { plans: LandingPlan[] }) {
                 {plan.benefits.map((feature) => (
                   <p
                     key={feature}
-                    className={cn(
-                      "flex items-center gap-x-2.5 text-[13px]",
-                      plan.highlighted ? "text-white/80" : "text-[var(--wiora-ink)]",
-                    )}
+                    className="flex items-center gap-x-2.5 text-[13px] text-[var(--wiora-ink)]"
                   >
-                    <CircleCheckIcon
-                      className={cn(
-                        "size-4",
-                        plan.highlighted ? "text-white" : "fill-[#141414] text-white",
-                      )}
-                    />
+                    <CircleCheckIcon className="size-4 fill-[#141414] text-white" />
                     {feature}
                   </p>
                 ))}
               </div>
             </article>
-          ))}
+            );
+
+            if (!plan.highlighted) {
+              return <div key={plan.id}>{card}</div>;
+            }
+
+            return (
+              <div key={plan.id} className="landing-price-cross">
+                <span className="landing-price-cross-x" />
+                <span className="landing-price-cross-y" />
+                {card}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

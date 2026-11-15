@@ -96,8 +96,8 @@ export const HomeView = ({ plans }: { plans: LandingPlan[] }) => {
         </div>
       </section>
 
-      <section>
-        <div className="border-t border-[var(--wiora-rule)]">
+      <div className="landing-close">
+        <section>
           <Reveal className="landing-shell flex flex-col items-start justify-between gap-6 py-16 md:flex-row md:items-center md:py-20">
             <div className="max-w-[36rem]">
               <h2 className="landing-section-title">Meet the other side.</h2>
@@ -109,10 +109,10 @@ export const HomeView = ({ plans }: { plans: LandingPlan[] }) => {
               <Link href="/sign-up">Start a preparation</Link>
             </Button>
           </Reveal>
-        </div>
-      </section>
+        </section>
 
-      <LandingFooter />
+        <LandingFooter />
+      </div>
     </div>
   );
 };
