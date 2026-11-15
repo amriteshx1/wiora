@@ -1,128 +1,49 @@
 "use client";
 
-import {
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactNode,
-  type RefObject,
-} from "react";
-import Image from "next/image";
-import {
-  BookOpenTextIcon,
-  AudioLinesIcon,
-  SearchIcon,
-  SparklesIcon,
-} from "lucide-react";
-
 import { Reveal } from "@/modules/home/ui/components/landing-ui";
-import { cn } from "@/lib/utils";
 
 const situations = [
   {
     title: "Job interviews",
-    body: "A counterpart who can leave the outline, including the question that only shows up once you are talking.",
+    body: "The question that only appears once you are talking — not the one on the job post.",
   },
   {
     title: "Investor pitches",
-    body: "Tell the story out loud, then sit with the pushback in the same session.",
+    body: "Tell the story out loud, then sit with the pushback in the same thirty minutes.",
   },
   {
-    title: "Client and sales calls",
+    title: "Sales and client calls",
     body: "Discovery, objections, and the turn where the conversation leaves your notes.",
   },
   {
-    title: "Negotiations and reviews",
-    body: "A counterpart in the other seat, and a conversation that can turn while you are still in it.",
+    title: "Negotiations",
+    body: "A counterpart in the other seat, and a conversation that can change while you are still in it.",
+  },
+  {
+    title: "Leadership talks",
+    body: "Reviews, board updates, and the rooms where the wording has to hold.",
+  },
+  {
+    title: "Difficult conversations",
+    body: "The ones you delay. Practice them once before they happen for real.",
   },
 ];
-
-const moreConversations = [
-  "Presentations",
-  "Discovery calls",
-  "Salary conversations",
-  "Board updates",
-  "Performance reviews",
-  "Partnership talks",
-  "Stakeholder reviews",
-];
-
-const leftovers = [
-  {
-    title: "Summary",
-    icon: BookOpenTextIcon,
-    body: "An overview of the session and notes on what was covered.",
-  },
-  {
-    title: "Transcript",
-    icon: SearchIcon,
-    body: "Search what was said, line by line.",
-  },
-  {
-    title: "Recording",
-    icon: AudioLinesIcon,
-    body: "Play the session back and hear the exchange.",
-  },
-  {
-    title: "Ask AI",
-    icon: SparklesIcon,
-    body: "Ask about this session. Replies use the summary and the chat that follows.",
-  },
-];
-
-function SeatMark({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 56 24"
-      className={cn("mb-5 h-6 w-14 text-[var(--wiora-ink)]", className)}
-      aria-hidden
-    >
-      <rect
-        x="1.25"
-        y="5.25"
-        width="18.5"
-        height="13.5"
-        rx="2"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.25"
-      />
-      <rect
-        x="36.25"
-        y="5.25"
-        width="18.5"
-        height="13.5"
-        rx="2"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.25"
-      />
-      <path
-        d="M23 12h10"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.25"
-      />
-    </svg>
-  );
-}
 
 export function LandingProblem() {
   return (
     <section>
-      <div className="landing-shell grid items-start gap-10 border-b border-[var(--wiora-rule)] py-16 md:py-24 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.15fr)] lg:gap-20">
+      <div className="landing-shell grid items-start gap-8 py-10 md:py-14 lg:grid-cols-2 lg:gap-12">
         <Reveal>
           <h2 className="landing-section-title max-w-[16ch]">
             You can script your answers. You cannot script theirs.
           </h2>
         </Reveal>
-        <Reveal delay={0.08} className="lg:border-l lg:border-[var(--wiora-rule)] lg:pl-14">
-          <SeatMark />
-          <p className="max-w-[62ch] text-sm leading-relaxed text-[var(--wiora-mute)] md:text-[1.05rem] md:leading-[1.65]">
-            The other person will not stay on your list. Questions and
-            follow-ups arrive while you are still speaking. Notes cannot do
-            that. Wiora prepares you for one situation, then runs one paid live
-            session and writes the report when you hang up.
+        <Reveal delay={0.04}>
+          <p className="max-w-[50ch] text-[15px] leading-relaxed text-[var(--wiora-mute)] md:mt-1.5 md:text-base md:leading-[1.65]">
+            The other person will not stay on your list. Follow-ups arrive while
+            you are still speaking. Wiora researches the situation, writes a
+            brief you can correct, then runs one live session and writes the
+            report when you hang up.
           </p>
         </Reveal>
       </div>
@@ -130,325 +51,47 @@ export function LandingProblem() {
   );
 }
 
-function roundPx(n: number) {
-  return Math.round(n) + 0.5;
-}
-
-function pairPath(
-  wrap: DOMRect,
-  center: DOMRect,
-  left: DOMRect,
-  right: DOMRect,
-  edge: "top" | "bottom",
-) {
-  const cx = center.left + center.width / 2 - wrap.left;
-  const cEdge =
-    edge === "top" ? center.top - wrap.top : center.bottom - wrap.top;
-  const leftY = left.top + left.height / 2 - wrap.top;
-  const rightY = right.top + right.height / 2 - wrap.top;
-  const railY = roundPx((leftY + rightY) / 2);
-  const leftX = left.right - wrap.left - 1;
-  const rightX = right.left - wrap.left + 1;
-
-  return `M ${roundPx(leftX)} ${railY} H ${roundPx(rightX)} M ${roundPx(cx)} ${railY} V ${roundPx(cEdge)}`;
-}
-
-function spinePairPath(wrap: DOMRect, first: DOMRect, second: DOMRect) {
-  const spineX = 11;
-  const firstY = first.top + first.height / 2 - wrap.top;
-  const secondY = second.top + second.height / 2 - wrap.top;
-  const firstX = first.left - wrap.left;
-  const secondX = second.left - wrap.left;
-
-  return `M ${roundPx(firstX)} ${roundPx(firstY)} H ${roundPx(spineX)} V ${roundPx(secondY)} H ${roundPx(secondX)}`;
-}
-
-function useNetworkPaths(
-  wrapRef: RefObject<HTMLDivElement | null>,
-  centerRef: RefObject<HTMLDivElement | null>,
-  variant: "corner" | "spine",
-) {
-  const [paths, setPaths] = useState<{ upper: string; lower: string }>({
-    upper: "",
-    lower: "",
-  });
-  const [size, setSize] = useState({ w: 0, h: 0 });
-
-  useLayoutEffect(() => {
-    const wrap = wrapRef.current;
-    if (!wrap) return;
-
-    const measure = () => {
-      const wrapBox = wrap.getBoundingClientRect();
-      const center = centerRef.current?.getBoundingClientRect();
-      if (!center) return;
-
-      setSize({ w: wrap.clientWidth, h: wrap.clientHeight });
-      if (wrap.clientWidth < 40) {
-        setPaths({ upper: "", lower: "" });
-        return;
-      }
-
-      const nodes = [...wrap.querySelectorAll<HTMLElement>("[data-situation-node]")];
-      nodes.sort(
-        (a, b) =>
-          Number(a.dataset.situationNode) - Number(b.dataset.situationNode),
-      );
-      if (nodes.length < 4) return;
-
-      const boxes = nodes.map((node) => node.getBoundingClientRect());
-      if (variant === "spine") {
-        setPaths({
-          upper: spinePairPath(wrapBox, boxes[0], boxes[1]),
-          lower: spinePairPath(wrapBox, boxes[2], boxes[3]),
-        });
-        return;
-      }
-
-      setPaths({
-        upper: pairPath(wrapBox, center, boxes[0], boxes[1], "top"),
-        lower: pairPath(wrapBox, center, boxes[2], boxes[3], "bottom"),
-      });
-    };
-
-    measure();
-    const raf = requestAnimationFrame(measure);
-    const ro = new ResizeObserver(measure);
-    ro.observe(wrap);
-    if (centerRef.current) ro.observe(centerRef.current);
-    wrap.querySelectorAll("[data-situation-node]").forEach((node) => {
-      ro.observe(node);
-    });
-    return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
-    };
-  }, [variant, wrapRef, centerRef]);
-
-  return { paths, size };
-}
-
-function ConnectorLayer({
-  width,
-  height,
-  upper,
-  lower,
-  className,
+function SituationCard({
+  title,
+  body,
 }: {
-  width: number;
-  height: number;
-  upper: string;
-  lower: string;
-  className?: string;
-}) {
-  if (width === 0 || height === 0) return null;
-
-  return (
-    <svg
-      className={cn(
-        "pointer-events-none absolute inset-0 text-[var(--wiora-rule)]",
-        className,
-      )}
-      width={width}
-      height={height}
-      viewBox={`0 0 ${width} ${height}`}
-      fill="none"
-      aria-hidden
-    >
-      {upper ? (
-        <path
-          d={upper}
-          stroke="currentColor"
-          strokeWidth="1"
-          strokeLinejoin="miter"
-          vectorEffect="non-scaling-stroke"
-        />
-      ) : null}
-      {lower ? (
-        <path
-          d={lower}
-          stroke="currentColor"
-          strokeWidth="1"
-          strokeLinejoin="miter"
-          vectorEffect="non-scaling-stroke"
-        />
-      ) : null}
-    </svg>
-  );
-}
-
-function CenterSeat() {
-  return (
-    <div className="flex flex-col items-center gap-3 bg-[var(--wiora-paper)]">
-      <Image
-        src="/logo-black.svg"
-        alt=""
-        width={36}
-        height={36}
-        className="size-9 lg:size-10"
-      />
-      <p className="landing-display text-xl leading-none lg:text-2xl">Wiora</p>
-      <p className="text-[11px] leading-none text-[var(--wiora-mute)] lg:text-xs">
-        The other seat
-      </p>
-    </div>
-  );
-}
-
-function SituationCopy({
-  item,
-  align = "start",
-}: {
-  item: (typeof situations)[number];
-  align?: "start" | "end";
+  title: string;
+  body: string;
 }) {
   return (
-    <div className={cn(align === "end" && "text-right")}>
-      <p className="text-[0.95rem] font-medium md:text-base lg:text-[1.05rem]">
-        {item.title}
-      </p>
-      <p className="mt-2 max-w-[30ch] text-[13px] leading-relaxed text-[var(--wiora-mute)] md:text-sm">
-        {item.body}
-      </p>
-    </div>
-  );
-}
-
-function OpenFrame({
-  side,
-  nodeId,
-  children,
-  className,
-}: {
-  side: "left" | "right";
-  nodeId: number;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      data-situation-node={nodeId}
-      className={cn(
-        "relative bg-[var(--wiora-paper)] px-5 py-5 md:px-6 md:py-6",
-        "border-[var(--wiora-rule)]",
-        side === "left" && "border-y border-r",
-        side === "right" && "border-y border-l",
-        className,
-      )}
-    >
-      {children}
-    </div>
-  );
-}
-
-function DesktopSituationNetwork() {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const centerRef = useRef<HTMLDivElement>(null);
-  const { paths, size } = useNetworkPaths(wrapRef, centerRef, "corner");
-
-  return (
-    <div
-      ref={wrapRef}
-      className="relative isolate hidden min-h-[29rem] overflow-visible md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:grid-rows-[1fr_auto_1fr] md:gap-x-10 lg:min-h-[36rem] lg:gap-x-14 xl:min-h-[40rem] xl:gap-x-20"
-    >
-      <div className="relative z-[1] col-start-1 row-start-1 min-w-0 self-start justify-self-start">
-        <OpenFrame side="left" nodeId={0} className="max-w-full lg:max-w-[23rem]">
-          <SituationCopy item={situations[0]} />
-        </OpenFrame>
-      </div>
-      <div className="relative z-[1] col-start-3 row-start-1 min-w-0 self-start justify-self-end">
-        <OpenFrame side="right" nodeId={1} className="max-w-full lg:max-w-[23rem]">
-          <SituationCopy item={situations[1]} align="end" />
-        </OpenFrame>
-      </div>
-      <div className="relative z-[1] col-start-2 row-start-2 flex items-center justify-center">
-        <div ref={centerRef} className="px-5 py-4 lg:px-8 lg:py-5">
-          <CenterSeat />
-        </div>
-      </div>
-      <div className="relative z-[1] col-start-1 row-start-3 min-w-0 self-end justify-self-start">
-        <OpenFrame side="left" nodeId={2} className="max-w-full lg:max-w-[23rem]">
-          <SituationCopy item={situations[2]} />
-        </OpenFrame>
-      </div>
-      <div className="relative z-[1] col-start-3 row-start-3 min-w-0 self-end justify-self-end">
-        <OpenFrame side="right" nodeId={3} className="max-w-full lg:max-w-[23rem]">
-          <SituationCopy item={situations[3]} align="end" />
-        </OpenFrame>
-      </div>
-      <ConnectorLayer
-        className="z-0 col-start-1 col-end-4 row-start-1 row-end-4"
-        width={size.w}
-        height={size.h}
-        upper={paths.upper}
-        lower={paths.lower}
-      />
-    </div>
-  );
-}
-
-function MobileSituationNetwork() {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const centerRef = useRef<HTMLDivElement>(null);
-  const { paths, size } = useNetworkPaths(wrapRef, centerRef, "spine");
-
-  return (
-    <div ref={wrapRef} className="relative isolate overflow-visible md:hidden">
-      <div ref={centerRef} className="relative z-[1] mb-10 flex justify-center">
-        <CenterSeat />
-      </div>
-      <div className="relative z-[1] flex flex-col gap-8 pl-7">
-        {situations.map((item, index) => (
-          <OpenFrame key={item.title} side="left" nodeId={index}>
-            <SituationCopy item={item} />
-          </OpenFrame>
-        ))}
-      </div>
-      <ConnectorLayer
-        width={size.w}
-        height={size.h}
-        upper={paths.upper}
-        lower={paths.lower}
-      />
-    </div>
-  );
-}
-
-function SituationNetwork() {
-  return (
-    <>
-      <DesktopSituationNetwork />
-      <MobileSituationNetwork />
-    </>
+    <article className="flex h-full flex-col justify-between rounded-[24px] bg-[var(--wiora-mist)] px-6 py-6">
+      <h3 className="text-[17px] font-medium tracking-tight">{title}</h3>
+      <p className="mt-3 text-sm leading-relaxed text-[var(--wiora-mute)]">{body}</p>
+    </article>
   );
 }
 
 export function LandingSituations() {
+  const [featured, pitch, sales, ...rest] = situations;
+
   return (
-    <section
-      id="features"
-      className="scroll-mt-24"
-    >
-      <div className="landing-shell flex flex-col gap-12 border-b border-[var(--wiora-rule)] py-16 md:py-24 lg:gap-16">
-        <Reveal className="max-w-[40rem]">
+    <section id="features" className="scroll-mt-24">
+      <div className="landing-shell flex flex-col gap-8 py-16 md:gap-10 md:py-24">
+        <Reveal className="max-w-[36rem]">
           <h2 className="landing-section-title">
             Whatever the conversation, the other seat is ready.
           </h2>
-          <p className="mt-4 max-w-[58ch] text-sm leading-relaxed text-[var(--wiora-mute)] md:text-base">
-            Interviews, pitches, client calls, negotiations. You choose who sits
-            across from you. The session is the same: speak, respond, keep it.
-          </p>
         </Reveal>
 
-        <SituationNetwork />
-
-        <div className="flex flex-col items-center gap-3 text-center">
-          <p className="landing-display text-[1.5rem] leading-tight md:text-[1.75rem]">
-            and a lot more.
-          </p>
-          <p className="max-w-[46rem] text-[13px] leading-relaxed text-[var(--wiora-mute)]">
-            {moreConversations.join("  ·  ")}
-          </p>
+        <div className="grid gap-3 md:grid-cols-3">
+          <article className="landing-ember relative flex min-h-[280px] flex-col justify-end overflow-hidden rounded-[24px] p-6 md:col-span-2 md:row-span-2 md:min-h-[320px] md:p-8">
+            <h3 className="text-[1.65rem] font-normal tracking-[-0.03em] text-white md:text-[2rem]">
+              {featured.title}
+            </h3>
+            <p className="mt-2 max-w-[46ch] text-sm leading-relaxed text-white/70">
+              {featured.body}
+            </p>
+          </article>
+          <SituationCard title={pitch.title} body={pitch.body} />
+          <SituationCard title={sales.title} body={sales.body} />
+          {rest.map((item) => (
+            <SituationCard key={item.title} title={item.title} body={item.body} />
+          ))}
         </div>
       </div>
     </section>
@@ -458,32 +101,79 @@ export function LandingSituations() {
 export function LandingAfter() {
   return (
     <section>
-      <div className="landing-shell flex flex-col gap-12 border-b border-[var(--wiora-rule)] py-16 md:py-24 lg:gap-16">
-        <Reveal className="max-w-[42rem]">
-          <h2 className="landing-section-title">
-            The session ends. The record stays.
-          </h2>
-          <p className="mt-4 max-w-[58ch] text-sm leading-relaxed text-[var(--wiora-mute)] md:text-base">
-            When you hang up, Wiora writes a report from what was said: what went
-            wrong, why, and what a stronger answer needed. Practicing that again,
-            or taking the next practice, uses another credit.
+      <div className="landing-shell flex flex-col gap-8 py-16 md:gap-10 md:py-24">
+        <Reveal className="max-w-[38rem]">
+          <h2 className="landing-section-title">The session ends. The record stays.</h2>
+          <p className="mt-4 max-w-[54ch] text-[15px] leading-relaxed text-[var(--wiora-mute)] md:text-base">
+            Written from what was said, not from the brief research. Practice a
+            weakness again, or take the next run. Each live session uses another
+            credit.
           </p>
         </Reveal>
 
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-          {leftovers.map((item, index) => (
-            <Reveal key={item.title} delay={index * 0.06}>
-              <item.icon
-                className="mb-4 size-4 text-[var(--wiora-ink)]"
-                strokeWidth={1.4}
-                aria-hidden
-              />
-              <p className="text-sm font-medium md:text-base">{item.title}</p>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--wiora-mute)]">
-                {item.body}
+        <div className="grid gap-2.5 md:grid-cols-6 md:grid-rows-3">
+          <article className="landing-soft-cool flex flex-col rounded-[24px] p-5 md:col-span-2 md:row-span-2 md:p-6">
+            <p className="text-[13px] text-white/55">Moments</p>
+            <p className="mt-2 max-w-[40ch] text-[1.1rem] font-normal leading-snug tracking-[-0.03em] text-white md:text-[1.25rem]">
+              The follow-up you did not have a number for.
+            </p>
+            <p className="mt-2 max-w-[46ch] text-sm leading-relaxed text-white/65">
+              The pause after they asked for proof. Open the moment, jump into
+              the transcript, and hear the turn again.
+            </p>
+          </article>
+
+          <article className="landing-room flex min-h-[240px] flex-col justify-between rounded-[24px] p-5 md:col-span-2 md:row-span-3 md:min-h-[340px] md:p-7">
+            <p className="max-w-[36ch] rounded-[16px] bg-white/12 px-3.5 py-2 text-[13px] leading-snug text-white/85">
+              Then why hasn&apos;t anyone else done this?
+            </p>
+            <div className="mt-8">
+              <p className="text-[13px] text-white/55">Report</p>
+              <p className="mt-2 max-w-[40ch] text-[1.3rem] font-normal leading-snug tracking-[-0.03em] text-white md:text-[1.5rem]">
+                You restated the market when they asked for proof.
               </p>
-            </Reveal>
-          ))}
+              <p className="mt-2 max-w-[46ch] text-sm leading-relaxed text-white/65">
+                What went wrong, why, and what a stronger answer needed.
+              </p>
+            </div>
+          </article>
+
+          <article className="rounded-[24px] bg-[var(--wiora-mist)] p-4 md:col-span-1 md:p-5">
+            <p className="text-[16px] font-medium tracking-tight">Transcript</p>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--wiora-mute)]">
+              Search the session, line by line.
+            </p>
+          </article>
+          <article className="rounded-[24px] bg-[var(--wiora-mist)] p-4 md:col-span-1 md:p-5">
+            <p className="text-[16px] font-medium tracking-tight">Recording</p>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--wiora-mute)]">
+              Play the session back.
+            </p>
+          </article>
+
+          <article className="landing-soft-warm flex flex-col rounded-[24px] p-5 md:col-span-2 md:row-span-2 md:p-6">
+            <p className="text-[13px] text-white/55">Ask</p>
+            <p className="mt-2 max-w-[40ch] text-[1.1rem] font-normal leading-snug tracking-[-0.03em] text-white md:text-[1.25rem]">
+              What a stronger answer needed, asked in your own words.
+            </p>
+            <p className="mt-2 max-w-[46ch] text-sm leading-relaxed text-white/65">
+              Grounded in the summary and the chat that follows — not in the
+              brief from before you joined.
+            </p>
+          </article>
+
+          <article className="rounded-[24px] bg-[var(--wiora-mist)] p-4 md:col-span-1 md:p-5">
+            <p className="text-[16px] font-medium tracking-tight">Practice this again</p>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--wiora-mute)]">
+              Run the weakness for 30 minutes.
+            </p>
+          </article>
+          <article className="rounded-[24px] bg-[var(--wiora-mist)] p-4 md:col-span-1 md:p-5">
+            <p className="text-[16px] font-medium tracking-tight">Next practice</p>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--wiora-mute)]">
+              Same preparation, new run.
+            </p>
+          </article>
         </div>
       </div>
     </section>
