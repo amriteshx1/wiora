@@ -49,16 +49,31 @@
 
 .landing-soft-cool {
   background:
-    radial-gradient(110% 85% at 88% 10%, rgba(90, 130, 175, 0.7), transparent 50%),
-    radial-gradient(85% 70% at 8% 92%, rgba(196, 160, 122, 0.32), transparent 48%),
-    linear-gradient(158deg, #121820 0%, #263646 46%, #3d536c 100%);
+    radial-gradient(120% 90% at 12% 92%, rgba(196, 160, 122, 0.09), transparent 58%),
+    radial-gradient(80% 70% at 92% 8%, rgba(70, 100, 140, 0.14), transparent 55%),
+    linear-gradient(158deg, #f6f4f2 0%, #e9eef3 42%, #f3ebe4 100%);
 }
 
 .landing-soft-warm {
   background:
-    radial-gradient(110% 85% at 10% 92%, rgba(196, 160, 122, 0.74), transparent 52%),
-    radial-gradient(85% 70% at 92% 8%, rgba(70, 90, 115, 0.38), transparent 48%),
-    linear-gradient(158deg, #181410 0%, #3a3128 46%, #6a5644 100%);
+    radial-gradient(120% 90% at 12% 92%, rgba(196, 160, 122, 0.12), transparent 58%),
+    radial-gradient(80% 70% at 92% 8%, rgba(70, 100, 140, 0.11), transparent 55%),
+    linear-gradient(158deg, #f5f3f1 0%, #e8ecf1 42%, #f2eae3 100%);
+}
+
+article.landing-soft-cool > p,
+article.landing-soft-warm > p {
+  color: var(--wiora-ink);
+}
+
+article.landing-soft-cool > p:first-of-type,
+article.landing-soft-warm > p:first-of-type {
+  color: var(--wiora-ash);
+}
+
+article.landing-soft-cool > p:last-of-type,
+article.landing-soft-warm > p:last-of-type {
+  color: var(--wiora-mute);
 }
 
 .landing-research {
