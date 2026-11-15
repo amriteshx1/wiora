@@ -20,48 +20,73 @@ export type LandingPlan = {
 
 export function LandingPricing({ plans }: { plans: LandingPlan[] }) {
   return (
-    <section>
-      <div className="landing-shell flex flex-col gap-12 border-b border-[var(--wiora-rule)] py-16 md:gap-16 md:py-24">
-        <Reveal className="mx-auto max-w-[36rem] text-center">
-          <h2 className="landing-section-title">Interview credits</h2>
-          <p className="mt-4 text-sm leading-relaxed text-[var(--wiora-mute)] md:text-base">
-            Preparation is free. Buy credits when you are ready to interview. One credit is one 30-minute interview, and the plans differ only by how many credits you get.
+    <section id="credits" className="scroll-mt-24">
+      <div className="landing-shell flex flex-col gap-12 py-16 md:gap-14 md:py-24">
+        <Reveal className="max-w-[36rem]">
+          <h2 className="landing-section-title">Credits, not a subscription</h2>
+          <p className="mt-4 text-[15px] leading-relaxed text-[var(--wiora-mute)] md:text-base">
+            Preparation is free. Buy credits when you are ready to practice. One
+            credit is one 30-minute live session. Packs differ only by how many
+            you get.
           </p>
         </Reveal>
 
-        <div className="grid items-center gap-3 md:grid-cols-3 md:gap-4">
+        <div className="grid items-stretch gap-3 md:grid-cols-3">
           {plans.map((plan) => (
             <article
               key={plan.id}
               className={cn(
-                "flex flex-col gap-6 border border-[var(--wiora-rule)] p-6",
-                plan.highlighted && "bg-[var(--wiora-mist)] py-8 md:py-10",
+                "flex flex-col gap-6 rounded-[24px] bg-[var(--wiora-mist)] p-7",
+                plan.highlighted && "bg-[#141414] text-white md:py-9",
               )}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h3 className="text-lg font-medium md:text-xl">{plan.name}</h3>
-                  {plan.badge ? <p className="mt-1 text-xs text-neutral-700">{plan.badge}</p> : null}
-                  {plan.description ? <p className="mt-1 text-xs text-neutral-700">{plan.description}</p> : null}
+                  <h3 className="text-lg font-medium tracking-tight">{plan.name}</h3>
+                  {plan.badge ? (
+                    <p className={cn("mt-1 text-xs", plan.highlighted ? "text-white/60" : "text-[var(--wiora-mute)]")}>
+                      {plan.badge}
+                    </p>
+                  ) : null}
+                  {plan.description ? (
+                    <p className={cn("mt-1 text-xs", plan.highlighted ? "text-white/60" : "text-[var(--wiora-mute)]")}>
+                      {plan.description}
+                    </p>
+                  ) : null}
                 </div>
-                <p className="flex text-2xl font-medium md:text-3xl">
+                <p className="flex text-2xl font-medium tracking-tight md:text-[1.75rem]">
                   {plan.priceLabel}
-                  {plan.priceSuffix ? <span className="self-end text-xs font-normal">{plan.priceSuffix}</span> : null}
+                  {plan.priceSuffix ? (
+                    <span className="self-end text-xs font-normal opacity-70">{plan.priceSuffix}</span>
+                  ) : null}
                 </p>
               </div>
 
-              <Button asChild className={cn("w-full rounded-sm shadow-none", plan.highlighted ? landingPrimaryBtn : landingGhostBtn)}>
+              <Button
+                asChild
+                className={cn(
+                  "w-full rounded-full shadow-none",
+                  plan.highlighted ? landingGhostBtn : landingPrimaryBtn,
+                )}
+              >
                 <Link href="/sign-up">Start preparing</Link>
               </Button>
 
               <div className="flex flex-col items-start gap-y-2.5">
-                <p className="mb-2 text-sm font-medium">Features</p>
                 {plan.benefits.map((feature) => (
                   <p
                     key={feature}
-                    className="flex items-center gap-x-2.5 text-xs font-medium"
+                    className={cn(
+                      "flex items-center gap-x-2.5 text-[13px]",
+                      plan.highlighted ? "text-white/80" : "text-[var(--wiora-ink)]",
+                    )}
                   >
-                    <CircleCheckIcon className="size-4 fill-primary text-white" />
+                    <CircleCheckIcon
+                      className={cn(
+                        "size-4",
+                        plan.highlighted ? "text-white" : "fill-[#141414] text-white",
+                      )}
+                    />
                     {feature}
                   </p>
                 ))}

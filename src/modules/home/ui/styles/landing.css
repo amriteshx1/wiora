@@ -1,51 +1,90 @@
 .landing-root {
   --wiora-ink: #141414;
-  --wiora-paper: #ffffff;
-  --wiora-mist: #f5f5f4;
-  --wiora-rule: #e4e4e0;
-  --wiora-mute: #6b6b66;
+  --wiora-paper: #faf9f7;
+  --wiora-mist: #f3f1ee;
+  --wiora-rule: #e6e3de;
+  --wiora-mute: #6f6c66;
+  --wiora-ash: #9a958c;
+  --wiora-dusk: #3d4f68;
+  --wiora-ember: #c4a07a;
   color: var(--wiora-ink);
   background: var(--wiora-paper);
 }
 
 .landing-display {
   font-family: var(--font-landing-display), "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  letter-spacing: -0.03em;
-  font-weight: 600;
+  letter-spacing: -0.025em;
+  font-weight: 400;
 }
 
 .landing-hero-title {
   font-family: var(--font-landing-display), "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  font-size: clamp(2.35rem, 6.4vw, 4.35rem);
-  line-height: 1.05;
-  letter-spacing: -0.04em;
-  font-weight: 600;
+  font-size: clamp(2.5rem, 5.6vw, 3.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  font-weight: 400;
   text-wrap: pretty;
 }
 
 .landing-section-title {
   font-family: var(--font-landing-display), "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  font-size: clamp(1.85rem, 3.6vw, 2.85rem);
-  line-height: 1.12;
-  letter-spacing: -0.035em;
-  font-weight: 600;
+  font-size: clamp(1.85rem, 3.2vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  font-weight: 400;
   text-wrap: pretty;
 }
 
-.landing-kicker {
-  font-size: 0.8rem;
-  line-height: 1.4;
-  color: var(--wiora-mute);
+.landing-shell {
+  width: min(1280px, calc(100% - 2rem));
+  margin-inline: auto;
 }
 
-.landing-shell {
-  width: min(1200px, calc(100% - 2rem));
-  margin-inline: auto;
+.landing-room {
+  background:
+    radial-gradient(120% 90% at 12% 92%, rgba(196, 160, 122, 0.78), transparent 52%),
+    radial-gradient(80% 70% at 92% 8%, rgba(70, 100, 140, 0.62), transparent 48%),
+    linear-gradient(158deg, #141a22 0%, #2f3c4c 42%, #5a4c3e 100%);
+}
+
+.landing-soft-cool {
+  background:
+    radial-gradient(110% 85% at 88% 10%, rgba(90, 130, 175, 0.7), transparent 50%),
+    radial-gradient(85% 70% at 8% 92%, rgba(196, 160, 122, 0.32), transparent 48%),
+    linear-gradient(158deg, #121820 0%, #263646 46%, #3d536c 100%);
+}
+
+.landing-soft-warm {
+  background:
+    radial-gradient(110% 85% at 10% 92%, rgba(196, 160, 122, 0.74), transparent 52%),
+    radial-gradient(85% 70% at 92% 8%, rgba(70, 90, 115, 0.38), transparent 48%),
+    linear-gradient(158deg, #181410 0%, #3a3128 46%, #6a5644 100%);
+}
+
+.landing-research {
+  background:
+    radial-gradient(90% 80% at 88% 12%, rgba(120, 148, 168, 0.35), transparent 50%),
+    radial-gradient(70% 60% at 8% 90%, rgba(196, 160, 122, 0.22), transparent 46%),
+    linear-gradient(165deg, #ece8e2 0%, #dfe6ea 55%, #e7e0d6 100%);
+}
+
+.landing-ember {
+  background:
+    radial-gradient(90% 70% at 20% 80%, rgba(196, 160, 122, 0.55), transparent 55%),
+    radial-gradient(80% 60% at 90% 10%, rgba(90, 110, 130, 0.28), transparent 50%),
+    linear-gradient(150deg, #2a2420 0%, #4a4038 55%, #6d5c4c 100%);
+}
+
+.landing-whisper {
+  box-shadow:
+    rgba(0, 0, 0, 0.4) 0 0 1px 0,
+    rgba(0, 0, 0, 0.04) 0 1px 1px 0,
+    rgba(0, 0, 0, 0.04) 0 2px 4px 0;
 }
 
 @media (min-width: 768px) {
   .landing-shell {
-    width: min(1200px, calc(100% - 3.5rem));
+    width: min(1280px, calc(100% - 4rem));
   }
 }
 
