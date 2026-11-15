@@ -1,0 +1,27 @@
+.auth-root {
+  --wiora-ink: #141414;
+  --wiora-paper: #faf9f7;
+  --wiora-mist: #f3f1ee;
+  --wiora-rule: #e6e3de;
+  --wiora-mute: #6f6c66;
+  color: var(--wiora-ink);
+  background: var(--wiora-paper);
+}
+
+.auth-shell {
+  width: min(1280px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.auth-stage {
+  background:
+    radial-gradient(ellipse 145% 48% at 58% -18%, rgba(46, 78, 74, 0.7), transparent 62%),
+    radial-gradient(ellipse 68% 110% at -12% 78%, rgba(139, 90, 82, 0.62), transparent 64%),
+    linear-gradient(204deg, #131c1b 0%, #2a3c3a 58%, #5a403c 100%);
+}
+
+@media (min-width: 768px) {
+  .auth-shell {
+    width: min(1280px, calc(100% - 4rem));
+  }
+}
