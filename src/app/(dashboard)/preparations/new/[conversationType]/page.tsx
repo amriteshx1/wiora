@@ -27,7 +27,7 @@ const Page = async ({ params }: Props) => {
 
   const type = asConversationType(conversationType);
   if (!type) {
-    redirect("/preparations/new");
+    redirect("/home");
   }
 
   return <NewPreparationDetailsView conversationType={type} />;

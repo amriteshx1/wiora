@@ -28,7 +28,7 @@ export const PreparationsView = () => {
 
   if (data.items.length === 0) {
     return (
-      <div className="flex flex-1 flex-col items-start gap-4 px-4 py-10 md:px-8">
+      <div className="flex min-h-[60vh] flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center md:px-8">
         <p className="text-lg font-medium">
           {filters.search ? "No preparations match that search" : "Start a preparation"}
         </p>
@@ -38,7 +38,7 @@ export const PreparationsView = () => {
             : "Choose the conversation you are getting ready for, then add the details and files you already have"}
         </p>
         <Button asChild>
-          <Link href="/preparations/new">New preparation</Link>
+          <Link href="/home">New preparation</Link>
         </Button>
       </div>
     );

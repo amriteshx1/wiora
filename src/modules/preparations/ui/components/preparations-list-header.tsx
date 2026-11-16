@@ -17,7 +17,7 @@ export const PreparationsListHeader = () => {
       <div className="flex items-center justify-between">
         <h5 className="font-medium text-xl">Preparations</h5>
         <Button asChild>
-          <Link href="/preparations/new">
+          <Link href="/home">
             <PlusIcon />
             New preparation
           </Link>
