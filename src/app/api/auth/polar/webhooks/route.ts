@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { polarOrderFields, verifyPolarSignature } from "@/lib/polar-webhook";
+import { isPaidOrderEvent, polarOrderFields, verifyPolarSignature } from "@/lib/polar-webhook";
 import { grantCredits, refundCredits } from "@/modules/preparations/server/credits";
 
 export async function POST(request: Request) {
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
-  if (event.type === "order.paid" && event.data) {
+  if (isPaidOrderEvent(event.type, event.data) && event.data) {
     const order = polarOrderFields(event.data);
     if (!order.userId) {
       console.error("Paid order has no user");

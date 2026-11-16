@@ -6,18 +6,22 @@ import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
 import { creditBalance, creditHistory, latestPlan, checkoutProductId } from "@/modules/preparations/server/credits";
 import { isPlanId, PLAN_CREDITS } from "@/modules/preparations/server/credit-rules";
+import { syncPolarPurchases } from "@/modules/preparations/server/polar-sync";
 import { listPlanOffers } from "@/modules/preparations/server/products";
 
 export const premiumRouter = createTRPCRouter({
   getBalance: protectedProcedure.query(async ({ ctx }) => {
-    const [balance, plan] = await Promise.all([
-      creditBalance(ctx.auth.user.id),
-      latestPlan(ctx.auth.user.id),
-    ]);
+    let balance = await creditBalance(ctx.auth.user.id);
+    if (balance < 1) {
+      await syncPolarPurchases(ctx.auth.user.id);
+      balance = await creditBalance(ctx.auth.user.id);
+    }
+    const plan = await latestPlan(ctx.auth.user.id);
     return { balance, plan };
   }),
 
   getBilling: protectedProcedure.query(async ({ ctx }) => {
+    await syncPolarPurchases(ctx.auth.user.id);
     const [balance, plan, plans, history] = await Promise.all([
       creditBalance(ctx.auth.user.id),
       latestPlan(ctx.auth.user.id),

@@ -57,6 +57,15 @@ export function verifyPolarSignature(
   throw new Error("No matching signature found");
 }
 
+export function isPaidOrderEvent(type: string | undefined, data: PolarRecord | undefined): boolean {
+  if (!data) return false;
+  if (type === "order.paid") return true;
+  if (type === "order.updated") {
+    return data.paid === true || data.status === "paid";
+  }
+  return false;
+}
+
 export function polarOrderFields(data: PolarRecord) {
   const metadata = asRecord(data.metadata);
   const customer = asRecord(data.customer);
