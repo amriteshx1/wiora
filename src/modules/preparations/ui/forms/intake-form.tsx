@@ -42,6 +42,7 @@ interface Props {
   initialContext: IntakeContext;
   initialFiles: ReadyFile[];
   onSaved: () => void;
+  onStageChange?: (stage: "details" | "followups") => void;
 }
 
 function filled(value: unknown): boolean {
@@ -58,6 +59,7 @@ export function IntakeForm({
   initialContext,
   initialFiles,
   onSaved,
+  onStageChange,
 }: Props) {
   const pack = preparationPacks[packId];
   const trpc = useTRPC();
@@ -270,6 +272,10 @@ export function IntakeForm({
       toast.error(message);
     }
   };
+
+  useEffect(() => {
+    onStageChange?.(questions ? "followups" : "details");
+  }, [onStageChange, questions]);
 
   useEffect(() => {
     setUnsavedNavigationBlocker((href) => {
