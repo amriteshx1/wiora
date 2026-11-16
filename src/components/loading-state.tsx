@@ -8,8 +8,8 @@ export const LoadingState = ({
     description
 }: Props) => {
     return (
-        <div className="flex flex-1 items-center justify-center px-8 py-16">
-            <div className="flex max-w-sm flex-col items-start gap-4">
+        <div className="flex min-h-[60vh] flex-1 items-center justify-center px-8 py-16">
+            <div className="flex max-w-sm flex-col items-center gap-4 text-center">
                 <div className="h-px w-24 overflow-hidden bg-border">
                     <div className="research-fill h-px w-full bg-foreground" />
                 </div>

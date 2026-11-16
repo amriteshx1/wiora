@@ -42,20 +42,20 @@ export const UpgradeView = () => {
     <div className="flex-1 px-4 py-8 md:px-8">
       <div className="flex flex-col gap-10">
         <div>
-          <h5 className="text-2xl font-medium">Credits</h5>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          <h5 className="text-2xl font-medium tracking-tight">Credits</h5>
+          <p className="mt-2 max-w-[46ch] text-sm leading-relaxed text-muted-foreground">
             Preparation stays free. One credit starts one 30-minute interview. Names, prices, and features come from Polar
           </p>
         </div>
 
-        <div className="grid gap-px overflow-hidden rounded-md border bg-border md:grid-cols-2">
-          <div className="bg-background p-6">
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="rounded-[24px] bg-muted/70 p-6">
             <p className="text-sm text-muted-foreground">Available</p>
-            <p className="mt-2 text-4xl font-medium tabular-nums">{data.balance}</p>
+            <p className="mt-2 text-4xl font-medium tabular-nums tracking-tight">{data.balance}</p>
           </div>
-          <div className="bg-background p-6">
+          <div className="rounded-[24px] bg-muted/70 p-6">
             <p className="text-sm text-muted-foreground">Latest bundle</p>
-            <p className="mt-2 text-2xl font-medium">{planName ? planName : "None yet"}</p>
+            <p className="mt-2 text-2xl font-medium tracking-tight">{planName ? planName : "None yet"}</p>
             <p className="mt-1 text-sm text-muted-foreground">
               {data.plan
                 ? `${data.creditsInPlan} credits in that purchase`
@@ -68,22 +68,22 @@ export const UpgradeView = () => {
           <p className="text-sm text-muted-foreground">Confirming the payment</p>
         ) : null}
 
-        <div className="grid items-center gap-3 md:grid-cols-3 md:gap-4">
+        <div className="grid items-stretch gap-3 md:grid-cols-3">
           {data.plans.map((plan) => (
             <article
               key={plan.id}
               className={cn(
-                "flex min-w-0 flex-col gap-6 border bg-background p-6",
-                plan.highlighted && "bg-muted py-8 md:py-10",
+                "flex h-full flex-col gap-6 rounded-[24px] p-7",
+                plan.highlighted ? "bg-muted py-8 md:py-10" : "border bg-background",
               )}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h3 className="text-lg font-medium md:text-xl">{plan.name}</h3>
+                  <h3 className="text-lg font-medium tracking-tight md:text-xl">{plan.name}</h3>
                   {plan.badge ? <p className="mt-1 text-xs text-muted-foreground">{plan.badge}</p> : null}
                   {plan.description ? <p className="mt-1 text-xs text-muted-foreground">{plan.description}</p> : null}
                 </div>
-                <p className="flex text-2xl font-medium md:text-3xl">
+                <p className="flex text-2xl font-medium tracking-tight md:text-3xl">
                   {plan.priceLabel}
                   {plan.priceSuffix ? <span className="self-end text-xs font-normal text-muted-foreground">{plan.priceSuffix}</span> : null}
                 </p>
@@ -116,7 +116,7 @@ export const UpgradeView = () => {
           ))}
         </div>
 
-        <div className="border p-6">
+        <div className="rounded-[24px] border bg-background p-6">
           <h6 className="font-medium">History</h6>
           {data.history.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">Purchases and interviews will show up here</p>
