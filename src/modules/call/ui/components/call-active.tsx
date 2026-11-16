@@ -1,7 +1,11 @@
+"use client";
+
 import { useEffect, useMemo, useState } from "react";
 import {
     CancelCallButton,
+    ParticipantsAudio,
     ToggleAudioPublishingButton,
+    ToggleVideoPublishingButton,
     useCallStateHooks,
 } from "@stream-io/video-react-sdk";
 
@@ -27,9 +31,10 @@ function remainingLabel(hardEndAt: string): string {
 
 export const CallActive = ({ onLeave, meetingName, hardEndAt, runId }: Props) => {
     const [clock, setClock] = useState(hardEndAt ? remainingLabel(hardEndAt) : "");
-    const { useLocalParticipant, useParticipants } = useCallStateHooks();
+    const { useLocalParticipant, useParticipants, useRemoteParticipants } = useCallStateHooks();
     const local = useLocalParticipant();
     const participants = useParticipants();
+    const remotes = useRemoteParticipants();
     const counterpart = useMemo(
         () => participants.find((participant) => !participant.isLocalParticipant),
         [participants],
@@ -53,14 +58,27 @@ export const CallActive = ({ onLeave, meetingName, hardEndAt, runId }: Props) =>
     }, [hardEndAt]);
 
     return (
-        <div className="wiora-call flex h-full flex-col bg-background text-foreground">
-            <header className="flex items-center justify-between gap-4 px-6 py-4">
-                <h4 className="text-base font-medium">{meetingName}</h4>
-                {hardEndAt ? <p className="text-sm tabular-nums text-muted-foreground">{clock}</p> : null}
+        <div className="wiora-interview wiora-call fixed inset-0 z-[80] flex h-svh flex-col">
+            <ParticipantsAudio participants={remotes} />
+            <header className="flex items-center justify-between gap-4 px-6 py-5 md:px-10">
+                <div>
+                    <p className="text-xs text-[var(--wiora-ash,#9a9488)]">Live session</p>
+                    <h4 className="mt-1 text-lg font-medium tracking-tight">{meetingName}</h4>
+                </div>
+                {hardEndAt ? (
+                    <p className="rounded-full border border-white/10 px-4 py-1.5 text-sm tabular-nums tracking-[0.18em]">
+                        {clock}
+                    </p>
+                ) : null}
             </header>
-            <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 px-6 pb-2 lg:grid-cols-[minmax(180px,240px)_minmax(0,1fr)_minmax(160px,220px)]">
-                <div className="flex items-center justify-center">
-                    <MatrixOrb state={orbState} level={userSpeaking ? Math.max(level, 0.28) : undefined} size={220} />
+            <div className="grid min-h-0 flex-1 grid-cols-1 gap-8 px-6 pb-4 md:px-10 lg:grid-cols-[minmax(220px,320px)_minmax(0,1fr)_minmax(180px,240px)] lg:items-center">
+                <div className="flex items-center justify-center py-4">
+                    <MatrixOrb
+                        state={orbState}
+                        level={userSpeaking ? Math.max(level, 0.28) : undefined}
+                        size={320}
+                        color="#c4a07a"
+                    />
                 </div>
                 <CallChat
                     runId={runId}
@@ -69,13 +87,16 @@ export const CallActive = ({ onLeave, meetingName, hardEndAt, runId }: Props) =>
                     userName={userName}
                     counterpartName={meetingName}
                 />
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center py-4">
                     <CallUserTile />
                 </div>
             </div>
-            <div className="flex items-center justify-center gap-3 px-6 py-5">
-                <ToggleAudioPublishingButton />
-                <CancelCallButton onLeave={onLeave} />
+            <div className="border-t border-white/10 bg-black/25">
+                <div className="flex items-center justify-center gap-3 px-6 py-5">
+                    <ToggleAudioPublishingButton />
+                    <ToggleVideoPublishingButton />
+                    <CancelCallButton onLeave={onLeave} />
+                </div>
             </div>
         </div>
     );

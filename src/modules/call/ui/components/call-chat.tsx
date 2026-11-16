@@ -189,11 +189,14 @@ export function CallChat({
   );
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div ref={scroller} className="min-h-0 flex-1 space-y-3 overflow-y-auto py-2">
+    <div className="relative flex min-h-0 flex-1 flex-col">
+      <div
+        ref={scroller}
+        className="call-transcript min-h-0 flex-1 space-y-5 overflow-y-auto py-10"
+      >
         {items.length === 0 ? (
-          <p className="pt-8 text-center text-sm text-muted-foreground">
-            The conversation will appear here as each turn finishes
+          <p className="pt-16 text-center text-sm text-[var(--wiora-ash,#9a9488)]">
+            The line will appear here as you speak
           </p>
         ) : null}
         {items.map((item) => {
@@ -201,22 +204,17 @@ export function CallChat({
           const name = item.speaker === "user" ? userName : counterpartName;
           return (
             <div key={item.key} className={cn("flex", own ? "justify-end" : "justify-start")}>
-              <div
-                className={cn(
-                  "max-w-[85%] rounded-2xl border px-4 py-3",
-                  own ? "bg-foreground text-background" : "bg-background",
-                )}
-              >
-                <p className={cn("text-xs", own ? "text-background/70" : "text-muted-foreground")}>
+              <div className={cn("max-w-[88%] px-1 py-1", own ? "text-right" : "text-left")}>
+                <p className="text-[11px] tracking-wide text-[var(--wiora-ash,#9a9488)]">
                   {name}
                 </p>
                 {item.kind === "turn" ? (
-                  <p className="mt-1 text-sm leading-relaxed">{item.text}</p>
+                  <p className="mt-1.5 text-[15px] leading-relaxed text-[#f3efe6]">{item.text}</p>
                 ) : (
-                  <span className="mt-2 flex gap-1" aria-label="Speaking">
-                    <span className="call-bubble-dot size-1.5 rounded-full bg-current" />
-                    <span className="call-bubble-dot size-1.5 rounded-full bg-current [animation-delay:140ms]" />
-                    <span className="call-bubble-dot size-1.5 rounded-full bg-current [animation-delay:280ms]" />
+                  <span className="mt-3 flex gap-1" aria-label="Speaking">
+                    <span className="call-bubble-dot size-1.5 rounded-full bg-[#c4a07a]" />
+                    <span className="call-bubble-dot size-1.5 rounded-full bg-[#c4a07a] [animation-delay:140ms]" />
+                    <span className="call-bubble-dot size-1.5 rounded-full bg-[#c4a07a] [animation-delay:280ms]" />
                   </span>
                 )}
               </div>

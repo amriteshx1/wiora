@@ -26,6 +26,8 @@ interface Props{
     endedHref?: string;
     endedDetail?: string;
     hardEndAt?: string | null;
+    layout?: "page" | "embed";
+    onEnded?: () => void;
 };
 
 export const CallConnect = ({
@@ -38,6 +40,8 @@ export const CallConnect = ({
     endedHref = "/preparations",
     endedDetail = "The report is being written on your preparation",
     hardEndAt = null,
+    layout = "page",
+    onEnded,
 }: Props) => {
     const trpc = useTRPC();
     const { mutateAsync: generateRunToken} = useMutation(
@@ -71,8 +75,9 @@ export const CallConnect = ({
         if(!client) return;
 
         const _call = client.call("default", meetingId);
-        _call.camera.disable();
-        _call.microphone.disable();
+        _call.speaker.setVolume(1);
+        void _call.microphone.disable();
+        void _call.camera.disable();
         setCall(_call);
 
         return () => {
@@ -85,7 +90,7 @@ export const CallConnect = ({
 
     if(!client || !call){
         return (
-            <div className="flex h-screen items-center justify-center bg-background">
+            <div className={layout === "page" ? "flex h-screen items-center justify-center bg-background" : "flex h-full min-h-[28rem] items-center justify-center"}>
                 <LoaderIcon className="size-6 text-foreground" />
             </div>
         );
@@ -100,6 +105,8 @@ export const CallConnect = ({
                   endedHref={endedHref}
                   endedDetail={endedDetail}
                   hardEndAt={hardEndAt}
+                  layout={layout}
+                  onEnded={onEnded}
                 />
             </StreamCall>
         </StreamVideo>

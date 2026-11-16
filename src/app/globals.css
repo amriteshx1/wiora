@@ -121,6 +121,13 @@
 }
 
 .wiora-app {
+  --wiora-ink: #141414;
+  --wiora-paper: #faf9f7;
+  --wiora-mist: #f3f1ee;
+  --wiora-rule: #e6e3de;
+  --wiora-mute: #6f6c66;
+  --wiora-ash: #9a958c;
+  --wiora-ember: #c4a07a;
   --background: #faf9f7;
   --muted: #f3f1ee;
   --secondary: #f3f1ee;
@@ -155,6 +162,40 @@
 
 .call-bubble-dot {
   animation: call-bubble-dot 1s ease-in-out infinite;
+}
+
+.wiora-interview {
+  --background: #161513;
+  --foreground: #f3efe6;
+  --muted: #1e1c19;
+  --muted-foreground: #9a9488;
+  --border: #2c2924;
+  --primary: #f3efe6;
+  --primary-foreground: #161513;
+  color: #f3efe6;
+  background:
+    radial-gradient(1200px 500px at 50% -10%, rgba(196, 160, 122, 0.12), transparent 55%),
+    #161513;
+}
+
+.call-transcript {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+}
+
+.call-transcript::-webkit-scrollbar {
+  display: none;
+}
+
+.wiora-interview .str-video__composite-button,
+.wiora-interview .str-video__generic-menu,
+.wiora-interview .str-video__cancel-call-button {
+  background: rgba(243, 239, 230, 0.08);
+  border: 1px solid rgba(243, 239, 230, 0.14);
+  color: #f3efe6;
+  box-shadow: none;
 }
 
 @keyframes waiting-line {
