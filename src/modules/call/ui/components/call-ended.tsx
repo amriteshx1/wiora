@@ -11,7 +11,7 @@ interface Props {
 export const CallEnded = ({ href, detail, counterpartName }: Props) => {
     return (
         <div className="flex h-full flex-col items-center justify-center bg-background">
-            <div className="flex w-full max-w-md flex-col gap-6 rounded-md border p-8">
+            <div className="flex w-full max-w-md flex-col gap-6 rounded-2xl border bg-background p-8">
                 <div className="space-y-2">
                     <h6 className="text-lg font-medium">
                       {counterpartName ? `The interview with ${counterpartName} has ended` : "The interview has ended"}

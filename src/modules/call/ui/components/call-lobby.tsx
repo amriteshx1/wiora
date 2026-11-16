@@ -19,7 +19,7 @@ export const CallLobby = ({ onJoin, cancelHref }: Props) => {
 
     return (
         <div className="flex h-full flex-col items-center justify-center bg-background">
-            <div className="flex w-full max-w-md flex-col gap-6 rounded-md border p-8">
+            <div className="flex w-full max-w-md flex-col gap-6 rounded-2xl border bg-background p-8">
                 <div className="space-y-1">
                     <h6 className="text-lg font-medium">Join the interview</h6>
                     <p className="text-sm text-muted-foreground">This is a voice interview. Check the microphone, then sit across from the counterpart</p>

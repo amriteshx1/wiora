@@ -71,7 +71,7 @@ export const CallUI = ({ runId, meetingName, endedHref, endedDetail, hardEndAt }
         <StreamTheme className="h-full">
             {show === "lobby" && <CallLobby onJoin={handleJoin} cancelHref={endedHref} />}
             {show === "call" && (
-              <CallActive onLeave={handleLeave} meetingName={meetingName} hardEndAt={hardEndAt} backHref={endedHref} />
+              <CallActive onLeave={handleLeave} meetingName={meetingName} hardEndAt={hardEndAt} backHref={endedHref} runId={runId} />
             )}
             {show === "ended" && <CallEnded href={endedHref} detail={endedDetail} counterpartName={meetingName} />}
         </StreamTheme>

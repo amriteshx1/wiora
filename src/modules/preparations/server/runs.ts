@@ -207,6 +207,7 @@ export const runsRouter = createTRPCRouter({
       return turns.map((turn) => ({
         text: turn.text,
         startTs: turn.startedAt.getTime(),
+        speaker: turn.speaker === "user" ? "user" as const : "counterpart" as const,
         name: turn.speaker === "user" ? (owner?.name || "You") : (run.counterpartName || "Counterpart"),
       }));
     }),
