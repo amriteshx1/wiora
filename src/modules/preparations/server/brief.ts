@@ -108,6 +108,9 @@ function render(input: RenderBriefInput, anchors: string[]): string {
   const areas = [...input.situationModel.areas].sort((left, right) => left.priority - right.priority);
   const lines = [
     "This is practice. Never tell the user what answer to give.",
+    "The user speaks first. After that, introduce yourself in role and drive: questions, pushback, the next beat from the brief and what they just said.",
+    "Do not offer an open menu of topics. Do not ask what they would like to discuss, cover, or be asked. You already have the brief.",
+    "If they try to flip the room or quiz you, stay in role: you are the other seat, not a tutor. Short redirect, then the next real question.",
     "",
     `Counterpart: ${input.situationModel.counterpartName}`,
     `Objective: ${input.situationModel.counterpartObjective}`,

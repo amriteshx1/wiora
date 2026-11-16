@@ -364,7 +364,7 @@ export const preparationPacks: Record<ConversationType, PreparationPack> = {
       "job-description gaps",
     ],
     counterpartObjective: "Determine whether the candidate appears prepared and capable for the role.",
-    behaviorNotes: "Probe the candidate's real experience against the role. Do not read a question list.",
+    behaviorNotes: "Probe the candidate's real experience against the role. Introduce yourself in role and drive the interview; do not ask what they would like to cover.",
     fields: interviewFields,
     fileSlots: [
       { slot: "resume", label: "Resume", multiple: false },
@@ -391,7 +391,7 @@ export const preparationPacks: Record<ConversationType, PreparationPack> = {
       "investor-specific concerns",
     ],
     counterpartObjective: "Determine whether the pitch addresses the concerns of this investor.",
-    behaviorNotes: "Press on the claims a real investor would not take at face value.",
+    behaviorNotes: "Press on the claims a real investor would not take at face value. Open in role and drive; do not ask what they would like you to ask.",
     fields: [
       { name: "startupDescription", label: "Startup description", placeholder: "What the company does", multiline: true },
       { name: "investor", label: "Investor or fund", placeholder: "Who you are pitching", multiline: false },
@@ -428,7 +428,7 @@ export const preparationPacks: Record<ConversationType, PreparationPack> = {
       "customer understanding",
     ],
     counterpartObjective: "Determine whether the user can handle the client's concerns and move toward the desired outcome.",
-    behaviorNotes: "Stay on the client's problem, price, and alternatives.",
+    behaviorNotes: "Stay on the client's problem, price, and alternatives. Hold the call; do not ask what they want to discuss.",
     fields: [
       { name: "client", label: "Client or company", placeholder: "Who you are selling to", multiline: false },
       { name: "product", label: "Product or service", placeholder: "What you are offering", multiline: true },
@@ -463,7 +463,7 @@ export const preparationPacks: Record<ConversationType, PreparationPack> = {
       "outcome quality",
     ],
     counterpartObjective: "Determine how effectively the user protects their goals while responding to the counterparty.",
-    behaviorNotes: "Know the user's desired outcome and minimum, and push against both.",
+    behaviorNotes: "Know the user's desired outcome and minimum, and push against both. Drive the negotiation; do not ask what they would like to cover.",
     fields: [
       { name: "subject", label: "What is being negotiated", placeholder: "The deal, offer, or disagreement", multiline: true },
       { name: "counterparty", label: "Counterparty", placeholder: "Who sits across from you", multiline: false },
@@ -496,7 +496,7 @@ export const preparationPacks: Record<ConversationType, PreparationPack> = {
       "what was asked of the other person",
     ],
     counterpartObjective: "Determine whether the user can reach the desired outcome while staying clear about the people and the constraints.",
-    behaviorNotes: "Respond as the person in the relationship, not as an interviewer.",
+    behaviorNotes: "Respond as the person in the relationship, not as an interviewer. Stay in role and drive; do not ask what they want to discuss.",
     fields: leadershipFields("leadership"),
     fileSlots: [
       { slot: "relevant", label: "Relevant documents", multiple: true },
@@ -518,7 +518,7 @@ export const preparationPacks: Record<ConversationType, PreparationPack> = {
       "whether the user stayed specific",
     ],
     counterpartObjective: "Determine whether the user can say what happened, hold the desired outcome, and stay specific.",
-    behaviorNotes: "Stay inside the relationship and the facts the user provided.",
+    behaviorNotes: "Stay inside the relationship and the facts the user provided. Hold the conversation; do not offer an open menu of topics.",
     fields: leadershipFields("difficult"),
     fileSlots: [
       { slot: "relevant", label: "Relevant documents", multiple: true },
@@ -533,7 +533,7 @@ export const preparationPacks: Record<ConversationType, PreparationPack> = {
     researchHints: `${sourcePriority} Research only the public parts of the description. Derive the preparation from what the user wrote.`,
     evaluationDimensions: [],
     counterpartObjective: "Derive the counterpart objective from the user's description of the situation.",
-    behaviorNotes: "Build the stance from the description, the desired outcome, and the people involved.",
+    behaviorNotes: "Build the stance from the description, the desired outcome, and the people involved. Introduce yourself in role and drive; do not ask what they would like to discuss.",
     fields: [
       { name: "description", label: "Description of the situation", placeholder: "What conversation you are preparing for", multiline: true },
       { name: "desiredOutcome", label: "Desired outcome", placeholder: "What a good result looks like", multiline: true },
