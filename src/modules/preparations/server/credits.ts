@@ -14,7 +14,7 @@ type ReserveResult = "reserved" | "already" | "empty";
 
 async function rows(query: ReturnType<typeof sql>) {
   const result = await db.execute(query);
-  return result.rows as Record<string, unknown>[];
+  return [...result] as Record<string, unknown>[];
 }
 
 export async function ensureCreditAccount(userId: string): Promise<void> {

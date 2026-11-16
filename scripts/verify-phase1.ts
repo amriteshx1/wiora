@@ -1,6 +1,6 @@
 import { webcrypto } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { neon } from "@neondatabase/serverless";
+import { sql } from "./sql";
 import {
   HeadObjectCommand,
   S3Client,
@@ -9,7 +9,6 @@ import {
 import { preparationPacks, limitFollowUps, type IntakeContext } from "../src/modules/preparations/types";
 import { uploadRejection, MAX_UPLOAD_BYTES } from "../src/modules/preparations/uploads";
 
-const sql = neon(process.env.DATABASE_URL!);
 const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 const failures: string[] = [];
 

@@ -40,7 +40,7 @@ Object storage is S3-compatible: MinIO locally, Cloudflare R2 when deployed. The
 - **Session artifacts** — Transcript, recording, structured report, and Ask AI grounded in that run’s summary and chat.
 - **Preparation workspace** — List, journey spine, brief, lobby, call, and report in one flow per preparation.
 - **Auth & credits** — Better Auth and Polar prepaid packs (not subscriptions).
-- **Serverless data layer** — Neon Postgres, Drizzle, tRPC, Inngest for report generation and hard-stop jobs.
+- **Data layer** — local Postgres, Drizzle, tRPC, Inngest for report generation and hard-stop jobs.
 
 ---
 
@@ -61,7 +61,7 @@ Object storage is S3-compatible: MinIO locally, Cloudflare R2 when deployed. The
 - Inngest (reports, session hard-stop, automation)
 
 ### Backend & database
-- Neon (serverless Postgres)
+- Postgres (Docker locally)
 - Drizzle ORM
 - tRPC
 - Better Auth
@@ -115,7 +115,7 @@ npm install
 Create a `.env` in the project root. At minimum:
 
 ```bash
-DATABASE_URL="postgresql://<your-neon-db>"
+DATABASE_URL="postgresql://wiora:wiora@127.0.0.1:5433/wiora"
 BETTER_AUTH_SECRET="<your_auth_secret>"
 BETTER_AUTH_URL="http://localhost:3000"
 
@@ -143,7 +143,10 @@ Add worker, Polar product IDs, webhook secret, text model, and S3 vars as needed
 
 ### 4. Database
 
+Start local Postgres (and MinIO) with Docker, then push the schema:
+
 ```bash
+docker compose up -d
 npm run db:push
 npm run db:studio   # optional
 ```

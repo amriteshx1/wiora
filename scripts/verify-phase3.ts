@@ -1,8 +1,7 @@
 import { createHmac, webcrypto } from "node:crypto";
-import { neon } from "@neondatabase/serverless";
+import { sql } from "./sql";
 import { Webhook } from "standardwebhooks";
 
-const sql = neon(process.env.DATABASE_URL!);
 const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 const failures: string[] = [];
 const userIds: string[] = [];

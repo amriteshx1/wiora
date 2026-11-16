@@ -1,8 +1,5 @@
-import { neon } from "@neondatabase/serverless";
-
+import { sql } from "./sql";
 import { consumeCredit, creditBalance, grantCredits, refundCredits, reserveCredit, restoreCredit } from "../src/modules/preparations/server/credits";
-
-const sql = neon(process.env.DATABASE_URL!);
 const userId = `creditcheck${Date.now().toString(36)}`;
 const productId = process.env.POLAR_PRODUCT_PRO!;
 const orderId = `order_${userId}`;
