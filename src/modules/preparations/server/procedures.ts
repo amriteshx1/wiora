@@ -54,7 +54,8 @@ async function enqueuePreparation(
         synthesizeOnly,
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("Preparation queue failed", error);
     await db
       .update(preparations)
       .set({

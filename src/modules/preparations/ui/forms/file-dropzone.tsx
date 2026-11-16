@@ -11,14 +11,15 @@ import { cn } from "@/lib/utils";
 
 import type { DocumentSlot } from "../../types";
 
-type ReadyFile = {
+export type ReadyFile = {
   id: string;
   fileName: string;
   slot: DocumentSlot;
+  file?: File;
 };
 
 interface Props {
-  preparationId: string;
+  preparationId?: string | null;
   slot: DocumentSlot;
   label: string;
   multiple: boolean;
@@ -27,7 +28,7 @@ interface Props {
   onRemoved: (documentId: string) => void;
 }
 
-function putFile(url: string, file: File, contentType: string, onProgress: (value: number) => void) {
+export function putFile(url: string, file: File, contentType: string, onProgress: (value: number) => void) {
   return new Promise<void>((resolve, reject) => {
     const request = new XMLHttpRequest();
     request.open("PUT", url);
@@ -44,6 +45,10 @@ function putFile(url: string, file: File, contentType: string, onProgress: (valu
     request.onerror = () => reject(new Error("The upload did not finish"));
     request.send(file);
   });
+}
+
+function isLocalFile(id: string) {
+  return id.startsWith("local:");
 }
 
 export function FileDropzone({
@@ -68,6 +73,17 @@ export function FileDropzone({
   const onSelect = async (list: FileList | null) => {
     if (!list || list.length === 0) return;
     const selected = multiple ? Array.from(list) : [list[0]];
+    if (!preparationId) {
+      for (const file of selected) {
+        onUploaded({
+          id: `local:${crypto.randomUUID()}`,
+          fileName: file.name,
+          slot,
+          file,
+        });
+      }
+      return;
+    }
     setUploading(true);
     setProgress(0);
     try {
@@ -103,7 +119,7 @@ export function FileDropzone({
   return (
     <div className="space-y-2">
       <p className="text-sm">{label}</p>
-      <div className="overflow-hidden rounded-md border border-dashed">
+      <div className="overflow-hidden rounded-xl border border-dashed">
         <label
           className={cn(
             "flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 px-4 py-6 text-sm text-muted-foreground",
@@ -144,7 +160,7 @@ export function FileDropzone({
         ) : null}
       </div>
       {slotFiles.map((file) => (
-        <div key={file.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
+        <div key={file.id} className="flex items-center justify-between rounded-xl border px-3 py-2 text-sm">
           <span className="truncate">{file.fileName}</span>
           <Button
             type="button"
@@ -153,7 +169,9 @@ export function FileDropzone({
             disabled={removeDocument.isPending}
             onClick={async () => {
               try {
-                await removeDocument.mutateAsync({ documentId: file.id });
+                if (preparationId && !isLocalFile(file.id)) {
+                  await removeDocument.mutateAsync({ documentId: file.id });
+                }
                 onRemoved(file.id);
               } catch (error) {
                 const message = error instanceof Error ? error.message : "Could not remove the file";

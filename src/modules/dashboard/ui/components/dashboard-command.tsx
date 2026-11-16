@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { CommandResponsiveDialog, CommandInput, CommandItem, CommandList, CommandGroup, CommandEmpty } from "@/components/ui/command";
 import { useTRPC } from "@/trpc/client";
 import { preparationListLabels } from "@/modules/preparations/types";
+import { allowUnsavedNavigation } from "@/modules/preparations/ui/unsaved-navigation";
 
 interface Props {
     open: boolean;
@@ -40,8 +41,10 @@ export const DashboardCommand = ({ open, setOpen }: Props) => {
                     {preparations.data?.items.map((preparation) => (
                         <CommandItem
                           onSelect={() => {
-                            router.push(`/preparations/${preparation.id}`);
+                            const href = `/preparations/${preparation.id}`;
                             setOpen(false);
+                            if (!allowUnsavedNavigation(href)) return;
+                            router.push(href);
                           }}
                           key={preparation.id}
                         >

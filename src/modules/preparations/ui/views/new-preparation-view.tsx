@@ -1,41 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
 
-import { WaitingButton } from "@/components/waiting-button";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
 
-import { conversationTypes, preparationPacks } from "../../types";
+import { conversationTypes, preparationPacks, type ConversationType } from "../../types";
+
+const typedCards = conversationTypes.filter((type) => type !== "custom");
 
 export const NewPreparationView = () => {
-  const trpc = useTRPC();
   const router = useRouter();
-  const [chosen, setChosen] = useState<string | null>(null);
-  const createPreparation = useMutation(
-    trpc.preparations.create.mutationOptions({}),
-  );
 
-  const onChoose = async (conversationType: (typeof conversationTypes)[number]) => {
-    const pack = preparationPacks[conversationType];
-    setChosen(conversationType);
-    try {
-      const created = await createPreparation.mutateAsync({
-        conversationType,
-        title: pack.label,
-      });
-      router.push(`/preparations/${created.id}`);
-    } catch (error) {
-      setChosen(null);
-      const message = error instanceof Error ? error.message : "Could not create the preparation";
-      toast.error(message);
-    }
+  const onChoose = (conversationType: ConversationType) => {
+    router.push(`/preparations/new/${conversationType}`);
   };
-
-  const lastType = conversationTypes[conversationTypes.length - 1];
 
   return (
     <div className="flex-1 px-4 pb-8 md:px-8">
@@ -46,36 +25,33 @@ export const NewPreparationView = () => {
         </p>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
-        {conversationTypes.map((type) => {
+        {typedCards.map((type) => {
           const pack = preparationPacks[type];
-          const waiting = createPreparation.isPending && chosen === type;
           return (
-            <WaitingButton
+            <button
               key={type}
               type="button"
-              variant="outline"
-              waiting={waiting}
-              disabled={createPreparation.isPending}
-              idle={
-                <span className="flex flex-col gap-1 text-left">
-                  <span className="font-medium">{pack.label}</span>
-                  <span className="text-sm font-normal text-muted-foreground">{pack.description}</span>
-                </span>
-              }
-              busy={
-                <span className="flex flex-col gap-1 text-left">
-                  <span className="font-medium">{pack.label}</span>
-                  <span className="text-sm font-normal">Opening</span>
-                </span>
-              }
               className={cn(
-                "h-auto items-start justify-start whitespace-normal px-4 py-4",
-                type === lastType && "md:col-span-2 md:mx-auto md:w-[calc(50%-0.375rem)]",
+                "flex h-auto flex-col items-start gap-1 rounded-2xl border bg-background px-4 py-4 text-left",
+                "hover:bg-muted/60",
               )}
-              onClick={() => void onChoose(type)}
-            />
+              onClick={() => onChoose(type)}
+            >
+              <span className="font-medium">{pack.label}</span>
+              <span className="text-sm font-normal text-muted-foreground">{pack.description}</span>
+            </button>
           );
         })}
+      </div>
+      <div className="mt-6 flex justify-center">
+        <Button
+          type="button"
+          variant="outline"
+          className="rounded-full px-5"
+          onClick={() => onChoose("custom")}
+        >
+          Custom conversation
+        </Button>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { preparationPacks } from "../types";
+import { intakeGroups, preparationPacks } from "../types";
 import { researchInputsChanged } from "./rerun-rules";
 
 const none: string[] = [];
@@ -54,6 +54,49 @@ describe("hasMinimum", () => {
     expect(preparationPacks.custom.hasMinimum({ description: "   " }, none)).toBe(false);
     expect(preparationPacks.custom.hasMinimum({ description: "A board update" }, none)).toBe(true);
     expect(preparationPacks.custom.evaluationDimensions).toEqual([]);
+  });
+});
+
+describe("intakeGroups", () => {
+  it("keeps the product section titles and counts", () => {
+    expect(intakeGroups(preparationPacks.job_interview).map((group) => group.title)).toEqual([
+      "Role",
+      "Materials",
+      "People",
+      "You",
+    ]);
+    expect(intakeGroups(preparationPacks.investor_pitch).map((group) => group.title)).toEqual([
+      "The company",
+      "Materials",
+      "The investor",
+      "You",
+    ]);
+    expect(intakeGroups(preparationPacks.sales_call).map((group) => group.title)).toEqual([
+      "The call",
+      "Materials",
+      "People",
+    ]);
+    expect(intakeGroups(preparationPacks.negotiation).map((group) => group.title)).toEqual([
+      "The deal",
+      "Materials",
+      "The other side",
+    ]);
+    expect(intakeGroups(preparationPacks.leadership).map((group) => group.title)).toEqual([
+      "The conversation",
+      "People",
+      "Limits",
+      "Materials",
+    ]);
+    expect(intakeGroups(preparationPacks.difficult_conversation).map((group) => group.title)).toEqual([
+      "The conversation",
+      "People",
+      "Limits",
+      "Materials",
+    ]);
+    expect(intakeGroups(preparationPacks.custom).map((group) => group.title)).toEqual([
+      "The situation",
+      "Materials",
+    ]);
   });
 });
 
