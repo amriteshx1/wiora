@@ -13,7 +13,7 @@ export const PreparationsSearchFilter = () => {
     <div className="relative">
       <Input
         placeholder="Filter by title"
-        className="h-9 bg-white w-[200px] pl-7"
+        className="h-9 w-[200px] rounded-full bg-background pl-7"
         value={filters.search}
         onChange={(event) => setFilters({ search: event.target.value, page: 1 })}
       />

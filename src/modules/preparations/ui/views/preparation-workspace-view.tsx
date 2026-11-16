@@ -187,7 +187,7 @@ export const PreparationWorkspaceView = ({ preparationId }: Props) => {
       </div>
 
       {data.status === "processing" ? (
-        <div className="rounded-md border bg-background p-6 md:p-8">
+        <div className="rounded-2xl border bg-background p-6 md:p-8">
           <ResearchScene
             title={labels.company}
             processingStep={data.processingStep}
@@ -198,7 +198,7 @@ export const PreparationWorkspaceView = ({ preparationId }: Props) => {
       ) : null}
 
       {data.status === "failed" ? (
-        <div className="space-y-4 rounded-md border bg-background p-6">
+        <div className="space-y-4 rounded-2xl border bg-background p-6">
           <p className="text-sm">{data.error || "The brief could not be prepared"}</p>
           <WaitingButton
             type="button"
@@ -211,7 +211,7 @@ export const PreparationWorkspaceView = ({ preparationId }: Props) => {
       ) : null}
 
       {writingReport && !practicing ? (
-        <div className="space-y-3 rounded-md border bg-background p-6 md:p-8">
+        <div className="space-y-3 rounded-2xl border bg-background p-6 md:p-8">
           <h6 className="text-lg font-medium">Writing the report</h6>
           <p className="text-sm text-muted-foreground">
             The interview is over. This is written from what was said, not from the brief research.
@@ -231,7 +231,7 @@ export const PreparationWorkspaceView = ({ preparationId }: Props) => {
       ) : null}
 
       {showBrief ? (
-        <div className="flex flex-1 flex-col overflow-hidden rounded-md border bg-background">
+        <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border bg-background">
           <div className="flex-1 p-6 md:p-8">
             <SituationBrief
               preparationId={data.id}
@@ -253,7 +253,7 @@ export const PreparationWorkspaceView = ({ preparationId }: Props) => {
       ) : null}
 
       {data.status === "draft" ? (
-        <div className="mx-auto w-full max-w-2xl rounded-md border bg-background p-6 md:p-8">
+        <div className="mx-auto w-full max-w-2xl rounded-2xl border bg-background p-6 md:p-8">
           <FormComponent
             preparationId={data.id}
             initialContext={context}

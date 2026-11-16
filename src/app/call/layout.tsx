@@ -4,7 +4,7 @@ interface Props{
 
 const Layout = ({ children }: Props) => {
     return (
-        <div className="h-screen bg-background">
+        <div className="wiora-app h-screen bg-background">
             {children}
         </div>
     );

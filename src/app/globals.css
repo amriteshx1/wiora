@@ -120,6 +120,43 @@
   }
 }
 
+.wiora-app {
+  --background: #faf9f7;
+  --muted: #f3f1ee;
+  --secondary: #f3f1ee;
+  --accent: #f3f1ee;
+  --border: #e6e3de;
+  --input: #e6e3de;
+  --muted-foreground: #6f6c66;
+}
+
+.wiora-app [data-slot="button"] {
+  border-radius: 9999px;
+  box-shadow: none;
+}
+
+.wiora-call .str-video__composite-button,
+.wiora-call .str-video__generic-menu,
+.wiora-call .str-video__cancel-call-button,
+.wiora-app .str-video__composite-button {
+  border-radius: 9999px;
+}
+
+@keyframes call-bubble-dot {
+  0%, 80%, 100% {
+    opacity: 0.28;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+.call-bubble-dot {
+  animation: call-bubble-dot 1s ease-in-out infinite;
+}
+
 @keyframes waiting-line {
   from {
     transform: translateX(-120%);
@@ -149,7 +186,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .waiting-line,
-  .research-fill {
+  .research-fill,
+  .call-bubble-dot {
     animation: none;
     width: 100%;
     opacity: 0.45;
