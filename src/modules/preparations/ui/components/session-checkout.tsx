@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -10,18 +11,29 @@ import { useTRPC } from "@/trpc/client";
 
 interface Props {
   preparationId: string;
+  onStarted?: (runId: string) => void;
 }
 
-export function SessionCheckout({ preparationId }: Props) {
+export function SessionCheckout({ preparationId, onStarted }: Props) {
   const trpc = useTRPC();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const balance = useQuery(trpc.premium.getBalance.queryOptions());
   const latest = useQuery({
     ...trpc.runs.getLatest.queryOptions({ preparationId }),
     refetchInterval: (query) => query.state.data?.latest?.status === "processing" ? 2000 : false,
   });
   const start = useMutation(trpc.runs.startInterview.mutationOptions({
-    onSuccess: (result) => {
-      window.location.assign(result.url);
+    onSuccess: async (result) => {
+      if (result.needsCredits) {
+        router.push("/upgrade");
+        return;
+      }
+      await Promise.all([
+        queryClient.invalidateQueries(trpc.runs.getLatest.queryOptions({ preparationId })),
+        queryClient.invalidateQueries(trpc.premium.getBalance.queryOptions()),
+      ]);
+      if (result.runId) onStarted?.(result.runId);
     },
     onError: (error) => toast.error(error.message),
   }));
@@ -33,8 +45,8 @@ export function SessionCheckout({ preparationId }: Props) {
     return (
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm">The counterpart is ready</p>
-        <Button asChild className="shrink-0">
-          <Link href={`/call/${run.id}`}>Join the interview</Link>
+        <Button type="button" className="shrink-0" onClick={() => onStarted?.(run.id)}>
+          Continue interview
         </Button>
       </div>
     );

@@ -27,18 +27,21 @@ export function ResearchScene({ title, processingStep, documents, summary }: Pro
   const readyFiles = documents.filter((document) => document.status === "ready");
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)]">
-      <aside className="space-y-4">
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)]">
+      <aside className="space-y-5 rounded-[24px] bg-muted/70 p-6 md:p-8">
         <div>
           <p className="text-sm text-muted-foreground">In progress</p>
-          <h6 className="mt-1 text-lg font-medium">{title}</h6>
+          <h6 className="mt-1 text-lg font-medium tracking-tight">{title}</h6>
         </div>
         {summary && summary.length > 0 ? (
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            {summary.slice(0, 6).map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">From the details</p>
+            <ul className="space-y-2 text-sm">
+              {summary.slice(0, 6).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
         ) : null}
         {readyFiles.length > 0 ? (
           <div className="space-y-1 text-sm">
@@ -49,7 +52,7 @@ export function ResearchScene({ title, processingStep, documents, summary }: Pro
           </div>
         ) : null}
       </aside>
-      <ol className="space-y-0">
+      <ol className="space-y-0 rounded-[24px] border bg-background p-6 md:p-8">
         {nodes.map((node, index) => {
           const done = index < current;
           const active = index === current;

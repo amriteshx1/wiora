@@ -8,6 +8,7 @@ import { WaitingButton } from "@/components/waiting-button";
 import { Button } from "@/components/ui/button";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
+import { CallProvider } from "@/modules/call/ui/components/call-provider";
 import { useTRPC } from "@/trpc/client";
 
 import { getPack, isRecentRunUpdate, preparationListLabels, type ConversationType, type DocumentSlot, type IntakeContext } from "../../types";
@@ -21,7 +22,7 @@ import { SalesCallForm } from "../forms/sales-call-form";
 import { SituationBrief } from "../components/situation-brief";
 import { SessionCheckout } from "../components/session-checkout";
 import { PreparationReport } from "../components/preparation-report";
-import { ChapterSpine, type ChapterId } from "../components/chapter-spine";
+import { ChapterHeader, type ChapterId } from "../components/chapter-spine";
 import { ResearchScene } from "../components/research-scene";
 
 interface Props {
@@ -68,13 +69,22 @@ const forms = {
   custom: CustomForm,
 } as const;
 
-function chapterFor(status: string, runStatus?: string, practicing?: boolean): ChapterId {
-  if (status === "draft" || status === "failed") return "details";
-  if (status === "processing") return "research";
-  if (practicing) return "brief";
-  if (runStatus === "processing") return "report";
-  if (runStatus === "completed") return "report";
-  if (runStatus === "paid" || runStatus === "active") return "interview";
+function chapterFor(args: {
+  status: string;
+  runStatus?: string;
+  practicing?: boolean;
+  followups?: boolean;
+  stayOnInterview?: boolean;
+}): ChapterId {
+  if (args.status === "draft" || args.status === "failed") {
+    return args.followups ? "followups" : "details";
+  }
+  if (args.status === "processing") return "research";
+  if (args.stayOnInterview) return "interview";
+  if (args.practicing) return "brief";
+  if (args.runStatus === "processing") return "report";
+  if (args.runStatus === "completed") return "report";
+  if (args.runStatus === "paid" || args.runStatus === "active") return "interview";
   return "brief";
 }
 
@@ -93,6 +103,9 @@ export const PreparationWorkspaceView = ({ preparationId }: Props) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [practicing, setPracticing] = useState(false);
+  const [intakeStage, setIntakeStage] = useState<"details" | "followups">("details");
+  const [interviewEnded, setInterviewEnded] = useState(false);
+  const [proceedToReport, setProceedToReport] = useState(false);
   const { data } = useSuspenseQuery({
     ...trpc.preparations.getOne.queryOptions({ id: preparationId }),
     refetchInterval: (query) => query.state.data?.status === "processing" ? 2000 : false,
@@ -153,115 +166,169 @@ export const PreparationWorkspaceView = ({ preparationId }: Props) => {
     ),
   );
   const inLiveCall = live?.status === "active" && !timeEnded(live.hardEndAt);
-  const showReport = reportReady && !practicing && !inLiveCall && !writingReport;
+  const joinable = Boolean(
+    live && (live.status === "paid" || inLiveCall) && !interviewEnded,
+  );
+  const stayOnInterview = interviewEnded && !proceedToReport;
+  const showInterview = joinable || stayOnInterview;
+  const showReport = reportReady && !practicing && !showInterview;
+  const showWriting = Boolean(
+    !practicing
+    && !showInterview
+    && !showReport
+    && (writingReport || proceedToReport),
+  );
   const showBrief = Boolean(
     situationReady(data.status, data.situationModel)
     && data.status !== "processing"
-    && (practicing || (!showReport && !writingReport)),
+    && !showInterview
+    && !showWriting
+    && (practicing || !showReport),
   );
-  const current = chapterFor(
-    data.status,
-    writingReport ? "processing" : showReport ? "completed" : live?.status,
+  const current = chapterFor({
+    status: data.status,
+    runStatus: showWriting ? "processing" : showReport ? "completed" : live?.status,
     practicing,
-  );
+    followups: intakeStage === "followups",
+    stayOnInterview: showInterview,
+  });
+
+  const openInterview = () => {
+    setPracticing(false);
+    setInterviewEnded(false);
+    setProceedToReport(false);
+  };
+
+  const headerAction = showReport ? (
+    <Button type="button" className="shrink-0" onClick={() => {
+      setPracticing(true);
+      setInterviewEnded(false);
+      setProceedToReport(false);
+    }}>
+      Practice this again
+    </Button>
+  ) : practicing && reportReady ? (
+    <Button type="button" variant="outline" className="shrink-0" onClick={() => setPracticing(false)}>
+      Back to report
+    </Button>
+  ) : null;
 
   return (
-    <div className="flex min-h-full w-full flex-col px-4 pb-10 md:px-8">
-      <div className="space-y-4 py-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 space-y-1">
-            <h5 className="text-xl font-medium">{labels.company}</h5>
-            <p className="text-sm text-muted-foreground">{labels.role}</p>
-          </div>
-          {showReport ? (
-            <Button type="button" className="shrink-0" onClick={() => setPracticing(true)}>
-              Practice this again
-            </Button>
-          ) : practicing && reportReady ? (
-            <Button type="button" variant="outline" className="shrink-0" onClick={() => setPracticing(false)}>
-              Back to report
-            </Button>
-          ) : null}
-        </div>
-        <ChapterSpine current={current} />
-      </div>
+    <div className="flex min-h-full w-full flex-col">
+      <ChapterHeader
+        title={labels.company}
+        subtitle={labels.role}
+        current={current}
+        action={headerAction}
+      />
 
-      {data.status === "processing" ? (
-        <div className="rounded-2xl border bg-background p-6 md:p-8">
+      <div className="flex-1 px-4 py-8 md:px-8">
+        {data.status === "processing" ? (
           <ResearchScene
             title={labels.company}
             processingStep={data.processingStep}
             documents={data.documents}
             summary={intakeSummary(context)}
           />
-        </div>
-      ) : null}
+        ) : null}
 
-      {data.status === "failed" ? (
-        <div className="space-y-4 rounded-2xl border bg-background p-6">
-          <p className="text-sm">{data.error || "The brief could not be prepared"}</p>
-          <WaitingButton
-            type="button"
-            waiting={rerun.isPending}
-            idle="Try again"
-            busy="Starting again"
-            onClick={() => rerun.mutate({ id: data.id })}
-          />
-        </div>
-      ) : null}
-
-      {writingReport && !practicing ? (
-        <div className="space-y-3 rounded-2xl border bg-background p-6 md:p-8">
-          <h6 className="text-lg font-medium">Writing the report</h6>
-          <p className="text-sm text-muted-foreground">
-            The interview is over. This is written from what was said, not from the brief research.
-          </p>
-          <div className="h-px w-40 overflow-hidden bg-border">
-            <div className="research-fill h-px w-full bg-foreground" />
-          </div>
-        </div>
-      ) : null}
-
-      {showReport ? (
-        <PreparationReport
-          runId={completed!.id}
-          recordingUrl={completed!.recordingUrl}
-          report={completed!.report as never}
-        />
-      ) : null}
-
-      {showBrief ? (
-        <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border bg-background">
-          <div className="flex-1 p-6 md:p-8">
-            <SituationBrief
-              preparationId={data.id}
-              conversationType={data.conversationType}
-              context={context}
-              model={data.situationModel as never}
-              findings={data.findings}
-              documents={data.documents.map((document) => ({
-                id: document.id,
-                fileName: document.fileName,
-                status: document.status,
-              }))}
+        {data.status === "failed" ? (
+          <div className="space-y-4 rounded-[24px] border bg-background p-6">
+            <p className="text-sm">{data.error || "The brief could not be prepared"}</p>
+            <WaitingButton
+              type="button"
+              waiting={rerun.isPending}
+              idle="Try again"
+              busy="Starting again"
+              onClick={() => rerun.mutate({ id: data.id })}
             />
           </div>
-          <div className="sticky bottom-0 border-t bg-background px-6 py-4">
-            <SessionCheckout preparationId={data.id} />
-          </div>
-        </div>
-      ) : null}
+        ) : null}
 
-      {data.status === "draft" ? (
-        <div className="mx-auto w-full max-w-2xl rounded-2xl border bg-background p-6 md:p-8">
-          <FormComponent
-            preparationId={data.id}
-            initialContext={context}
-            initialFiles={initialFiles}
-            onSaved={() => undefined}
+        {showWriting ? (
+          <div className="mx-auto flex max-w-xl flex-col items-center gap-3 rounded-[24px] border bg-background px-6 py-16 text-center">
+            <h6 className="text-lg font-medium">Writing the report</h6>
+            <p className="text-sm text-muted-foreground">
+              The interview is over. This is written from what was said, not from the brief research.
+            </p>
+            <div className="h-px w-40 overflow-hidden bg-border">
+              <div className="research-fill h-px w-full bg-foreground" />
+            </div>
+          </div>
+        ) : null}
+
+        {showReport ? (
+          <PreparationReport
+            runId={completed!.id}
+            recordingUrl={completed!.recordingUrl}
+            report={completed!.report as never}
           />
-        </div>
-      ) : null}
+        ) : null}
+
+        {showBrief ? (
+          <div className="flex flex-1 flex-col overflow-hidden rounded-[24px] border bg-background">
+            <div className="flex-1 p-6 md:p-8">
+              <SituationBrief
+                preparationId={data.id}
+                conversationType={data.conversationType}
+                context={context}
+                model={data.situationModel as never}
+                findings={data.findings}
+                documents={data.documents.map((document) => ({
+                  id: document.id,
+                  fileName: document.fileName,
+                  status: document.status,
+                }))}
+              />
+            </div>
+            <div className="sticky bottom-0 border-t bg-background px-6 py-4">
+              <SessionCheckout preparationId={data.id} onStarted={openInterview} />
+            </div>
+          </div>
+        ) : null}
+
+        {showInterview && stayOnInterview ? (
+          <div className="mx-auto flex max-w-xl flex-col items-center gap-4 rounded-[24px] border bg-background px-6 py-16 text-center">
+            <h6 className="text-lg font-medium">The interview has ended</h6>
+            <p className="text-sm text-muted-foreground">
+              The report is being written from what was said. Continue when you are ready to read it.
+            </p>
+            <Button type="button" onClick={() => setProceedToReport(true)}>
+              Proceed with reports
+            </Button>
+          </div>
+        ) : null}
+
+        {showInterview && joinable && live ? (
+          <div className="overflow-hidden rounded-[24px] border bg-background">
+            <CallProvider
+              meetingId={live.id}
+              meetingName={live.counterpartName || "Practice"}
+              tokenSource="run"
+              endedHref={`/preparations/${data.id}`}
+              endedDetail="The report is being written on this preparation"
+              hardEndAt={live.hardEndAt ? new Date(live.hardEndAt).toISOString() : null}
+              layout="embed"
+              onEnded={() => {
+                setInterviewEnded(true);
+                void queryClient.invalidateQueries(trpc.runs.getLatest.queryOptions({ preparationId }));
+              }}
+            />
+          </div>
+        ) : null}
+
+        {data.status === "draft" ? (
+          <div className="mx-auto w-full max-w-2xl rounded-[24px] border bg-background p-6 md:p-8">
+            <FormComponent
+              preparationId={data.id}
+              initialContext={context}
+              initialFiles={initialFiles}
+              onSaved={() => undefined}
+              onStageChange={setIntakeStage}
+            />
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 };
