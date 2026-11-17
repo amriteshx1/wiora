@@ -50,9 +50,12 @@ describe("renderBrief", () => {
 
     expect(text).toContain("This is practice. Never tell the user what answer to give.");
     expect(text).toContain("The user speaks first.");
-    expect(text).toContain("Ask one or two related questions at a time.");
+    expect(text).toContain("open like a real meeting");
+    expect(text).toContain("Never ask what they prefer to discuss");
+    expect(text).toContain("Never repeat or re-read the same question");
+    expect(text).toContain("HARD LIMIT: every spoken turn is 40 words or fewer, including the first turn.");
+    expect(text).toContain("Let the user speak at any length.");
     expect(text).toContain("Do not give unsolicited coaching, model answers, or long explanations.");
-    expect(text).toContain("Do not offer an open menu of topics.");
     expect(text).toContain("you are the other seat, not a tutor");
     expect(text).toContain("Depth: deep");
     expect(text).toContain("Skepticism: moderate");

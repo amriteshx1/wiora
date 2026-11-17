@@ -57,7 +57,7 @@ export function PreparationReport({ runId, recordingUrl, report }: Props) {
 
   return (
     <Tabs value={tab} onValueChange={setTab} className="gap-4">
-      <div className="rounded-md border bg-background px-2 md:px-4">
+      <div className="rounded-[24px] border bg-background px-2 md:px-4">
         <ScrollArea>
           <TabsList className="h-12 w-full items-center justify-start gap-2 rounded-none bg-background p-0">
             <TabsTrigger value="report" className={tabClass}>
@@ -85,7 +85,7 @@ export function PreparationReport({ runId, recordingUrl, report }: Props) {
         </ScrollArea>
       </div>
       <TabsContent value="report">
-        <div className="space-y-10 rounded-md border bg-background px-4 py-6 md:px-8">
+        <div className="space-y-10 rounded-[24px] border bg-background px-4 py-6 md:px-8">
           <div>
             <h2 className="text-2xl font-medium">{report.objectiveJudgment}</h2>
             <p className="mt-2 text-sm text-muted-foreground">{report.preparedness}</p>
@@ -152,11 +152,14 @@ export function PreparationReport({ runId, recordingUrl, report }: Props) {
         </div>
       </TabsContent>
       <TabsContent value="moments">
-        <div className="divide-y rounded-md border bg-background">
+        <div className="divide-y rounded-[24px] border bg-background">
           {report.moments.map((moment) => (
-            <button key={moment.id} type="button" className="block w-full p-4 text-left text-sm" onClick={() => openMoment(moment.startTs)}>
-              <p className="font-medium">{moment.kind}</p>
-              <p className="mt-1">{moment.statement}</p>
+            <button key={moment.id} type="button" className="block w-full p-5 text-left" onClick={() => openMoment(moment.startTs)}>
+              <p className="text-xs font-medium capitalize text-muted-foreground">{moment.kind}</p>
+              <p className="mt-2 text-sm leading-relaxed">{moment.statement}</p>
+              {moment.quote ? (
+                <p className="mt-3 text-sm text-muted-foreground">“{moment.quote}”</p>
+              ) : null}
             </button>
           ))}
         </div>

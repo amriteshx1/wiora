@@ -6,6 +6,7 @@ import { preparationDocuments, preparations, researchFindings, sessionTurns, sim
 import { respondJson } from "@/lib/openai-responses";
 
 import { INTERVIEW_MINUTES } from "./credit-rules";
+import { absoluteFromElapsed, sessionOriginMs } from "./elapsed";
 
 const drillSchema = z.object({
   skill: z.string(),
@@ -59,9 +60,13 @@ export async function createDrill(input: { runId: string; weaknessId: string; us
     .from(sessionTurns)
     .where(eq(sessionTurns.runId, run.id))
     .orderBy(asc(sessionTurns.startedAt));
+  const origin = sessionOriginMs(run.startedAt, turns[0]?.startedAt);
   const nearby = weakness.startTs == null
     ? turns.slice(0, 8)
-    : turns.filter((turn) => Math.abs(turn.startedAt.getTime() - weakness.startTs!) < 120000).slice(0, 12);
+    : turns.filter((turn) => {
+        const target = absoluteFromElapsed(weakness.startTs!, origin);
+        return Math.abs(turn.startedAt.getTime() - target) < 120000;
+      }).slice(0, 12);
   const documents = await db
     .select({ fileName: preparationDocuments.fileName, reading: preparationDocuments.reading })
     .from(preparationDocuments)

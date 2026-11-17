@@ -146,7 +146,7 @@ export async function startRun(runId: string): Promise<void> {
         interrupt_response: true,
         eagerness: eagerness(situation.conversationStyle),
       } as SessionConfig["turn_detection"],
-    };
+    } as SessionConfig;
     if (voiceAccepted) {
       config.voice = "marin";
     }
@@ -210,11 +210,14 @@ export async function startRun(runId: string): Promise<void> {
       responding = true;
       return;
     }
-    if (type === "error" && voiceAccepted) {
-      const message = JSON.stringify(event).toLowerCase();
-      if (message.includes("marin") || message.includes("voice")) {
-        voiceAccepted = false;
-        publish(currentInstructions(hardEndAt ? minutesLeft(hardEndAt) : run.durationMinutes));
+    if (type === "error") {
+      console.error("Realtime session error", event);
+      if (voiceAccepted) {
+        const message = JSON.stringify(event).toLowerCase();
+        if (message.includes("marin") || message.includes("voice")) {
+          voiceAccepted = false;
+          publish(currentInstructions(hardEndAt ? minutesLeft(hardEndAt) : run.durationMinutes));
+        }
       }
       return;
     }
