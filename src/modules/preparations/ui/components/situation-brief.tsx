@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { ArrowUpRight } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -151,7 +153,7 @@ export function SituationBrief({
   return (
     <div className="space-y-12">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">Review what we found, then start when it looks right</p>
+        <p className="text-lg font-medium tracking-tight">Review what we found, then start when it looks right</p>
         <Sheet>
           <SheetTrigger asChild>
             <Button type="button" variant="outline">Update details</Button>
@@ -221,38 +223,38 @@ export function SituationBrief({
         {model.knownFacts.length === 0 ? (
           <p className="text-sm text-muted-foreground">Nothing is confirmed yet</p>
         ) : (
-          <ul className="space-y-2 text-sm">
+          <ul className="list-disc space-y-2 pl-5 text-sm">
             {model.knownFacts.map((factItem) => <li key={factItem}>{factItem}</li>)}
           </ul>
         )}
       </section>
 
-      {model.unknowns.length > 0 ? (
-        <section className="space-y-3">
-          <h6 className="font-medium">Still unclear</h6>
-          <p className="text-sm text-muted-foreground">
-            You can add context if this would change the interview
-          </p>
-          <ul className="space-y-2 text-sm">
-            {model.unknowns.map((item) => <li key={item}>{item}</li>)}
-          </ul>
-        </section>
-      ) : null}
-
       {visibleFindings.length > 0 ? (
         <section className="space-y-3">
           <h6 className="font-medium">From research</h6>
           <div className="divide-y border-y">
-            {visibleFindings.map((finding) => (
+            {visibleFindings.map((finding, index) => (
               <div key={finding.id} className="flex items-start justify-between gap-4 py-4">
                 <div className="min-w-0 space-y-1 text-sm">
-                  <p>{finding.statement}</p>
+                  <p>
+                    <span className="mr-2 tabular-nums text-muted-foreground">{index + 1}.</span>
+                    {finding.statement}
+                  </p>
                   {finding.sourceUrl ? (
-                    <a className="text-muted-foreground underline-offset-4 hover:underline" href={finding.sourceUrl}>
-                      {finding.sourceTitle || finding.sourceUrl}
-                    </a>
+                    <p className="flex items-start gap-1 text-muted-foreground">
+                      <span>Source:</span>
+                      <a
+                        className="inline-flex items-center gap-1 break-all underline underline-offset-4"
+                        href={finding.sourceUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {finding.sourceTitle || finding.sourceUrl}
+                        <ArrowUpRight className="size-3.5 shrink-0" />
+                      </a>
+                    </p>
                   ) : finding.sourceTitle ? (
-                    <p className="text-muted-foreground">{finding.sourceTitle}</p>
+                    <p className="text-muted-foreground">Source: {finding.sourceTitle}</p>
                   ) : null}
                 </div>
                 <Button
@@ -272,15 +274,15 @@ export function SituationBrief({
 
       <section className="space-y-3">
         <h6 className="font-medium">What will be tested</h6>
-        <div className="space-y-6">
+        <ul className="list-disc space-y-6 pl-5">
           {areas.map((area) => (
-            <div key={area.id} className="space-y-1 text-sm">
+            <li key={area.id} className="space-y-1 text-sm">
               <p className="font-medium">{area.label}</p>
               <p>{area.whyItMatters}</p>
               <p className="text-muted-foreground">{area.exitCriteria}</p>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       <section className="space-y-2 text-sm">
@@ -290,6 +292,18 @@ export function SituationBrief({
           {model.conversationStyle.depth} depth, {model.conversationStyle.skepticism} skepticism, {model.conversationStyle.pace} pace
         </p>
       </section>
+
+      {model.unknowns.length > 0 ? (
+        <section className="space-y-3">
+          <h6 className="font-medium">Still unclear</h6>
+          <p className="text-sm text-muted-foreground">
+            You can add context if this would change the interview
+          </p>
+          <ul className="list-disc space-y-2 pl-5 text-sm">
+            {model.unknowns.map((item) => <li key={item}>{item}</li>)}
+          </ul>
+        </section>
+      ) : null}
 
       {failedDocuments.length > 0 ? (
         <section className="space-y-1 text-sm text-muted-foreground">

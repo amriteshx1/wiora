@@ -12,6 +12,9 @@ interface Props {
   onChoose: (conversationType: ConversationType) => void;
 }
 
+const cardClass =
+  "flex h-auto flex-col items-start gap-1 rounded-[24px] border bg-background px-5 py-5 text-left hover:bg-muted/60";
+
 export function ConversationTypeGrid({ onChoose }: Props) {
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -21,10 +24,7 @@ export function ConversationTypeGrid({ onChoose }: Props) {
           <button
             key={type}
             type="button"
-            className={cn(
-              "flex h-auto flex-col items-start gap-1 rounded-[24px] border bg-background px-5 py-5 text-left",
-              "hover:bg-muted/60",
-            )}
+            className={cardClass}
             onClick={() => onChoose(type)}
           >
             <span className="font-medium">{pack.label}</span>
@@ -32,22 +32,24 @@ export function ConversationTypeGrid({ onChoose }: Props) {
           </button>
         );
       })}
-      <button
-        type="button"
-        className={cn(
-          "flex h-auto flex-col items-start gap-1 rounded-[24px] border border-dashed bg-muted/50 px-5 py-5 text-left",
-          "hover:bg-muted",
-        )}
-        onClick={() => onChoose("custom")}
-      >
-        <span className="inline-flex items-center gap-2 font-medium">
-          <PlusIcon className="size-4" />
-          Custom conversation
-        </span>
-        <span className="text-sm font-normal text-muted-foreground">
-          {preparationPacks.custom.description}
-        </span>
-      </button>
+      <div className="flex justify-center md:col-span-2 xl:col-span-3">
+        <button
+          type="button"
+          className={cn(
+            cardClass,
+            "w-full border-dashed md:w-[calc((100%-0.75rem)/2)] xl:w-[calc((100%-1.5rem)/3)]",
+          )}
+          onClick={() => onChoose("custom")}
+        >
+          <span className="inline-flex items-center gap-2 font-medium">
+            <PlusIcon className="size-4" />
+            Custom conversation
+          </span>
+          <span className="text-sm font-normal text-muted-foreground">
+            {preparationPacks.custom.description}
+          </span>
+        </button>
+      </div>
     </div>
   );
 }

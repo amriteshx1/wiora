@@ -36,9 +36,9 @@ export function ResearchScene({ title, processingStep, documents, summary }: Pro
         {summary && summary.length > 0 ? (
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">From the details</p>
-            <ul className="space-y-2 text-sm">
-              {summary.slice(0, 6).map((item) => (
-                <li key={item}>{item}</li>
+            <ul className="list-disc space-y-2 pl-5 text-sm">
+              {summary.slice(0, 8).map((item) => (
+                <li key={item} className="break-words">{item}</li>
               ))}
             </ul>
           </div>
@@ -46,9 +46,11 @@ export function ResearchScene({ title, processingStep, documents, summary }: Pro
         {readyFiles.length > 0 ? (
           <div className="space-y-1 text-sm">
             <p className="text-muted-foreground">Files</p>
-            {readyFiles.map((document) => (
-              <p key={document.fileName}>{document.fileName}</p>
-            ))}
+            <ul className="list-disc space-y-1 pl-5">
+              {readyFiles.map((document) => (
+                <li key={document.fileName} className="break-words">{document.fileName}</li>
+              ))}
+            </ul>
           </div>
         ) : null}
       </aside>

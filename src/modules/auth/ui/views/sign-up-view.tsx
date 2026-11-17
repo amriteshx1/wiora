@@ -64,12 +64,12 @@ export const SignUpView = () => {
         name: data.name,
         email: data.email,
         password: data.password,
-        callbackURL: "/preparations",
+        callbackURL: "/home",
       },
       {
         onSuccess: () => {
           setPending(false);
-          router.push("/preparations");
+          router.push("/home");
         },
         onError: ({ error }) => {
           setPending(false);
@@ -86,7 +86,7 @@ export const SignUpView = () => {
     authClient.signIn.social(
       {
         provider: provider,
-        callbackURL: "/preparations",
+        callbackURL: "/home",
       },
       {
         onSuccess: () => {

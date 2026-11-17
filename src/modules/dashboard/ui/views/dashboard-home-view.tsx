@@ -37,7 +37,7 @@ export function DashboardHomeView() {
         <h5 className="text-3xl font-medium tracking-tight md:text-4xl">
           {greeting()}, {firstName(data?.user.name)}
         </h5>
-        <p className="mt-3 max-w-[46ch] text-sm leading-relaxed text-muted-foreground md:text-[15px]">
+        <p className="mt-3 max-w-none text-sm leading-relaxed text-muted-foreground md:text-[15px]">
           What is the plan for today? Pick the conversation you want to sit in before it happens.
         </p>
       </div>

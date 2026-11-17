@@ -171,9 +171,16 @@ export const UpgradeView = () => {
           )}
         </div>
 
-        <p className="text-sm text-muted-foreground">
-          Refund requests are handled personally at{" "}
-          <a href="https://amritesh.cv/" className="underline underline-offset-4">amritesh.cv</a>
+        <p className="text-center text-sm text-muted-foreground">
+          Refund requests are processed within 24hrs of purchase. Contact at{" "}
+          <a
+            href="https://amritesh.cv/"
+            className="underline underline-offset-4"
+            target="_blank"
+            rel="noreferrer"
+          >
+            amritesh.cv
+          </a>
         </p>
       </div>
     </div>

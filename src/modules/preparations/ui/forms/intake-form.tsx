@@ -73,6 +73,7 @@ export function IntakeForm({
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [skipped, setSkipped] = useState<Record<string, boolean>>({});
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [finishing, setFinishing] = useState(false);
   const pendingHrefRef = useRef<string | null>(null);
   const skipGuard = useRef(false);
 
@@ -107,7 +108,8 @@ export function IntakeForm({
     || createUpload.isPending
     || confirmUpload.isPending
     || requestFollowUps.isPending
-    || submitFollowUps.isPending;
+    || submitFollowUps.isPending
+    || finishing;
   const dirtyRef = useRef(dirty);
   dirtyRef.current = dirty;
 
@@ -220,6 +222,7 @@ export function IntakeForm({
         value: answers[question.field].trim(),
       }));
     try {
+      setFinishing(true);
       await submitFollowUps.mutateAsync({
         id: savedId,
         answers: provided,
@@ -230,6 +233,7 @@ export function IntakeForm({
         goToPreparation(savedId);
       }
     } catch (error) {
+      setFinishing(false);
       const message = error instanceof Error ? error.message : "Could not save the follow-ups";
       toast.error(message);
     }
@@ -362,7 +366,7 @@ export function IntakeForm({
           type="button"
           waiting={pending}
           idle="Save preparation"
-          busy="Saving"
+          busy="Preparing"
           onClick={() => void finishFollowUps()}
         />
       </div>

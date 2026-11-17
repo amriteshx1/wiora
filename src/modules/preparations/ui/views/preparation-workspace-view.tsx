@@ -92,11 +92,24 @@ function timeEnded(hardEndAt: Date | string | null | undefined) {
   return Boolean(hardEndAt && new Date(hardEndAt).getTime() <= Date.now());
 }
 
-function intakeSummary(context: IntakeContext): string[] {
+function clippedDetail(value: string, limit: number): string {
+  const text = value.trim();
+  if (text.length <= limit) return text;
+  return `${text.slice(0, limit).trimEnd()}...`;
+}
+
+function intakeSummary(context: IntakeContext, conversationType: string): string[] {
+  const pack = getPack(conversationType);
+  const rows = (pack?.fields ?? []).flatMap((field) => {
+    const value = context[field.name];
+    if (typeof value !== "string" || !value.trim()) return [];
+    return [`${field.label}: ${clippedDetail(value, 160)}`];
+  });
+  if (rows.length > 0) return rows.slice(0, 8);
   return Object.entries(context)
     .filter(([key, value]) => typeof value === "string" && value.trim() && key !== "corrections")
     .slice(0, 6)
-    .map(([, value]) => String(value).trim().slice(0, 140));
+    .map(([key, value]) => `${key}: ${clippedDetail(String(value), 140)}`);
 }
 
 export const PreparationWorkspaceView = ({ preparationId }: Props) => {
@@ -228,7 +241,7 @@ export const PreparationWorkspaceView = ({ preparationId }: Props) => {
             title={labels.company}
             processingStep={data.processingStep}
             documents={data.documents}
-            summary={intakeSummary(context)}
+            summary={intakeSummary(context, data.conversationType)}
           />
         ) : null}
 
@@ -300,7 +313,7 @@ export const PreparationWorkspaceView = ({ preparationId }: Props) => {
         ) : null}
 
         {showInterview && joinable && live ? (
-          <div className="overflow-hidden rounded-[24px] border bg-background">
+          <div className="overflow-hidden">
             <CallProvider
               meetingId={live.id}
               meetingName={live.counterpartName || "Practice"}

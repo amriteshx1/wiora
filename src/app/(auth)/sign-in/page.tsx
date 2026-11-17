@@ -7,7 +7,7 @@ const Page = async () => {
   const session = await getSession();
 
   if(!!session){
-    redirect("/preparations");
+    redirect("/home");
   }
 
   return <SignInView />

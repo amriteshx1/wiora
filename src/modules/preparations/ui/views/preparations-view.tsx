@@ -28,18 +28,20 @@ export const PreparationsView = () => {
 
   if (data.items.length === 0) {
     return (
-      <div className="flex min-h-[60vh] flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center md:px-8">
-        <p className="text-lg font-medium">
-          {filters.search ? "No preparations match that search" : "Start a preparation"}
-        </p>
-        <p className="max-w-md text-sm text-muted-foreground">
-          {filters.search
-            ? "Try another title, or start a new one"
-            : "Choose the conversation you are getting ready for, then add the details and files you already have"}
-        </p>
-        <Button asChild>
-          <Link href="/home">New preparation</Link>
-        </Button>
+      <div className="flex min-h-[60vh] flex-1 flex-col items-center justify-center px-4 py-16 md:px-8">
+        <div className="flex w-full max-w-lg flex-col items-center gap-4 rounded-[24px] border bg-background px-8 py-12 text-center">
+          <p className="text-lg font-medium">
+            {filters.search ? "No preparations match that search" : "Start a preparation"}
+          </p>
+          <p className="max-w-md text-sm text-muted-foreground">
+            {filters.search
+              ? "Try another title, or start a new one"
+              : "Choose the conversation you are getting ready for, then add the details and files you already have"}
+          </p>
+          <Button asChild>
+            <Link href="/home">New preparation</Link>
+          </Button>
+        </div>
       </div>
     );
   }

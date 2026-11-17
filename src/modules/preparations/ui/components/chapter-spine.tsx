@@ -35,7 +35,7 @@ export function ChapterHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur-sm">
+    <div className="border-b bg-background">
       <div className="space-y-4 px-4 py-5 md:px-8">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 space-y-1">
