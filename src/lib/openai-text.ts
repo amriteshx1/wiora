@@ -1,3 +1,3 @@
 import "server-only";
 
-export { respondJson, respondWithWebSearch } from "./openai-responses";
+export { respondJson } from "./openai-responses";

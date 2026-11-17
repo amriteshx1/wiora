@@ -46,30 +46,3 @@ export async function respondJson<T extends ZodType>({
 
   return response.output_parsed;
 }
-
-export async function respondWithWebSearch<T extends ZodType>({
-  schema,
-  input,
-  name = "result",
-}: {
-  schema: T;
-  input: string;
-  name?: string;
-}): Promise<z.infer<T>> {
-  const response = await openai().responses.parse({
-    model: textModel(),
-    store: false,
-    input,
-    tools: [{ type: "web_search", search_context_size: "low" }],
-    tool_choice: "required",
-    text: {
-      format: zodTextFormat(schema, name),
-    },
-  });
-
-  if (!response.output_parsed) {
-    throw new Error("The model did not return structured output");
-  }
-
-  return response.output_parsed;
-}

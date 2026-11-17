@@ -3,9 +3,14 @@ import { z } from "zod";
 
 import { db } from "@/db";
 import { preparationDocuments, preparations, researchFindings } from "@/db/schema";
-import { respondJson, respondWithWebSearch } from "@/lib/openai-text";
+import { fetchBraveContext } from "@/lib/brave-llm-context";
+import { respondJson } from "@/lib/openai-text";
+import { logUsage } from "@/lib/usage-log";
 
 import { getPack, type IntakeContext } from "../types";
+import { compactDocumentReadings, compactIntakeForResearch } from "./compact-context";
+import { buildBraveQuery } from "./research-query";
+import { researchInputFingerprint, shouldReuseResearch } from "./rerun-rules";
 
 const findingCategories = ["verified", "source_backed", "inference", "assumption", "unknown"] as const;
 const prioritySources = ["interview_experience", "linkedin", "reddit"] as const;
@@ -13,7 +18,6 @@ const prioritySources = ["interview_experience", "linkedin", "reddit"] as const;
 const plannerSchema = z.object({
   shouldResearch: z.boolean(),
   namedPublicOrganization: z.boolean(),
-  queries: z.array(z.string()),
 });
 
 const searchSchema = z.object({
@@ -64,6 +68,24 @@ async function replaceFindings(
   })));
 }
 
+type StoredFinding = {
+  statement: string;
+  category: (typeof findingCategories)[number];
+  sourceUrl: string | null;
+  sourceTitle: string | null;
+  query: string | null;
+};
+
+function unknownFinding(statement: string): StoredFinding[] {
+  return [{
+    statement,
+    category: "unknown",
+    sourceUrl: null,
+    sourceTitle: null,
+    query: null,
+  }];
+}
+
 export async function researchPreparation(preparationId: string): Promise<void> {
   const [preparation] = await db
     .select()
@@ -81,6 +103,7 @@ export async function researchPreparation(preparationId: string): Promise<void> 
 
   const documents = await db
     .select({
+      id: preparationDocuments.id,
       fileName: preparationDocuments.fileName,
       reading: preparationDocuments.reading,
     })
@@ -88,6 +111,23 @@ export async function researchPreparation(preparationId: string): Promise<void> 
     .where(eq(preparationDocuments.preparationId, preparation.id));
 
   const context = asContext(preparation.context);
+  const fingerprint = researchInputFingerprint(context, documents.map((document) => document.id));
+  const existing = await db
+    .select({ id: researchFindings.id })
+    .from(researchFindings)
+    .where(eq(researchFindings.preparationId, preparation.id));
+
+  if (shouldReuseResearch(preparation.researchInputHash, fingerprint, existing.length)) {
+    logUsage({
+      kind: "external_search",
+      preparationId: preparation.id,
+      reused: true,
+      ok: true,
+      detail: "fingerprint_match",
+    });
+    return;
+  }
+
   let plan: z.infer<typeof plannerSchema>;
   try {
     plan = await respondJson({
@@ -96,70 +136,89 @@ export async function researchPreparation(preparationId: string): Promise<void> 
       input: [
         "Decide whether public research would make one upcoming conversation more realistic.",
         "Do not search the web.",
-        "Return at most 8 queries.",
         "Reported questions are patterns, not a script. A missing interviewer name stays unknown.",
         "Leadership and difficult conversations are researched only when the user named a public organization or a public situation.",
         "namedPublicOrganization is true only when the user named a company, school, government agency, or another organization that has public pages. A person, roommate, family member, manager, or unnamed team is not a public organization.",
         "If namedPublicOrganization is false for a leadership or difficult conversation, shouldResearch must be false.",
-        "When the situation has a company, role, interview process, customer, investor, counterparty, or other public context, the first queries target, in order: TakeYouForward and other interview-experience pages, then LinkedIn posts and comments, then Reddit. Those are the first places to look, not a closed list. Later queries cover official pages, recent news, forums, blogs, and other credible public sources.",
         `Conversation type: ${preparation.conversationType}`,
         `Research hints: ${pack.researchHints}`,
-        `Context: ${JSON.stringify(context)}`,
-        `Document readings: ${JSON.stringify(documents.map((document) => ({
-          fileName: document.fileName,
-          reading: document.reading,
-        })))}`,
+        `Context: ${JSON.stringify(compactIntakeForResearch(context))}`,
+        `Document summaries: ${JSON.stringify(compactDocumentReadings(documents))}`,
       ].join("\n\n"),
     });
+    logUsage({ kind: "research_planning", preparationId: preparation.id, ok: true });
   } catch {
-    await replaceFindings(preparation.id, [{
-      statement: "Public research could not be planned for this situation.",
-      category: "unknown",
-      sourceUrl: null,
-      sourceTitle: null,
-      query: null,
-    }]);
+    logUsage({ kind: "research_planning", preparationId: preparation.id, ok: false });
+    await replaceFindings(preparation.id, unknownFinding("Public research could not be planned for this situation."));
+    await saveFingerprint(preparation.id, fingerprint);
     return;
   }
 
   const privateConversation = preparation.conversationType === "leadership" || preparation.conversationType === "difficult_conversation";
   if (!plan.shouldResearch || (privateConversation && !plan.namedPublicOrganization)) {
-    await replaceFindings(preparation.id, [{
-      statement: "Public research was not useful for this situation.",
-      category: "unknown",
-      sourceUrl: null,
-      sourceTitle: null,
-      query: null,
-    }]);
+    await replaceFindings(preparation.id, unknownFinding("Public research was not useful for this situation."));
+    await saveFingerprint(preparation.id, fingerprint);
+    logUsage({ kind: "external_search", preparationId: preparation.id, reused: false, ok: true, detail: "skipped_private" });
     return;
   }
 
-  const queries = plan.queries.map((query) => query.trim()).filter(Boolean).slice(0, 8);
+  const query = buildBraveQuery(pack.id, context);
+  let passages: Array<{ url: string; title: string; snippets: string[] }> = [];
   try {
-    const searched = await respondWithWebSearch({
+    const searched = await fetchBraveContext(query);
+    passages = searched.items.map((item) => ({
+      url: item.url,
+      title: searched.sources[item.url]?.title || item.title,
+      snippets: item.snippets.slice(0, 4),
+    }));
+    logUsage({
+      kind: "external_search",
+      preparationId: preparation.id,
+      reused: false,
+      ok: true,
+      sources: passages.length,
+      tokens: 6144,
+    });
+  } catch {
+    logUsage({ kind: "external_search", preparationId: preparation.id, reused: false, ok: false });
+    await replaceFindings(preparation.id, unknownFinding("Public research could not be completed for this situation."));
+    await saveFingerprint(preparation.id, fingerprint);
+    return;
+  }
+
+  if (passages.length === 0) {
+    await replaceFindings(preparation.id, unknownFinding("Public research did not return a usable result for this situation."));
+    await saveFingerprint(preparation.id, fingerprint);
+    return;
+  }
+
+  try {
+    const mapped = await respondJson({
       schema: searchSchema,
       name: "research_findings",
       input: [
-        "Search the public web for this one situation. Do not search unrelated topics.",
-        "Search the priority sources before the broader web, in this order: TakeYouForward and other interview-experience pages, LinkedIn posts and comments, Reddit, then official pages, news, forums, blogs, and other credible sources.",
-        "Reported questions are patterns, not a script. Do not invent an interviewer.",
+        "Turn these public web passages into findings for one upcoming conversation.",
+        "Do not search the web. Use only the supplied passages.",
         "Return at most 12 findings.",
-        "If a priority source has no usable result, list it in emptyPrioritySources. Otherwise leave it out.",
-        "Use category verified or source_backed only when a source supports the statement. Use inference, assumption, or unknown for the rest.",
-        `Queries, in order: ${JSON.stringify(queries)}`,
-        `Context: ${JSON.stringify(context)}`,
+        "Use category verified or source_backed only when a supplied source supports the statement. Use inference, assumption, or unknown for the rest.",
+        "Keep sourceUrl and sourceTitle from the passage that supports the statement.",
+        "If a priority source has no usable result, list it in emptyPrioritySources. Priority sources are interview-experience pages, LinkedIn, and Reddit.",
+        "Reported questions are patterns, not a script. Do not invent an interviewer.",
+        `Query: ${query}`,
+        `Context: ${JSON.stringify(compactIntakeForResearch(context))}`,
+        `Passages: ${JSON.stringify(passages)}`,
       ].join("\n\n"),
     });
 
-    const findings = searched.findings.map((finding) => ({
+    const findings: StoredFinding[] = mapped.findings.map((finding) => ({
       statement: finding.statement,
       category: finding.category,
       sourceUrl: finding.sourceUrl,
       sourceTitle: finding.sourceTitle,
-      query: finding.query,
+      query: finding.query || query,
     }));
 
-    for (const source of searched.emptyPrioritySources) {
+    for (const source of mapped.emptyPrioritySources) {
       findings.push({
         statement: priorityStatements[source],
         category: "unknown",
@@ -170,23 +229,40 @@ export async function researchPreparation(preparationId: string): Promise<void> 
     }
 
     if (findings.length === 0) {
-      findings.push({
-        statement: "Public research did not return a usable result for this situation.",
-        category: "unknown",
-        sourceUrl: null,
-        sourceTitle: null,
-        query: null,
-      });
+      findings.push(...unknownFinding("Public research did not return a usable result for this situation."));
     }
 
     await replaceFindings(preparation.id, findings.slice(0, 12));
+    await saveFingerprint(preparation.id, fingerprint);
   } catch {
-    await replaceFindings(preparation.id, [{
-      statement: "Public research could not be completed for this situation.",
-      category: "unknown",
-      sourceUrl: null,
-      sourceTitle: null,
-      query: null,
-    }]);
+    logUsage({
+      kind: "external_search",
+      preparationId: preparation.id,
+      reused: false,
+      ok: true,
+      sources: passages.length,
+      detail: "passages_unmapped",
+    });
+    await replaceFindings(
+      preparation.id,
+      passages.slice(0, 8).map((passage) => ({
+        statement: passage.snippets[0]?.slice(0, 280) || passage.title,
+        category: "source_backed",
+        sourceUrl: passage.url,
+        sourceTitle: passage.title,
+        query,
+      })),
+    );
+    await saveFingerprint(preparation.id, fingerprint);
   }
+}
+
+async function saveFingerprint(preparationId: string, fingerprint: string) {
+  await db
+    .update(preparations)
+    .set({
+      researchInputHash: fingerprint,
+      updatedAt: new Date(),
+    })
+    .where(eq(preparations.id, preparationId));
 }
