@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { MicIcon, MicOffIcon, VideoIcon, VideoOffIcon } from "lucide-react";
 import {
     CancelCallButton,
     ParticipantsAudio,
-    ToggleAudioPublishingButton,
-    ToggleVideoPublishingButton,
+    useCall,
     useCallStateHooks,
 } from "@stream-io/video-react-sdk";
 
 import { CallChat } from "./call-chat";
+import { CallCountdown } from "./call-countdown";
 import { CallUserTile } from "./call-user-tile";
 import MatrixOrb, { type MatrixOrbState } from "./matrix-orb";
 
@@ -21,17 +22,16 @@ interface Props {
     runId: string;
 }
 
-function remainingLabel(hardEndAt: string): string {
-    const remaining = Math.max(0, new Date(hardEndAt).getTime() - Date.now());
-    const totalSeconds = Math.ceil(remaining / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${String(seconds).padStart(2, "0")}`;
-}
-
 export const CallActive = ({ onLeave, meetingName, hardEndAt, runId }: Props) => {
-    const [clock, setClock] = useState(hardEndAt ? remainingLabel(hardEndAt) : "");
-    const { useLocalParticipant, useParticipants, useRemoteParticipants } = useCallStateHooks();
+    const joinedFallback = useMemo(
+        () => Date.now() + 30 * 60 * 1000,
+        [],
+    );
+    const endsAt = hardEndAt ? new Date(hardEndAt).getTime() : joinedFallback;
+    const call = useCall();
+    const { useLocalParticipant, useParticipants, useRemoteParticipants, useMicrophoneState, useCameraState } = useCallStateHooks();
+    const microphone = useMicrophoneState();
+    const camera = useCameraState();
     const local = useLocalParticipant();
     const participants = useParticipants();
     const remotes = useRemoteParticipants();
@@ -49,35 +49,23 @@ export const CallActive = ({ onLeave, meetingName, hardEndAt, runId }: Props) =>
           ? "thinking"
           : "idle";
 
-    useEffect(() => {
-        if (!hardEndAt) return;
-        const timer = setInterval(() => {
-            setClock(remainingLabel(hardEndAt));
-        }, 1000);
-        return () => clearInterval(timer);
-    }, [hardEndAt]);
-
     return (
         <div className="wiora-interview wiora-call fixed inset-0 z-[80] flex h-svh flex-col">
             <ParticipantsAudio participants={remotes} />
             <header className="flex items-center justify-between gap-4 px-6 py-5 md:px-10">
                 <div>
-                    <p className="text-xs text-[var(--wiora-ash,#9a9488)]">Live session</p>
+                    <p className="text-xs text-white/45">Live session</p>
                     <h4 className="mt-1 text-lg font-medium tracking-tight">{meetingName}</h4>
                 </div>
-                {hardEndAt ? (
-                    <p className="rounded-full border border-white/10 px-4 py-1.5 text-sm tabular-nums tracking-[0.18em]">
-                        {clock}
-                    </p>
-                ) : null}
+                <CallCountdown endsAt={endsAt} />
             </header>
-            <div className="grid min-h-0 flex-1 grid-cols-1 gap-8 px-6 pb-4 md:px-10 lg:grid-cols-[minmax(220px,320px)_minmax(0,1fr)_minmax(180px,240px)] lg:items-center">
-                <div className="flex items-center justify-center py-4">
+            <div className="grid min-h-0 flex-1 grid-cols-1 gap-8 px-6 pb-2 pt-6 md:px-10 lg:grid-cols-[minmax(220px,368px)_minmax(0,1fr)_minmax(180px,240px)] lg:items-center">
+                <div className="flex items-center justify-center py-2">
                     <MatrixOrb
                         state={orbState}
                         level={userSpeaking ? Math.max(level, 0.28) : undefined}
-                        size={320}
-                        color="#c4a07a"
+                        size={368}
+                        color="#f5f5f4"
                     />
                 </div>
                 <CallChat
@@ -87,14 +75,28 @@ export const CallActive = ({ onLeave, meetingName, hardEndAt, runId }: Props) =>
                     userName={userName}
                     counterpartName={meetingName}
                 />
-                <div className="flex items-center justify-center py-4">
+                <div className="flex items-center justify-center py-2">
                     <CallUserTile />
                 </div>
             </div>
-            <div className="border-t border-white/10 bg-black/25">
-                <div className="flex items-center justify-center gap-3 px-6 py-5">
-                    <ToggleAudioPublishingButton />
-                    <ToggleVideoPublishingButton />
+            <div className="flex justify-center pb-8 pt-2">
+                <div className="flex items-center gap-2 rounded-full border border-white/12 bg-[#1a1a1a]/80 px-3 py-2 backdrop-blur-xl">
+                    <button
+                        type="button"
+                        className="wiora-glass-control"
+                        aria-label={microphone.isMute ? "Unmute microphone" : "Mute microphone"}
+                        onClick={() => void call?.microphone.toggle()}
+                    >
+                        {microphone.isMute ? <MicOffIcon className="size-4" /> : <MicIcon className="size-4" />}
+                    </button>
+                    <button
+                        type="button"
+                        className="wiora-glass-control"
+                        aria-label={camera.isMute ? "Turn camera on" : "Turn camera off"}
+                        onClick={() => void call?.camera.toggle()}
+                    >
+                        {camera.isMute ? <VideoOffIcon className="size-4" /> : <VideoIcon className="size-4" />}
+                    </button>
                     <CancelCallButton onLeave={onLeave} />
                 </div>
             </div>

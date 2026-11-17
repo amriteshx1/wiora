@@ -189,15 +189,21 @@ export function CallChat({
   );
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col">
+    <div className="relative mx-auto flex h-[min(48vh,24rem)] w-full max-w-xl min-h-0 flex-col self-center overflow-hidden">
       <div
         ref={scroller}
-        className="call-transcript min-h-0 flex-1 space-y-5 overflow-y-auto py-10"
+        className={cn(
+          "call-transcript min-h-0 flex-1 overflow-x-hidden overflow-y-auto py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          items.length === 0 ? "flex items-center justify-center" : "space-y-5",
+        )}
       >
         {items.length === 0 ? (
-          <p className="pt-16 text-center text-sm text-[var(--wiora-ash,#9a9488)]">
-            The line will appear here as you speak
-          </p>
+          <div className="px-4 text-center">
+            <p className="text-base text-white/45">Your conversation will appear here.</p>
+            <p className="mt-px text-sm italic text-white/45">
+              Speak naturally. Your conversation will unfold here in real time.
+            </p>
+          </div>
         ) : null}
         {items.map((item) => {
           const own = item.speaker === "user";
@@ -205,16 +211,16 @@ export function CallChat({
           return (
             <div key={item.key} className={cn("flex", own ? "justify-end" : "justify-start")}>
               <div className={cn("max-w-[88%] px-1 py-1", own ? "text-right" : "text-left")}>
-                <p className="text-[11px] tracking-wide text-[var(--wiora-ash,#9a9488)]">
+                <p className="text-[11px] tracking-wide text-white/45">
                   {name}
                 </p>
                 {item.kind === "turn" ? (
-                  <p className="mt-1.5 text-[15px] leading-relaxed text-[#f3efe6]">{item.text}</p>
+                  <p className="mt-1.5 break-words text-[15px] leading-relaxed text-[#f5f5f4]">{item.text}</p>
                 ) : (
                   <span className="mt-3 flex gap-1" aria-label="Speaking">
-                    <span className="call-bubble-dot size-1.5 rounded-full bg-[#c4a07a]" />
-                    <span className="call-bubble-dot size-1.5 rounded-full bg-[#c4a07a] [animation-delay:140ms]" />
-                    <span className="call-bubble-dot size-1.5 rounded-full bg-[#c4a07a] [animation-delay:280ms]" />
+                    <span className="call-bubble-dot size-1.5 rounded-full bg-white/80" />
+                    <span className="call-bubble-dot size-1.5 rounded-full bg-white/80 [animation-delay:140ms]" />
+                    <span className="call-bubble-dot size-1.5 rounded-full bg-white/80 [animation-delay:280ms]" />
                   </span>
                 )}
               </div>

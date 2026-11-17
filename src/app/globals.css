@@ -165,37 +165,52 @@
 }
 
 .wiora-interview {
-  --background: #161513;
-  --foreground: #f3efe6;
-  --muted: #1e1c19;
-  --muted-foreground: #9a9488;
-  --border: #2c2924;
-  --primary: #f3efe6;
-  --primary-foreground: #161513;
-  color: #f3efe6;
-  background:
-    radial-gradient(1200px 500px at 50% -10%, rgba(196, 160, 122, 0.12), transparent 55%),
-    #161513;
+  --background: #141414;
+  --foreground: #f5f5f4;
+  --muted: #1a1a1a;
+  --muted-foreground: #a3a3a3;
+  --border: rgb(255 255 255 / 10%);
+  --primary: #f5f5f4;
+  --primary-foreground: #141414;
+  color: #f5f5f4;
+  background-color: #141414;
+  background-image: none;
 }
 
 .call-transcript {
   scrollbar-width: none;
   -ms-overflow-style: none;
-  mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
-  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
 }
 
 .call-transcript::-webkit-scrollbar {
   display: none;
 }
 
-.wiora-interview .str-video__composite-button,
-.wiora-interview .str-video__generic-menu,
+.wiora-glass-control {
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: rgb(26 26 26 / 55%);
+  color: #f5f5f4;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.wiora-glass-control:hover {
+  background: rgb(26 26 26 / 72%);
+}
+
 .wiora-interview .str-video__cancel-call-button {
-  background: rgba(243, 239, 230, 0.08);
-  border: 1px solid rgba(243, 239, 230, 0.14);
-  color: #f3efe6;
-  box-shadow: none;
+  background: #e11d48 !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #fff;
 }
 
 @keyframes waiting-line {
@@ -223,6 +238,20 @@
 .research-fill {
   transform-origin: left;
   animation: research-fill 2.4s ease-in-out infinite;
+}
+
+.wiora-video-preview,
+.wiora-video-preview .str-video__video-preview,
+.wiora-video-preview .str-video__video-preview-container {
+  min-height: 14rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.wiora-ask {
+  font-family: inherit;
 }
 
 @media (prefers-reduced-motion: reduce) {

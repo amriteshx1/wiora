@@ -54,7 +54,7 @@ export function CallUserTile() {
           </span>
         </div>
       </div>
-      <p className="text-sm text-[var(--wiora-ash,#9a9488)]">{name}</p>
+      <p className="text-sm text-white/55">{name}</p>
     </div>
   );
 }

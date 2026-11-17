@@ -36,7 +36,7 @@ export const CallLobby = ({ onJoin, cancelHref, embedded = false }: Props) => {
                         Check the microphone and camera, then sit across from the counterpart
                     </p>
                 </div>
-                <div className="overflow-hidden rounded-[20px] border bg-muted">
+                <div className="wiora-video-preview overflow-hidden rounded-[20px] border bg-muted">
                     <VideoPreview />
                 </div>
                 <div className="space-y-1 text-sm">
