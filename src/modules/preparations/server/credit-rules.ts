@@ -10,6 +10,14 @@ export const PLAN_CREDITS: Record<PlanId, number> = {
   super: 15,
 };
 
+export const FREE_PREPARATION_CREDITS = 10;
+
+export const PLAN_PREPARATION_CREDITS: Record<PlanId, number> = {
+  pro: 10,
+  plus: 20,
+  super: 30,
+};
+
 const PLAN_ENV: Record<PlanId, string> = {
   pro: "POLAR_PRODUCT_PRO",
   plus: "POLAR_PRODUCT_PLUS",

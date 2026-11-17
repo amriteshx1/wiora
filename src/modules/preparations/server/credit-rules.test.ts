@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   INTERVIEW_MINUTES,
+  FREE_PREPARATION_CREDITS,
+  PLAN_PREPARATION_CREDITS,
   balanceOf,
   consumeCredit,
   createAtomicBook,
@@ -50,6 +52,13 @@ describe("interview credits", () => {
     expect(balanceOf(bought("pro").entries)).toBe(5);
     expect(balanceOf(bought("plus").entries)).toBe(10);
     expect(balanceOf(bought("super").entries)).toBe(15);
+  });
+
+  it("keeps interview credits separate from doubled preparation allocations", () => {
+    expect(FREE_PREPARATION_CREDITS).toBe(10);
+    expect(PLAN_PREPARATION_CREDITS.pro).toBe(10);
+    expect(PLAN_PREPARATION_CREDITS.plus).toBe(20);
+    expect(PLAN_PREPARATION_CREDITS.super).toBe(30);
   });
 
   it("does not grant credits for a failed or unknown payment", () => {

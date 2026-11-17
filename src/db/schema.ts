@@ -117,6 +117,7 @@ export const preparations = pgTable(
     context: jsonb("context").notNull().default(sql`'{}'::jsonb`),
     situationModel: jsonb("situation_model"),
     situationVersion: integer("situation_version").notNull().default(1),
+    researchInputHash: text("research_input_hash"),
     error: text("error"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -222,6 +223,40 @@ export const sessionTurns = pgTable(
       table.startedAt,
       table.text,
     ),
+  ],
+);
+
+export const preparationCreditAccounts = pgTable("preparation_credit_accounts", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  balance: integer("balance").notNull().default(0),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const preparationCreditLedger = pgTable(
+  "preparation_credit_ledger",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => nanoid()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    delta: integer("delta").notNull(),
+    balanceAfter: integer("balance_after").notNull(),
+    entryType: text("entry_type").notNull(),
+    plan: text("plan"),
+    preparationId: text("preparation_id").references(() => preparations.id, { onDelete: "set null" }),
+    polarOrderId: text("polar_order_id"),
+    polarCheckoutId: text("polar_checkout_id"),
+    polarProductId: text("polar_product_id"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("prep_credit_ledger_user_id_idx").on(table.userId),
+    index("prep_credit_ledger_prep_id_idx").on(table.preparationId),
+    unique("prep_credit_ledger_order_entry").on(table.polarOrderId, table.entryType),
   ],
 );
 
