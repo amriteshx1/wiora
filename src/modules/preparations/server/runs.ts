@@ -16,6 +16,7 @@ import { openAuthorizedRun } from "./authorize-run";
 import { creditBalance } from "./credits";
 import { INTERVIEW_MINUTES } from "./credit-rules";
 import { createDrill, createNextPractice } from "./drill";
+import { sessionOriginMs, toElapsedMs } from "./elapsed";
 
 async function ownedRun(runId: string, userId: string) {
   const [run] = await db
@@ -204,9 +205,10 @@ export const runsRouter = createTRPCRouter({
         .from(sessionTurns)
         .where(eq(sessionTurns.runId, run.id))
         .orderBy(asc(sessionTurns.startedAt));
+      const origin = sessionOriginMs(run.startedAt, turns[0]?.startedAt);
       return turns.map((turn) => ({
         text: turn.text,
-        startTs: turn.startedAt.getTime(),
+        startTs: toElapsedMs(turn.startedAt, origin),
         speaker: turn.speaker === "user" ? "user" as const : "counterpart" as const,
         name: turn.speaker === "user" ? (owner?.name || "You") : (run.counterpartName || "Counterpart"),
       }));

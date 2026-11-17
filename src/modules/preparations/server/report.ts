@@ -12,6 +12,7 @@ import { StreamTranscriptItem } from "@/modules/meetings/types";
 
 import { getPack } from "../types";
 import { compactDocumentReadings, compactSituation } from "./compact-context";
+import { sessionOriginMs, toElapsedMs } from "./elapsed";
 import { attachQuotes, type QuoteCheckedReport, type TranscriptLine } from "./quotes";
 
 const reportSchema = z.object({
@@ -72,15 +73,16 @@ async function linesFromStream(run: { id: string; userId: string; transcriptUrl:
   }));
 }
 
-async function linesFromTurns(runId: string): Promise<SpokenLine[]> {
+async function linesFromTurns(run: { id: string; startedAt: Date | null }): Promise<SpokenLine[]> {
   const turns = await db
     .select()
     .from(sessionTurns)
-    .where(eq(sessionTurns.runId, runId))
+    .where(eq(sessionTurns.runId, run.id))
     .orderBy(asc(sessionTurns.startedAt));
+  const origin = sessionOriginMs(run.startedAt, turns[0]?.startedAt);
   return turns.map((turn) => ({
     text: turn.text,
-    startTs: turn.startedAt.getTime(),
+    startTs: toElapsedMs(turn.startedAt, origin),
     speaker: turn.speaker,
   }));
 }
@@ -103,7 +105,7 @@ export async function buildReport(runId: string): Promise<void> {
     });
   } else {
     transcriptSource = "session_turns";
-    lines = await linesFromTurns(run.id);
+    lines = await linesFromTurns(run);
   }
   if (lines.length === 0) return;
 
@@ -125,6 +127,7 @@ export async function buildReport(runId: string): Promise<void> {
       "Do not give a numeric score.",
       "Every weakness must explain what went wrong, why that was a problem, what was expected, what a strong answer would have demonstrated, and what evidence was missing. missingEvidence is an empty string when nothing specific was missing.",
       "Quotes must be copied from the transcript. Do not paraphrase a quote.",
+      "Each moment.statement is two to four sentences: what happened in that beat, why it mattered in the conversation, and what it revealed. Do not write one-line moments.",
       `Evaluation dimensions: ${JSON.stringify(dimensions)}`,
       `Transcript:\n${JSON.stringify(lines)}`,
       `Situation:\n${JSON.stringify(compactSituation(preparation.situationModel))}`,

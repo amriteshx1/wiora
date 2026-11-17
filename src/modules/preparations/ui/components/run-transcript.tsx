@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { format } from "date-fns";
 import { SearchIcon } from "lucide-react";
 import Highlighter from "react-highlight-words";
 import { useQuery } from "@tanstack/react-query";
@@ -10,6 +9,7 @@ import { LoadingState } from "@/components/loading-state";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTRPC } from "@/trpc/client";
+import { formatElapsed } from "../../server/elapsed";
 
 interface Props {
   runId: string;
@@ -59,7 +59,7 @@ export function RunTranscript({ runId, focusTs }: Props) {
               <div className="flex gap-x-2 items-center">
                 <p className="text-sm font-medium">{item.name}</p>
                 <p className="text-sm text-muted-foreground font-medium tabular-nums">
-                  {format(new Date(item.startTs), "mm:ss")}
+                  {formatElapsed(item.startTs)}
                 </p>
               </div>
               <Highlighter
