@@ -73,4 +73,6 @@ main()
   })
   .finally(async () => {
     await sql`delete from "user" where id = ${userId}`;
+    await sql.end({ timeout: 1 });
+    process.exit(process.exitCode ?? 0);
   });

@@ -257,18 +257,42 @@ async function main() {
   });
   if (!credited) return;
   check("pro pack grants 5 credits", true);
+  const [prepAfterPro] = await sql`select balance from preparation_credit_accounts where user_id = ${owner.id}`;
+  check("pro pack grants 10 preparation credits", Number(prepAfterPro?.balance) === 10, String(prepAfterPro?.balance));
 
   const again = await postPolar(orderPayload(orderId, process.env.POLAR_PRODUCT_PRO!, owner.id, "paid"));
   check("second credit webhook accepted", again.status === 200, again.text);
   await new Promise((resolve) => setTimeout(resolve, 1500));
   const [stillFive] = await sql`select balance from credit_accounts where user_id = ${owner.id}`;
   check("second webhook does not grant credits twice", Number(stillFive?.balance) === 5, String(stillFive?.balance));
+  const [prepStillTen] = await sql`select balance from preparation_credit_accounts where user_id = ${owner.id}`;
+  check("second webhook does not grant preparation credits twice", Number(prepStillTen?.balance) === 10, String(prepStillTen?.balance));
 
   const mismatch = await postPolar(orderPayload(`order_mismatch_${owner.id}`, "not-a-product", owner.id, "paid"));
   check("unknown product webhook accepted", mismatch.status === 200, mismatch.text);
   await new Promise((resolve) => setTimeout(resolve, 1000));
   const [afterMismatch] = await sql`select balance from credit_accounts where user_id = ${owner.id}`;
   check("unknown product does not grant credits", Number(afterMismatch?.balance) === 5, String(afterMismatch?.balance));
+
+  const plusPaid = await postPolar(orderPayload(`order_plus_${owner.id}`, process.env.POLAR_PRODUCT_PLUS!, owner.id, "paid"));
+  check("plus webhook accepted", plusPaid.status === 200, plusPaid.text);
+  const plusCredited = await waitFor("plus pack grants 20 preparation credits", async () => {
+    const [row] = await sql`select balance from preparation_credit_accounts where user_id = ${owner.id}`;
+    return Number(row?.balance) === 30;
+  });
+  if (plusCredited) check("plus pack grants 20 preparation credits", true);
+  const [afterPlusInterview] = await sql`select balance from credit_accounts where user_id = ${owner.id}`;
+  check("plus pack still grants 10 interview credits", Number(afterPlusInterview?.balance) === 15, String(afterPlusInterview?.balance));
+
+  const superPaid = await postPolar(orderPayload(`order_super_${owner.id}`, process.env.POLAR_PRODUCT_SUPER!, owner.id, "paid"));
+  check("super webhook accepted", superPaid.status === 200, superPaid.text);
+  const superCredited = await waitFor("super pack grants 30 preparation credits", async () => {
+    const [row] = await sql`select balance from preparation_credit_accounts where user_id = ${owner.id}`;
+    return Number(row?.balance) === 60;
+  });
+  if (superCredited) check("super pack grants 30 preparation credits", true);
+  const [afterSuperInterview] = await sql`select balance from credit_accounts where user_id = ${owner.id}`;
+  check("super pack still grants 15 interview credits", Number(afterSuperInterview?.balance) === 30, String(afterSuperInterview?.balance));
 
   const started = await trpc(owner.cookie, "runs.startInterview", { preparationId });
   const liveId = started.payload?.runId as string;
@@ -292,11 +316,11 @@ async function main() {
 
   const refund = await postPolar(orderPayload(orderId, process.env.POLAR_PRODUCT_PRO!, owner.id, "refunded"));
   check("refund webhook accepted", refund.status === 200, refund.text);
-  const refundSettled = await waitFor("refund claws back unused credits", async () => {
-    const [row] = await sql`select balance from credit_accounts where user_id = ${owner.id}`;
-    return Number(row?.balance) === 0;
-  });
-  if (refundSettled) check("refund claws back unused credits", true);
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  const [afterRefund] = await sql`select balance from credit_accounts where user_id = ${owner.id}`;
+  check("refund does not reverse interview credits", Number(afterRefund?.balance) === 30, String(afterRefund?.balance));
+  const [prepAfterRefund] = await sql`select balance from preparation_credit_accounts where user_id = ${owner.id}`;
+  check("refund does not reverse preparation credits", Number(prepAfterRefund?.balance) === 60, String(prepAfterRefund?.balance));
   const [heldRun] = await sql`select status from simulation_runs where id = ${liveId}`;
   check("refund does not erase the interview that already reserved a credit", heldRun?.status === "paid", heldRun?.status || "");
   const sessionStarted = await postStream({

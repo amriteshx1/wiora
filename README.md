@@ -21,7 +21,7 @@ Wiora helps you rehearse high-stakes conversations in your own words: job interv
 npm install
 ```
 
-Create `.env` with the database, Better Auth, OAuth, Stream, OpenAI, Polar, Resend, and S3 values used by the app. Non-voice model calls use `OPENAI_TEXT_MODEL`. Credit packs use `POLAR_PRODUCT_PRO`, `POLAR_PRODUCT_PLUS`, and `POLAR_PRODUCT_SUPER`. Polar webhooks use `POLAR_WEBHOOK_SECRET`. The voice worker uses `WORKER_URL` and `WORKER_SECRET`.
+Create `.env` with the database, Better Auth, OAuth, Stream, OpenAI, Polar, Resend, and S3 values used by the app. Non-voice model calls use `OPENAI_TEXT_MODEL`. Public research uses `BRAVE_SEARCH_API_KEY` and `BRAVE_SEARCH_COUNTRY` (default `IN`). Credit packs use `POLAR_PRODUCT_PRO`, `POLAR_PRODUCT_PLUS`, and `POLAR_PRODUCT_SUPER`. Polar webhooks use `POLAR_WEBHOOK_SECRET`. The voice worker uses `WORKER_URL` and `WORKER_SECRET`.
 
 ```bash
 npm run dev
@@ -35,7 +35,7 @@ Object storage is S3-compatible: MinIO locally, Cloudflare R2 when deployed. The
 ## Features
 
 - **Situation intake** — Type-specific forms and document slots so the brief matches the conversation you are walking into.
-- **Research & brief** — Automated background research and a correctable brief before any credit is spent.
+- **Research & brief** — One Brave research request per preparation, then a correctable brief. A preparation credit is held before research and spent when the brief is ready. Interview credits are separate.
 - **Live counterpart** — Stream Video plus an OpenAI Realtime worker; the other side stays in role and reacts to your answers, not a fixed script.
 - **Session artifacts** — Transcript, recording, structured report, and Ask AI grounded in that run’s summary and chat.
 - **Preparation workspace** — List, journey spine, brief, lobby, call, and report in one flow per preparation.
@@ -134,6 +134,9 @@ NEXT_PUBLIC_STREAM_CHAT_API_KEY="<stream_chat_public>"
 STREAM_CHAT_SECRET_KEY="<stream_chat_secret>"
 
 OPENAI_API_KEY="<openai_key>"
+OPENAI_TEXT_MODEL="gpt-5.6-luna"
+BRAVE_SEARCH_API_KEY="<brave_search_api_key>"
+BRAVE_SEARCH_COUNTRY="IN"
 
 POLAR_ACCESS_TOKEN="<polar_access_token>"
 RESEND_API_KEY="<resend_key>"

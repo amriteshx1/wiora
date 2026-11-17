@@ -108,13 +108,20 @@ async function waitUntilSettled(cookie: string, id: string) {
   const started = Date.now();
   let latest: any = null;
   while (Date.now() - started < 240000) {
-    const result = await trpc(cookie, "preparations.getOne", { id }, "GET");
-    latest = result.payload;
-    if (latest?.status === "ready" || latest?.status === "failed") {
-      return latest;
-    }
-    if (result.error) {
-      throw new Error(result.error.message || "Could not load the preparation");
+    try {
+      const result = await trpc(cookie, "preparations.getOne", { id }, "GET");
+      latest = result.payload;
+      if (latest?.status === "ready" || latest?.status === "failed") {
+        return latest;
+      }
+      if (result.error) {
+        throw new Error(result.error.message || "Could not load the preparation");
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      if (!message.toLowerCase().includes("fetch")) {
+        throw error;
+      }
     }
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
@@ -286,15 +293,14 @@ async function main() {
     id: third.payload.id,
     context: { company: "Notion", jobTitle: "Engineer" },
   });
-  const rejected = await trpc(owner.cookie, "preparations.submitFollowUps", {
+  const thirdSubmit = await trpc(owner.cookie, "preparations.submitFollowUps", {
     id: third.payload.id,
     answers: [],
   });
   check(
-    "third unpaid preparation is rejected",
-    rejected.error?.data?.code === "FORBIDDEN" &&
-      rejected.error?.message === "You already have two preparations waiting for a paid session",
-    rejected.error?.message || rejected.payload?.status || "",
+    "a third preparation is allowed with remaining preparation credits",
+    thirdSubmit.payload?.status === "processing" || thirdSubmit.payload?.status === "ready",
+    thirdSubmit.error?.message || thirdSubmit.payload?.status || "",
   );
 
   const meetings = await fetch(`${base}/meetings`, {
@@ -336,7 +342,6 @@ main()
   .finally(async () => {
     await cleanup();
     console.log(`elapsed_s ${Math.round((Date.now() - started) / 1000)}`);
-    if (failures.length > 0) {
-      process.exitCode = 1;
-    }
+    await sql.end({ timeout: 1 }).catch(() => undefined);
+    process.exit(failures.length > 0 ? 1 : 0);
   });
