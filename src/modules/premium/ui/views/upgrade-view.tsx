@@ -52,8 +52,11 @@ export const UpgradeView = () => {
       <div className="flex flex-col gap-10">
         <div>
           <h5 className="text-2xl font-medium tracking-tight">Credits</h5>
-          <p className="mt-2 max-w-[46ch] text-sm leading-relaxed text-muted-foreground">
-            Every account includes 10 preparations. One interview credit starts one 30-minute live session. Names, prices, and Polar features are unchanged.
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Start with 10 free preparations on us. Explore every conversation type and build your preparation briefs.
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Choose a plan to unlock live practice and put your preparation to the test.
           </p>
         </div>
 
