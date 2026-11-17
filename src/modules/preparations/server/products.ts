@@ -4,6 +4,7 @@ import {
   INTERVIEW_MINUTES,
   PLAN_CREDITS,
   PLAN_IDS,
+  PLAN_PREPARATION_CREDITS,
   productIdForPlan,
   type PlanId,
 } from "./credit-rules";
@@ -16,6 +17,7 @@ export type PlanOffer = {
   badge: string | null;
   highlighted: boolean;
   credits: number;
+  preparationCredits: number;
   priceLabel: string;
   priceAmount: number;
   currency: string;
@@ -51,6 +53,7 @@ export function fallbackOffers(): PlanOffer[] {
       badge: id === "plus" ? "Best value" : null,
       highlighted: id === "plus",
       credits: PLAN_CREDITS[id],
+      preparationCredits: PLAN_PREPARATION_CREDITS[id],
       priceLabel: money(cents, "usd"),
       priceAmount: cents,
       currency: "usd",
@@ -94,6 +97,7 @@ export async function listPlanOffers(): Promise<PlanOffer[]> {
       badge: typeof badge === "string" ? badge : null,
       highlighted: variant === "highlighted",
       credits: PLAN_CREDITS[id],
+      preparationCredits: PLAN_PREPARATION_CREDITS[id],
       priceLabel: money(price.priceAmount, price.priceCurrency),
       priceAmount: price.priceAmount,
       currency: price.priceCurrency,

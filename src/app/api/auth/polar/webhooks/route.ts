@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { isPaidOrderEvent, polarOrderFields, verifyPolarSignature } from "@/lib/polar-webhook";
-import { grantCredits, refundCredits } from "@/modules/preparations/server/credits";
+import { grantCredits } from "@/modules/preparations/server/credits";
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -42,11 +42,13 @@ export async function POST(request: Request) {
   if (event.type === "order.refunded" && event.data) {
     const order = polarOrderFields(event.data);
     if (order.orderId) {
-      await refundCredits({
+      console.info("[wiora:usage]", JSON.stringify({
+        at: new Date().toISOString(),
+        kind: "preparation_credit",
+        detail: "polar_refund_ignored",
         orderId: order.orderId,
-        productId: order.productId,
-        checkoutId: order.checkoutId,
-      });
+        ok: true,
+      }));
     }
   }
 

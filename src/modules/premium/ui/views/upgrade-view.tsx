@@ -19,6 +19,15 @@ const entryLabel: Record<string, string> = {
   refund: "Refund",
 };
 
+const preparationLabel: Record<string, string> = {
+  grant_free: "Free preparations",
+  purchase: "Preparations purchased",
+  reservation: "Preparation held",
+  deduction: "Preparation completed",
+  restore: "Preparation returned",
+  released: "Preparation returned",
+};
+
 export const UpgradeView = () => {
   const trpc = useTRPC();
   const search = useSearchParams();
@@ -44,22 +53,26 @@ export const UpgradeView = () => {
         <div>
           <h5 className="text-2xl font-medium tracking-tight">Credits</h5>
           <p className="mt-2 max-w-[46ch] text-sm leading-relaxed text-muted-foreground">
-            Preparation stays free. One credit starts one 30-minute interview. Names, prices, and features come from Polar
+            Every account includes 10 preparations. One interview credit starts one 30-minute live session. Names, prices, and Polar features are unchanged.
           </p>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-3">
           <div className="rounded-[24px] bg-muted/70 p-6">
-            <p className="text-sm text-muted-foreground">Available</p>
+            <p className="text-sm text-muted-foreground">Interview credits</p>
             <p className="mt-2 text-4xl font-medium tabular-nums tracking-tight">{data.balance}</p>
+          </div>
+          <div className="rounded-[24px] bg-muted/70 p-6">
+            <p className="text-sm text-muted-foreground">Preparations</p>
+            <p className="mt-2 text-4xl font-medium tabular-nums tracking-tight">{data.preparationBalance}</p>
           </div>
           <div className="rounded-[24px] bg-muted/70 p-6">
             <p className="text-sm text-muted-foreground">Latest bundle</p>
             <p className="mt-2 text-2xl font-medium tracking-tight">{planName ? planName : "None yet"}</p>
             <p className="mt-1 text-sm text-muted-foreground">
               {data.plan
-                ? `${data.creditsInPlan} credits in that purchase`
-                : "Buy before a preparation, or when you run out"}
+                ? `${data.creditsInPlan} interview credits and ${data.preparationsInPlan} preparations in that purchase`
+                : "Buy a pack when interview credits or preparations run out"}
             </p>
           </div>
         </div>
@@ -105,6 +118,10 @@ export const UpgradeView = () => {
 
               <div className="flex flex-col items-start gap-y-2.5">
                 <p className="mb-2 text-sm font-medium">Features</p>
+                <p className="flex items-center gap-x-2.5 text-xs font-medium">
+                  <CircleCheckIcon className="size-4 fill-primary text-white" />
+                  {plan.preparationCredits} preparations
+                </p>
                 {plan.benefits.map((feature) => (
                   <p key={feature} className="flex items-center gap-x-2.5 text-xs font-medium">
                     <CircleCheckIcon className="size-4 fill-primary text-white" />
@@ -117,7 +134,7 @@ export const UpgradeView = () => {
         </div>
 
         <div className="rounded-[24px] border bg-background p-6">
-          <h6 className="font-medium">History</h6>
+          <h6 className="font-medium">Interview history</h6>
           {data.history.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">Purchases and interviews will show up here</p>
           ) : (
@@ -134,6 +151,30 @@ export const UpgradeView = () => {
             </div>
           )}
         </div>
+
+        <div className="rounded-[24px] border bg-background p-6">
+          <h6 className="font-medium">Preparation history</h6>
+          {data.preparationHistory.length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">Free allowance and completed preparations will show up here</p>
+          ) : (
+            <div className="mt-4 divide-y">
+              {data.preparationHistory.map((entry) => (
+                <div key={entry.id} className="flex items-center justify-between gap-4 py-3 text-sm">
+                  <div>
+                    <p>{preparationLabel[entry.entryType] ?? entry.entryType}</p>
+                    <p className="text-muted-foreground">{new Date(entry.createdAt).toLocaleString()}</p>
+                  </div>
+                  <p className="font-medium tabular-nums">{entry.delta > 0 ? `+${entry.delta}` : entry.delta}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <p className="text-sm text-muted-foreground">
+          Refund requests are handled personally at{" "}
+          <a href="https://amritesh.cv/" className="underline underline-offset-4">amritesh.cv</a>
+        </p>
       </div>
     </div>
   );

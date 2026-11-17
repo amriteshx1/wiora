@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, ilike, inArray, notExists, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/db";
@@ -21,6 +21,13 @@ import {
   type IntakeContext,
 } from "../types";
 import { safeFileName, uploadRejection } from "../uploads";
+import {
+  grantFreePreparationCredits,
+  preparationCreditHold,
+  reservePreparationCredit,
+  restorePreparationCredit,
+} from "./preparation-credits";
+import { researchInputFingerprint, shouldSynthesizeOnly } from "./rerun-rules";
 
 const editableStatuses = ["draft", "ready"] as const;
 
@@ -539,27 +546,12 @@ export const preparationsRouter = createTRPCRouter({
         followUpsSubmitted: true,
       };
 
-      const unpaid = await db
-        .select({ id: preparations.id })
-        .from(preparations)
-        .where(and(
-          eq(preparations.userId, ctx.auth.user.id),
-          inArray(preparations.status, ["processing", "ready"]),
-          notExists(
-            db
-              .select({ id: simulationRuns.id })
-              .from(simulationRuns)
-              .where(and(
-                eq(simulationRuns.preparationId, preparations.id),
-                inArray(simulationRuns.status, ["paid", "active", "processing", "completed"]),
-              )),
-          ),
-        ));
-
-      if (unpaid.length >= 2) {
+      await grantFreePreparationCredits(ctx.auth.user.id);
+      const reserved = await reservePreparationCredit(ctx.auth.user.id, preparation.id);
+      if (reserved === "empty") {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "You already have two preparations waiting for a paid session",
+          message: "You have used your preparation credits. Buy a plan to prepare another conversation.",
         });
       }
 
@@ -580,7 +572,12 @@ export const preparationsRouter = createTRPCRouter({
         )
         .returning();
 
-      await enqueuePreparation(updated.id, updated.situationVersion, false);
+      try {
+        await enqueuePreparation(updated.id, updated.situationVersion, false);
+      } catch (error) {
+        await restorePreparationCredit(updated.id);
+        throw error;
+      }
 
       return updated;
     }),
@@ -640,12 +637,16 @@ export const preparationsRouter = createTRPCRouter({
           ));
       }
 
+      const documentIds = await readyDocumentIds(preparation.id, ctx.auth.user.id);
+      const fingerprint = researchInputFingerprint(nextContext, documentIds);
+      const synthesizeOnly = shouldSynthesizeOnly(preparation.researchInputHash, fingerprint);
+
       const [updated] = await db
         .update(preparations)
         .set({
           context: nextContext,
           status: "processing",
-          processingStep: "synthesizing",
+          processingStep: synthesizeOnly ? "synthesizing" : "extracting",
           error: null,
           updatedAt: new Date(),
         })
@@ -655,7 +656,7 @@ export const preparationsRouter = createTRPCRouter({
         ))
         .returning();
 
-      await enqueuePreparation(updated.id, updated.situationVersion, true);
+      await enqueuePreparation(updated.id, updated.situationVersion, synthesizeOnly);
 
       return updated;
     }),
@@ -671,11 +672,28 @@ export const preparationsRouter = createTRPCRouter({
         });
       }
 
+      const hold = await preparationCreditHold(preparation.id);
+      if (hold === "none") {
+        await grantFreePreparationCredits(ctx.auth.user.id);
+        const reserved = await reservePreparationCredit(ctx.auth.user.id, preparation.id);
+        if (reserved === "empty") {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You have used your preparation credits. Buy a plan to prepare another conversation.",
+          });
+        }
+      }
+
+      const context = asContext(preparation.context);
+      const documentIds = await readyDocumentIds(preparation.id, ctx.auth.user.id);
+      const fingerprint = researchInputFingerprint(context, documentIds);
+      const synthesizeOnly = shouldSynthesizeOnly(preparation.researchInputHash, fingerprint);
+
       const [updated] = await db
         .update(preparations)
         .set({
           status: "processing",
-          processingStep: "extracting",
+          processingStep: synthesizeOnly ? "synthesizing" : "extracting",
           error: null,
           updatedAt: new Date(),
         })
@@ -685,7 +703,14 @@ export const preparationsRouter = createTRPCRouter({
         ))
         .returning();
 
-      await enqueuePreparation(updated.id, updated.situationVersion, false);
+      try {
+        await enqueuePreparation(updated.id, updated.situationVersion, synthesizeOnly);
+      } catch (error) {
+        if (hold === "none") {
+          await restorePreparationCredit(updated.id);
+        }
+        throw error;
+      }
 
       return updated;
     }),

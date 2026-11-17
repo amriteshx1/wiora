@@ -4,6 +4,10 @@ import { db } from "@/db";
 import { preparations } from "@/db/schema";
 
 import { extractReadyDocuments } from "./extract";
+import {
+  consumePreparationCredit,
+  restorePreparationCredit,
+} from "./preparation-credits";
 import { researchPreparation } from "./research";
 import { synthesizePreparation } from "./synthesize";
 
@@ -38,6 +42,10 @@ export async function processPreparation(input: {
   if (!preparation) {
     return;
   }
+  if (preparation.status === "ready") {
+    await consumePreparationCredit(preparation.id);
+    return;
+  }
   if (preparation.situationVersion !== input.situationVersion) {
     return;
   }
@@ -56,7 +64,7 @@ export async function processPreparation(input: {
     await markStep(preparation.id, preparation.situationVersion, "synthesizing");
     const situationModel = await synthesizePreparation(preparation.id);
 
-    await db
+    const [ready] = await db
       .update(preparations)
       .set({
         situationModel,
@@ -70,10 +78,14 @@ export async function processPreparation(input: {
         eq(preparations.id, preparation.id),
         eq(preparations.situationVersion, preparation.situationVersion),
         eq(preparations.status, "processing"),
-      ));
+      ))
+      .returning({ id: preparations.id });
+    if (ready) {
+      await consumePreparationCredit(preparation.id);
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : "The brief could not be prepared";
-    await db
+    const [failed] = await db
       .update(preparations)
       .set({
         status: "failed",
@@ -85,6 +97,10 @@ export async function processPreparation(input: {
         eq(preparations.id, preparation.id),
         eq(preparations.situationVersion, preparation.situationVersion),
         eq(preparations.status, "processing"),
-      ));
+      ))
+      .returning({ id: preparations.id });
+    if (failed) {
+      await restorePreparationCredit(preparation.id);
+    }
   }
 }

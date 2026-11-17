@@ -5,44 +5,64 @@ import { polarClient } from "@/lib/polar";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
 import { creditBalance, creditHistory, latestPlan, checkoutProductId } from "@/modules/preparations/server/credits";
-import { isPlanId, PLAN_CREDITS } from "@/modules/preparations/server/credit-rules";
+import { isPlanId, PLAN_CREDITS, PLAN_PREPARATION_CREDITS } from "@/modules/preparations/server/credit-rules";
+import {
+  grantFreePreparationCredits,
+  preparationCreditBalance,
+  preparationCreditHistory,
+} from "@/modules/preparations/server/preparation-credits";
 import { syncPolarPurchases } from "@/modules/preparations/server/polar-sync";
 import { listPlanOffers } from "@/modules/preparations/server/products";
 
+function historyRow(row: Record<string, unknown>, extra: "runId" | "preparationId") {
+  return {
+    id: String(row.id),
+    delta: Number(row.delta),
+    entryType: String(row.entry_type),
+    plan: typeof row.plan === "string" ? row.plan : null,
+    runId: extra === "runId" && typeof row.run_id === "string" ? row.run_id : null,
+    preparationId: extra === "preparationId" && typeof row.preparation_id === "string" ? row.preparation_id : null,
+    orderId: typeof row.polar_order_id === "string" ? row.polar_order_id : null,
+    checkoutId: typeof row.polar_checkout_id === "string" ? row.polar_checkout_id : null,
+    createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : new Date(String(row.created_at)).toISOString(),
+  };
+}
+
 export const premiumRouter = createTRPCRouter({
   getBalance: protectedProcedure.query(async ({ ctx }) => {
+    await grantFreePreparationCredits(ctx.auth.user.id);
     let balance = await creditBalance(ctx.auth.user.id);
     if (balance < 1) {
       await syncPolarPurchases(ctx.auth.user.id);
       balance = await creditBalance(ctx.auth.user.id);
     }
-    const plan = await latestPlan(ctx.auth.user.id);
-    return { balance, plan };
+    const [plan, preparationBalance] = await Promise.all([
+      latestPlan(ctx.auth.user.id),
+      preparationCreditBalance(ctx.auth.user.id),
+    ]);
+    return { balance, preparationBalance, plan };
   }),
 
   getBilling: protectedProcedure.query(async ({ ctx }) => {
+    await grantFreePreparationCredits(ctx.auth.user.id);
     await syncPolarPurchases(ctx.auth.user.id);
-    const [balance, plan, plans, history] = await Promise.all([
+    const [balance, preparationBalance, plan, plans, history, preparationHistory] = await Promise.all([
       creditBalance(ctx.auth.user.id),
+      preparationCreditBalance(ctx.auth.user.id),
       latestPlan(ctx.auth.user.id),
       listPlanOffers(),
       creditHistory(ctx.auth.user.id),
+      preparationCreditHistory(ctx.auth.user.id),
     ]);
     return {
       balance,
+      preparationBalance,
       plan,
       creditsInPlan: plan ? PLAN_CREDITS[plan] : 0,
+      preparationsInPlan: plan ? PLAN_PREPARATION_CREDITS[plan] : 0,
       plans,
-      history: history.map((row) => ({
-        id: String(row.id),
-        delta: Number(row.delta),
-        entryType: String(row.entry_type),
-        plan: typeof row.plan === "string" ? row.plan : null,
-        runId: typeof row.run_id === "string" ? row.run_id : null,
-        orderId: typeof row.polar_order_id === "string" ? row.polar_order_id : null,
-        checkoutId: typeof row.polar_checkout_id === "string" ? row.polar_checkout_id : null,
-        createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : new Date(String(row.created_at)).toISOString(),
-      })),
+      history: history.map((row) => historyRow(row, "runId")),
+      preparationHistory: preparationHistory.map((row) => historyRow(row, "preparationId")),
     };
   }),
 

@@ -9,6 +9,7 @@ import {
   productIdForPlan,
   type PlanId,
 } from "./credit-rules";
+import { grantPreparationPurchase } from "./preparation-credits";
 
 type ReserveResult = "reserved" | "already" | "empty";
 
@@ -74,7 +75,9 @@ export async function grantCredits(input: {
     where user_id = ${input.userId} and exists (select 1 from ins)
     returning user_id
   `);
-  return inserted.length > 0;
+  const grantedInterview = inserted.length > 0;
+  const grantedPreparation = await grantPreparationPurchase(input);
+  return grantedInterview || grantedPreparation;
 }
 
 export async function reserveCredit(userId: string, runId: string): Promise<ReserveResult> {
