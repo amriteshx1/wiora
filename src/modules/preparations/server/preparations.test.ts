@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { intakeGroups, preparationPacks } from "../types";
-import { researchInputsChanged } from "./rerun-rules";
+import { researchInputFingerprint, researchInputsChanged, shouldReuseResearch, shouldSynthesizeOnly } from "./rerun-rules";
 
 const none: string[] = [];
 
@@ -108,6 +108,7 @@ describe("researchInputsChanged", () => {
     expect(researchInputsChanged({ investor: "North" }, { investor: "South" }, [], [])).toBe(true);
     expect(researchInputsChanged({ client: "A" }, { client: "B" }, [], [])).toBe(true);
     expect(researchInputsChanged({ counterparty: "A" }, { counterparty: "B" }, [], [])).toBe(true);
+    expect(researchInputsChanged({ subject: "Price" }, { subject: "Scope" }, [], [])).toBe(true);
     expect(researchInputsChanged({}, {}, ["a"], ["a", "b"])).toBe(true);
     expect(researchInputsChanged({}, {}, ["a", "b"], ["a"])).toBe(true);
   });
@@ -115,5 +116,21 @@ describe("researchInputsChanged", () => {
   it("is false for the same inputs, spacing, or an unwatched field", () => {
     expect(researchInputsChanged({ company: "Acme" }, { company: " Acme " }, ["b", "a"], ["a", "b"])).toBe(false);
     expect(researchInputsChanged({ concerns: "Pace" }, { concerns: "Depth" }, ["a"], ["a"])).toBe(false);
+  });
+
+  it("fingerprints watched fields and document ids", () => {
+    expect(researchInputFingerprint({ company: "Acme" }, ["b", "a"]))
+      .toBe(researchInputFingerprint({ company: " Acme " }, ["a", "b"]));
+    expect(researchInputFingerprint({ company: "Acme" }, ["a"]))
+      .not.toBe(researchInputFingerprint({ company: "Initech" }, ["a"]));
+  });
+
+  it("reuses research only when the fingerprint matches and findings exist", () => {
+    const fingerprint = researchInputFingerprint({ company: "Acme" }, ["a"]);
+    expect(shouldSynthesizeOnly(fingerprint, fingerprint)).toBe(true);
+    expect(shouldReuseResearch(fingerprint, fingerprint, 2)).toBe(true);
+    expect(shouldReuseResearch(fingerprint, fingerprint, 0)).toBe(false);
+    expect(shouldReuseResearch(null, fingerprint, 2)).toBe(false);
+    expect(shouldReuseResearch(fingerprint, researchInputFingerprint({ company: "Figma" }, ["a"]), 2)).toBe(false);
   });
 });

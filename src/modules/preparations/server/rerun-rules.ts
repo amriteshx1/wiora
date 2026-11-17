@@ -1,9 +1,18 @@
 import type { IntakeContext } from "../types";
 
-const watchedFields = ["company", "role", "jobTitle", "investor", "client", "counterparty"] as const;
+const watchedFields = ["company", "role", "jobTitle", "investor", "client", "counterparty", "subject"] as const;
 
 function normalized(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
+}
+
+export function researchInputFingerprint(
+  context: IntakeContext,
+  documentIds: string[],
+): string {
+  const fields = watchedFields.map((field) => `${field}:${normalized(context[field])}`).join("|");
+  const documents = [...documentIds].sort().join(",");
+  return `${fields}#${documents}`;
 }
 
 export function researchInputsChanged(
@@ -12,17 +21,21 @@ export function researchInputsChanged(
   previousDocumentIds: string[],
   nextDocumentIds: string[],
 ): boolean {
-  for (const field of watchedFields) {
-    if (normalized(previousContext[field]) !== normalized(nextContext[field])) {
-      return true;
-    }
-  }
+  return researchInputFingerprint(previousContext, previousDocumentIds)
+    !== researchInputFingerprint(nextContext, nextDocumentIds);
+}
 
-  const previousIds = [...previousDocumentIds].sort();
-  const nextIds = [...nextDocumentIds].sort();
-  if (previousIds.length !== nextIds.length) {
-    return true;
-  }
+export function shouldSynthesizeOnly(
+  storedHash: string | null | undefined,
+  fingerprint: string,
+): boolean {
+  return Boolean(storedHash) && storedHash === fingerprint;
+}
 
-  return previousIds.some((id, index) => id !== nextIds[index]);
+export function shouldReuseResearch(
+  storedHash: string | null | undefined,
+  fingerprint: string,
+  findingCount: number,
+): boolean {
+  return shouldSynthesizeOnly(storedHash, fingerprint) && findingCount > 0;
 }

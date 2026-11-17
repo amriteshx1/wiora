@@ -4,8 +4,10 @@ import { z } from "zod";
 import { db } from "@/db";
 import { preparationDocuments, preparations, researchFindings } from "@/db/schema";
 import { respondJson } from "@/lib/openai-text";
+import { logUsage } from "@/lib/usage-log";
 
 import { getPack, type IntakeContext } from "../types";
+import { compactDocumentReadings } from "./compact-context";
 
 const styleLevel = {
   depth: ["surface", "mixed", "deep"] as const,
@@ -138,10 +140,11 @@ export async function synthesizePreparation(preparationId: string): Promise<Situ
       `Pack counterpart objective: ${pack.counterpartObjective}`,
       `Pack behavior notes: ${pack.behaviorNotes}`,
       `Context: ${JSON.stringify(context)}`,
-      `Document readings: ${JSON.stringify(documents)}`,
+      `Document readings: ${JSON.stringify(compactDocumentReadings(documents))}`,
       `Findings: ${JSON.stringify(findings)}`,
     ].join("\n\n"),
   });
+  logUsage({ kind: "situation_synthesis", preparationId: preparation.id, ok: true });
 
   const hasPattern = findings.some((finding) =>
     finding.category === "verified" || finding.category === "source_backed",

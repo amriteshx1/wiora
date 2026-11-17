@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { preparationDocuments } from "@/db/schema";
 import { respondJson } from "@/lib/openai-text";
+import { logUsage } from "@/lib/usage-log";
 import { getObjectBytes } from "@/lib/storage";
 
 const markdownSchema = z.object({
@@ -163,6 +164,12 @@ export async function extractDocument(documentId: string): Promise<void> {
       ].join("\n\n"),
     });
     const quoted = ensureQuote(extractedText, reading);
+    logUsage({
+      kind: "document_extraction",
+      preparationId: document.preparationId,
+      ok: true,
+      detail: document.fileName.slice(0, 80),
+    });
 
     await db
       .update(preparationDocuments)
@@ -175,6 +182,11 @@ export async function extractDocument(documentId: string): Promise<void> {
       })
       .where(eq(preparationDocuments.id, document.id));
   } catch (error) {
+    logUsage({
+      kind: "document_extraction",
+      preparationId: document.preparationId,
+      ok: false,
+    });
     const message = error instanceof Error ? error.message : "The file could not be read";
     await db
       .update(preparationDocuments)

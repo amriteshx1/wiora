@@ -7,9 +7,11 @@ import { preparationDocuments, preparations, sessionTurns, simulationRuns, user 
 import { inngest } from "@/inngest/client";
 import { resend } from "@/lib/resend";
 import { respondJson } from "@/lib/openai-responses";
+import { logUsage } from "@/lib/usage-log";
 import { StreamTranscriptItem } from "@/modules/meetings/types";
 
 import { getPack } from "../types";
+import { compactDocumentReadings, compactSituation } from "./compact-context";
 import { attachQuotes, type QuoteCheckedReport, type TranscriptLine } from "./quotes";
 
 const reportSchema = z.object({
@@ -125,12 +127,12 @@ export async function buildReport(runId: string): Promise<void> {
       "Quotes must be copied from the transcript. Do not paraphrase a quote.",
       `Evaluation dimensions: ${JSON.stringify(dimensions)}`,
       `Transcript:\n${JSON.stringify(lines)}`,
-      `Situation:\n${JSON.stringify(preparation.situationModel)}`,
-      `Document readings:\n${JSON.stringify(documents)}`,
-      `Brief:\n${run.briefText || ""}`,
+      `Situation:\n${JSON.stringify(compactSituation(preparation.situationModel))}`,
+      `Document readings:\n${JSON.stringify(compactDocumentReadings(documents))}`,
       `Final session state:\n${JSON.stringify(run.sessionState)}`,
     ].join("\n\n"),
   });
+  logUsage({ kind: "report_generation", runId: run.id, preparationId: preparation.id, ok: true });
 
   const report: QuoteCheckedReport = attachQuotes({
     ...generated,
