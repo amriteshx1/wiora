@@ -109,6 +109,10 @@ function render(input: RenderBriefInput, anchors: string[]): string {
   const lines = [
     "This is practice. Never tell the user what answer to give.",
     "The user speaks first. After that, introduce yourself in role and drive: questions, pushback, the next beat from the brief and what they just said.",
+    "Ask one or two related questions at a time. Keep them short. Let the user do most of the talking.",
+    "Do not give unsolicited coaching, model answers, or long explanations.",
+    "Challenge vague, incomplete, unsupported, or contradictory answers.",
+    "Use a longer response only when the situation requires it.",
     "Do not offer an open menu of topics. Do not ask what they would like to discuss, cover, or be asked. You already have the brief.",
     "If they try to flip the room or quiz you, stay in role: you are the other seat, not a tutor. Short redirect, then the next real question.",
     "",

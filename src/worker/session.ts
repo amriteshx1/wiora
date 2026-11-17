@@ -6,7 +6,7 @@ import { db } from "@/db";
 import { preparations, researchFindings, sessionTurns, simulationRuns } from "@/db/schema";
 import { renderBrief, type BriefSituation, type DrillStrategy } from "@/modules/preparations/server/brief";
 import { eagerness } from "@/modules/preparations/server/eagerness";
-import { steerSession, withClock, type SessionState } from "@/modules/preparations/server/steer";
+import { steerSession, withClock, type SessionState, type SteerSituation } from "@/modules/preparations/server/steer";
 
 type Held = { stop: () => void };
 
@@ -160,6 +160,24 @@ export async function startRun(runId: string): Promise<void> {
     });
   };
 
+  const steerSituation = (): SteerSituation => ({
+    counterpartName: situation.counterpartName,
+    counterpartObjective: situation.counterpartObjective,
+    areas: situation.areas.map((area) => ({
+      id: area.id,
+      label: area.label,
+      priority: area.priority,
+      exitCriteria: area.exitCriteria,
+    })),
+    conversationStyle: {
+      depth: situation.conversationStyle.depth,
+      skepticism: situation.conversationStyle.skepticism,
+      detail: situation.conversationStyle.detail,
+      pace: situation.conversationStyle.pace,
+      interruption: situation.conversationStyle.interruption,
+    },
+  });
+
   const currentInstructions = (minutesRemaining: number) => renderBrief({
     situationModel: situation,
     findings,
@@ -220,10 +238,11 @@ export async function startRun(runId: string): Promise<void> {
       void (async () => {
         try {
           const next = await steerSession({
-            briefText: run.briefText || "",
+            situation: steerSituation(),
             sessionState: state,
             turns,
             minutesRemaining: minutesLeft(hardEndAt),
+            runId: run.id,
           });
           state = withClock(next, minutesLeft(hardEndAt));
           await db.update(simulationRuns).set({
@@ -246,10 +265,11 @@ export async function startRun(runId: string): Promise<void> {
     if (hardEndAt) {
       try {
         state = withClock(await steerSession({
-          briefText: run.briefText || "",
+          situation: steerSituation(),
           sessionState: state,
           turns: pending.splice(0),
           minutesRemaining: minutesLeft(hardEndAt),
+          runId: run.id,
         }), minutesLeft(hardEndAt));
         await db.update(simulationRuns).set({
           sessionState: state,

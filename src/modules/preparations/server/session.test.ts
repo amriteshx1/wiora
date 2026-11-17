@@ -50,6 +50,8 @@ describe("renderBrief", () => {
 
     expect(text).toContain("This is practice. Never tell the user what answer to give.");
     expect(text).toContain("The user speaks first.");
+    expect(text).toContain("Ask one or two related questions at a time.");
+    expect(text).toContain("Do not give unsolicited coaching, model answers, or long explanations.");
     expect(text).toContain("Do not offer an open menu of topics.");
     expect(text).toContain("you are the other seat, not a tutor");
     expect(text).toContain("Depth: deep");
