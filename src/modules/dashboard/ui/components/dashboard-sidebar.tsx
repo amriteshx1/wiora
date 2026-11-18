@@ -10,14 +10,10 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+import { DashboardSidebarPlanCard } from "./dashboard-sidebar-plan-card";
 import { DashboardUserButton } from "./dashboard-user-button";
 
 const items = [
@@ -54,38 +50,31 @@ export const DashboardSidebar = () => {
 
   return (
     <Sidebar className="border-r border-sidebar-border">
-      <SidebarHeader>
-        <Link href="/home" className="flex items-center gap-2 px-2 pt-2">
+      <SidebarHeader className="px-4 pt-5 pb-2">
+        <Link href="/home" className="flex items-center gap-2">
           <Image src="/logo.svg" height={22} width={22} alt="Wiora" />
           <p className="text-lg font-medium tracking-tight">Wiora</p>
         </Link>
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    className={cn(
-                      "h-9",
-                      isNavActive(pathname, item.href) && "bg-sidebar-accent",
-                    )}
-                    isActive={isNavActive(pathname, item.href)}
-                  >
-                    <Link href={item.href}>
-                      <item.icon className="size-4" />
-                      <span className="text-sm">{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent className="px-3 pt-4">
+        <nav className="flex flex-col gap-1">
+          {items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex h-10 items-center gap-3 rounded-[24px] px-3 text-sm tracking-tight text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                isNavActive(pathname, item.href) && "bg-sidebar-accent text-sidebar-foreground",
+              )}
+            >
+              <item.icon className="size-4" />
+              <span>{item.label}</span>
+            </Link>
+          ))}
+        </nav>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="gap-3 px-3 pb-4">
+        <DashboardSidebarPlanCard />
         <DashboardUserButton />
       </SidebarFooter>
     </Sidebar>
