@@ -4,6 +4,7 @@ import {
   consumePreparationCredit,
   grantFreePreparationCredits,
   grantPreparationPurchase,
+  preparationChargeKey,
   preparationCreditBalance,
   reservePreparationCredit,
   restorePreparationCredit,
@@ -102,11 +103,18 @@ async function main() {
     throw new Error(`consume should be idempotent, balance=${afterConsume}`);
   }
 
+  const rerunCharge = await reservePreparationCredit(userId, prepA, preparationChargeKey(prepA, 2));
+  const afterRerun = await preparationCreditBalance(userId);
+  if (rerunCharge !== "reserved" || afterRerun !== 68) {
+    throw new Error(`rerun should charge a new preparation credit, got ${rerunCharge} balance=${afterRerun}`);
+  }
+  await consumePreparationCredit(prepA);
+
   const reservedB = await reservePreparationCredit(userId, prepB);
   if (reservedB !== "reserved") throw new Error(`reserve B failed: ${reservedB}`);
   const restored = await restorePreparationCredit(prepB);
   const afterRestore = await preparationCreditBalance(userId);
-  if (!restored || afterRestore !== 69) {
+  if (!restored || afterRestore !== 68) {
     throw new Error(`restore failed restored=${restored} balance=${afterRestore}`);
   }
 

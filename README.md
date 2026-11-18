@@ -2,18 +2,34 @@
 
 Meet the other side before it matters.
 
-Wiora helps you rehearse high-stakes conversations in your own words: job interviews, investor pitches, sales calls, negotiations, leadership talks, difficult conversations, or a custom situation. Each **preparation** is one real scenario—not a generic mock interview. You describe the situation, Wiora researches and writes a brief, you practice in a live voice session, then read a report on what to improve next.
+Wiora helps you rehearse high-stakes conversations in your own words: job interviews, investor pitches, sales calls, negotiations, leadership talks, difficult conversations, or a custom situation. Each **preparation** is one real scenario. You describe it, Wiora researches and writes a brief, you practice live for thirty minutes, then read what to do next.
 
 **Conversation types:** job interview · investor pitch · sales call · negotiation · leadership conversation · difficult conversation · custom
 
 ## How it works
 
-1. **Describe the situation** — Pick a conversation type, add context, and attach the documents that matter (resume, deck, proposal, and the like).
-2. **Research & brief** — Wiora builds a brief from your intake: facts, unknowns, and how the conversation will feel. Fix anything that is wrong before you spend a credit. You do not pick a difficulty; the brief shapes the room.
-3. **Practice live** — Spend one credit on a continuous **30-minute voice session**. You speak; the counterpart responds to what you just said until time runs out.
-4. **Read the report** — Strengths, gaps, moments, transcript, recording, and Ask AI on that run. Practice one weakness again or start another run; each live session uses another credit.
+1. **Describe the situation** — Pick a conversation type, add context, and attach the documents that matter (resume, deck, proposal, and the like). Leaving at this step does not use a preparation credit.
+2. **Research & brief** — Submitting follow-ups starts research and spends **one preparation credit**. The brief is built from your intake and public research. Updating or re-running the brief spends another preparation credit.
+3. **Practice live** — One **interview credit** starts a continuous **30-minute voice session**. That does not spend a second preparation credit. You speak; the counterpart stays in role and leads from the brief.
+4. **Read the report** — Strengths, gaps, moments, transcript, recording, and Ask on that run.
 
-**Billing:** Preparation and research are free. Credits are a one-time purchase (PRO 5 · PLUS 10 · SUPER 15 sessions). There is no subscription and no free live session.
+After sign-in you land on **Home** and pick a conversation type.
+
+## Credits
+
+Every account starts with **10 free preparations**. Live sessions are not free.
+
+| Pack | Interview credits | Preparations |
+| --- | --- | --- |
+| Pro | 5 | 10 |
+| Premium | 10 | 20 |
+| Super | 15 | 30 |
+
+- **Preparation credits** are spent when research starts (and again if you refresh the brief). They are not spent again when the interview ends.
+- **Interview credits** are spent when you start a live session.
+- Packs are prepaid Polar products (not a subscription). Refunds are handled personally within 24 hours of purchase — contact [amritesh.cv](https://amritesh.cv/).
+
+The dashboard sidebar shows remaining preparations, remaining live sessions, and **Add Credits**.
 
 ## Quick start
 
@@ -35,12 +51,12 @@ Object storage is S3-compatible: MinIO locally, Cloudflare R2 when deployed. The
 ## Features
 
 - **Situation intake** — Type-specific forms and document slots so the brief matches the conversation you are walking into.
-- **Research & brief** — One Brave research request per preparation, then a correctable brief. A preparation credit is held before research and spent when the brief is ready. Interview credits are separate.
-- **Live counterpart** — Stream Video plus an OpenAI Realtime worker; the other side stays in role and reacts to your answers, not a fixed script.
-- **Session artifacts** — Transcript, recording, structured report, and Ask AI grounded in that run’s summary and chat.
-- **Preparation workspace** — List, journey spine, brief, lobby, call, and report in one flow per preparation.
-- **Auth & credits** — Better Auth and Polar prepaid packs (not subscriptions).
-- **Data layer** — local Postgres, Drizzle, tRPC, Inngest for report generation and hard-stop jobs.
+- **Research & brief** — One Brave research request per research run, then a correctable brief. A preparation credit is spent when research is queued.
+- **Live counterpart** — Stream Video plus an OpenAI Realtime worker (`gpt-realtime-2.1-mini`). The other side greets in role, then leads from the brief. Spoken turns stay within **40 words**. User speech is not limited.
+- **Session artifacts** — Transcript with elapsed timestamps, recording, richer moments, structured report, and Ask with message bubbles.
+- **Preparation workspace** — Home type picker, list, journey, brief, lobby, call, and report in one flow.
+- **Auth & credits** — Better Auth and Polar prepaid packs. Interview credits and preparation credits are separate ledgers.
+- **Data layer** — local Postgres, Drizzle, tRPC, Inngest for research, reports, and hard-stop jobs.
 
 ---
 
@@ -58,19 +74,20 @@ Object storage is S3-compatible: MinIO locally, Cloudflare R2 when deployed. The
 - Stream Video / Chat
 - OpenAI Realtime API
 - `@stream-io/openai-realtime`
-- Inngest (reports, session hard-stop, automation)
+- Inngest (research, reports, session hard-stop)
 
 ### Backend & database
 - Postgres (Docker locally)
 - Drizzle ORM
 - tRPC
 - Better Auth
-- Polar (PRO / PLUS / SUPER credit packs)
+- Polar (Pro / Premium / Super packs)
 
 ### Other
 - Resend (email)
 - Dicebear (avatars)
 - S3-compatible object storage
+- Brave Search (LLM context)
 
 ---
 
@@ -84,10 +101,10 @@ wiora/
 │   ├── home/                # Marketing landing
 │   ├── auth/                # Sign-in / sign-up
 │   ├── premium/             # Credits & checkout
-│   └── dashboard/           # Shell, sidebar, nav
+│   └── dashboard/           # Shell, sidebar, nav, plan card
 ├── src/worker/              # OpenAI Realtime session worker
 ├── src/db/                  # Drizzle schema
-├── src/inngest/             # Report generation, run hard-stop
+├── src/inngest/             # Research, report generation, run hard-stop
 ├── src/components/          # Shared UI
 ├── src/lib/                 # Auth, Stream, Polar, storage
 └── public/
@@ -139,10 +156,18 @@ BRAVE_SEARCH_API_KEY="<brave_search_api_key>"
 BRAVE_SEARCH_COUNTRY="IN"
 
 POLAR_ACCESS_TOKEN="<polar_access_token>"
+POLAR_PRODUCT_PRO="<polar_product_id>"
+POLAR_PRODUCT_PLUS="<polar_product_id>"
+POLAR_PRODUCT_SUPER="<polar_product_id>"
+POLAR_WEBHOOK_SECRET="<polar_webhook_secret>"
+
+WORKER_URL="http://localhost:8787"
+WORKER_SECRET="<worker_secret>"
+
 RESEND_API_KEY="<resend_key>"
 ```
 
-Add worker, Polar product IDs, webhook secret, text model, and S3 vars as needed for full local voice and billing.
+Add S3 vars for uploads and recordings.
 
 ### 4. Database
 
@@ -161,16 +186,18 @@ npm run dev        # http://localhost:3000
 npm run worker     # realtime voice (separate process)
 ```
 
+Restart the worker after changing session instructions. Next.js hot-reloads the app; the worker does not.
+
 ---
 
 ## Usage
 
-- Sign up with OAuth or email.
+- Sign up with OAuth or email (you are sent to `/home`).
 - Create a **new preparation**, choose the conversation type, and complete intake.
-- Wait for research, review the brief, and correct facts if needed.
-- Buy credits when you are ready; join the lobby and enter the live session.
+- Submit follow-ups to start research (this uses one preparation credit).
+- Review the brief. Saving a brief refresh uses another preparation credit.
+- Buy interview credits when you are ready; join the lobby and enter the live session (this uses one interview credit).
 - Open the report: summary, moments, transcript, recording, and Ask.
-- Run another practice from the same preparation when you want another 30 minutes.
 
 ---
 

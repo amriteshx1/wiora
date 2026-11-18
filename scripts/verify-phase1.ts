@@ -195,6 +195,12 @@ async function main() {
       ["negotiation", "Negotiation"],
       ["leadership", "Leadership conversation"],
       ["difficult_conversation", "Difficult conversation"],
+      ["performance_review", "Performance review"],
+      ["customer_escalation", "Customer escalation"],
+      ["partnership_meeting", "Partnership meeting"],
+      ["media_interview", "Media interview"],
+      ["salary_negotiation", "Salary negotiation"],
+      ["networking_conversation", "Networking conversation"],
       ["custom", "Custom conversation"],
     ] as const;
 
@@ -318,6 +324,12 @@ async function main() {
       negotiation: { subject: "Renewal price", desiredOutcome: "Hold the current rate" },
       leadership: { situation: "A missed launch", desiredOutcome: "A new date the team accepts" },
       difficult_conversation: { situation: "A broken commitment", desiredOutcome: "A specific repair" },
+      performance_review: { situation: "Q4 cycle", desiredOutcome: "A promotion discussion" },
+      customer_escalation: { client: "Northwind", situation: "A missed SLA" },
+      partnership_meeting: { counterparty: "Northwind", desiredOutcome: "A 90-day pilot" },
+      media_interview: { subject: "Product launch" },
+      salary_negotiation: { company: "Acme", desiredOutcome: "A 20 percent increase" },
+      networking_conversation: { people: "A VP of product", desiredOutcome: "A follow-up conversation" },
       custom: { description: "A board update next week" },
     };
     for (const [type, context] of Object.entries(contexts)) {
