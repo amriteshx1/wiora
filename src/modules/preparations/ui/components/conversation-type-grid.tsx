@@ -49,7 +49,7 @@ export function ConversationTypeGrid({ onChoose }: Props) {
             <ArrowUpRight className="size-4" />
           </span>
           <span className="text-sm font-normal text-muted-foreground">
-            A conversation that doesn't fit the usual categories.
+            A conversation that doesn&apos;t fit the usual categories.
           </span>
         </button>
       </div>

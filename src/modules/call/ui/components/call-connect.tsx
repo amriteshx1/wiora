@@ -36,7 +36,6 @@ export const CallConnect = ({
     userId,
     userName,
     userImage,
-    tokenSource = "run",
     endedHref = "/preparations",
     endedDetail = "The report is being written on your preparation",
     hardEndAt = null,
