@@ -4,10 +4,7 @@ import { db } from "@/db";
 import { preparations } from "@/db/schema";
 
 import { extractReadyDocuments } from "./extract";
-import {
-  consumePreparationCredit,
-  restorePreparationCredit,
-} from "./preparation-credits";
+import { consumePreparationCredit } from "./preparation-credits";
 import { researchPreparation } from "./research";
 import { synthesizePreparation } from "./synthesize";
 
@@ -85,7 +82,7 @@ export async function processPreparation(input: {
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : "The brief could not be prepared";
-    const [failed] = await db
+    await db
       .update(preparations)
       .set({
         status: "failed",
@@ -97,10 +94,6 @@ export async function processPreparation(input: {
         eq(preparations.id, preparation.id),
         eq(preparations.situationVersion, preparation.situationVersion),
         eq(preparations.status, "processing"),
-      ))
-      .returning({ id: preparations.id });
-    if (failed) {
-      await restorePreparationCredit(preparation.id);
-    }
+      ));
   }
 }

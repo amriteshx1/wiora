@@ -22,8 +22,9 @@ import {
 } from "../types";
 import { safeFileName, uploadRejection } from "../uploads";
 import {
+  consumePreparationCredit,
   grantFreePreparationCredits,
-  preparationCreditHold,
+  preparationChargeKey,
   reservePreparationCredit,
   restorePreparationCredit,
 } from "./preparation-credits";
@@ -547,7 +548,11 @@ export const preparationsRouter = createTRPCRouter({
       };
 
       await grantFreePreparationCredits(ctx.auth.user.id);
-      const reserved = await reservePreparationCredit(ctx.auth.user.id, preparation.id);
+      const reserved = await reservePreparationCredit(
+        ctx.auth.user.id,
+        preparation.id,
+        preparationChargeKey(preparation.id, preparation.situationVersion),
+      );
       if (reserved === "empty") {
         throw new TRPCError({
           code: "FORBIDDEN",
@@ -575,9 +580,12 @@ export const preparationsRouter = createTRPCRouter({
       try {
         await enqueuePreparation(updated.id, updated.situationVersion, false);
       } catch (error) {
-        await restorePreparationCredit(updated.id);
+        if (reserved === "reserved") {
+          await restorePreparationCredit(updated.id);
+        }
         throw error;
       }
+      await consumePreparationCredit(updated.id);
 
       return updated;
     }),
@@ -641,6 +649,19 @@ export const preparationsRouter = createTRPCRouter({
       const fingerprint = researchInputFingerprint(nextContext, documentIds);
       const synthesizeOnly = shouldSynthesizeOnly(preparation.researchInputHash, fingerprint);
 
+      await grantFreePreparationCredits(ctx.auth.user.id);
+      const reserved = await reservePreparationCredit(
+        ctx.auth.user.id,
+        preparation.id,
+        preparationChargeKey(preparation.id, preparation.situationVersion),
+      );
+      if (reserved === "empty") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You have used your preparation credits. Buy a plan to prepare another conversation.",
+        });
+      }
+
       const [updated] = await db
         .update(preparations)
         .set({
@@ -656,7 +677,15 @@ export const preparationsRouter = createTRPCRouter({
         ))
         .returning();
 
-      await enqueuePreparation(updated.id, updated.situationVersion, synthesizeOnly);
+      try {
+        await enqueuePreparation(updated.id, updated.situationVersion, synthesizeOnly);
+      } catch (error) {
+        if (reserved === "reserved") {
+          await restorePreparationCredit(updated.id);
+        }
+        throw error;
+      }
+      await consumePreparationCredit(updated.id);
 
       return updated;
     }),
@@ -672,16 +701,17 @@ export const preparationsRouter = createTRPCRouter({
         });
       }
 
-      const hold = await preparationCreditHold(preparation.id);
-      if (hold === "none") {
-        await grantFreePreparationCredits(ctx.auth.user.id);
-        const reserved = await reservePreparationCredit(ctx.auth.user.id, preparation.id);
-        if (reserved === "empty") {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: "You have used your preparation credits. Buy a plan to prepare another conversation.",
-          });
-        }
+      await grantFreePreparationCredits(ctx.auth.user.id);
+      const reserved = await reservePreparationCredit(
+        ctx.auth.user.id,
+        preparation.id,
+        preparationChargeKey(preparation.id, preparation.situationVersion),
+      );
+      if (reserved === "empty") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You have used your preparation credits. Buy a plan to prepare another conversation.",
+        });
       }
 
       const context = asContext(preparation.context);
@@ -706,11 +736,12 @@ export const preparationsRouter = createTRPCRouter({
       try {
         await enqueuePreparation(updated.id, updated.situationVersion, synthesizeOnly);
       } catch (error) {
-        if (hold === "none") {
+        if (reserved === "reserved") {
           await restorePreparationCredit(updated.id);
         }
         throw error;
       }
+      await consumePreparationCredit(updated.id);
 
       return updated;
     }),

@@ -12,6 +12,10 @@ import {
 
 type ReserveResult = "reserved" | "already" | "empty";
 
+export function preparationChargeKey(preparationId: string, situationVersion: number) {
+  return `prepcharge:${preparationId}:v${situationVersion}`;
+}
+
 async function rows(query: ReturnType<typeof sql>) {
   const result = await db.execute(query);
   return [...result] as Record<string, unknown>[];
@@ -129,7 +133,11 @@ export async function preparationCreditHold(preparationId: string): Promise<"res
   return "none";
 }
 
-export async function reservePreparationCredit(userId: string, preparationId: string): Promise<ReserveResult> {
+export async function reservePreparationCredit(
+  userId: string,
+  preparationId: string,
+  chargeKey = preparationChargeKey(preparationId, 0),
+): Promise<ReserveResult> {
   await grantFreePreparationCredits(userId);
   await ensureAccount(userId);
   const id = nanoid();
@@ -141,16 +149,16 @@ export async function reservePreparationCredit(userId: string, preparationId: st
         and balance >= 1
         and not exists (
           select 1 from preparation_credit_ledger
-          where preparation_id = ${preparationId}
+          where polar_order_id = ${chargeKey}
             and entry_type in ('reservation', 'deduction')
         )
       returning balance
     ),
     ins as (
       insert into preparation_credit_ledger (
-        id, user_id, delta, balance_after, entry_type, preparation_id, created_at
+        id, user_id, delta, balance_after, entry_type, preparation_id, polar_order_id, created_at
       )
-      select ${id}, ${userId}, -1, balance, 'reservation', ${preparationId}, now()
+      select ${id}, ${userId}, -1, balance, 'reservation', ${preparationId}, ${chargeKey}, now()
       from upd
       returning id
     ),
@@ -168,8 +176,13 @@ export async function reservePreparationCredit(userId: string, preparationId: st
     logUsage({ kind: "preparation_credit", userId, preparationId, detail: "reservation", ok: true });
     return "reserved";
   }
-  const hold = await preparationCreditHold(preparationId);
-  if (hold === "reservation" || hold === "deduction") return "already";
+  const existing = await rows(sql`
+    select entry_type from preparation_credit_ledger
+    where polar_order_id = ${chargeKey}
+      and entry_type in ('reservation', 'deduction')
+    limit 1
+  `);
+  if (existing[0]) return "already";
   return "empty";
 }
 

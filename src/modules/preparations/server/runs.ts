@@ -17,6 +17,12 @@ import { creditBalance } from "./credits";
 import { INTERVIEW_MINUTES } from "./credit-rules";
 import { createDrill, createNextPractice } from "./drill";
 import { sessionOriginMs, toElapsedMs } from "./elapsed";
+import {
+  consumePreparationCredit,
+  preparationChargeKey,
+  preparationCreditHold,
+  reservePreparationCredit,
+} from "./preparation-credits";
 
 async function ownedRun(runId: string, userId: string) {
   const [run] = await db
@@ -296,6 +302,24 @@ export const runsRouter = createTRPCRouter({
       }
       try {
         await markRunActive(run);
+        await consumePreparationCredit(run.preparationId);
+        const hold = await preparationCreditHold(run.preparationId);
+        if (hold === "none") {
+          const [preparation] = await db
+            .select({ id: preparations.id, situationVersion: preparations.situationVersion })
+            .from(preparations)
+            .where(eq(preparations.id, run.preparationId));
+          if (preparation) {
+            const reserved = await reservePreparationCredit(
+              ctx.auth.user.id,
+              preparation.id,
+              preparationChargeKey(preparation.id, preparation.situationVersion),
+            );
+            if (reserved === "reserved") {
+              await consumePreparationCredit(preparation.id);
+            }
+          }
+        }
       } catch (error) {
         const message = error instanceof Error ? error.message : "The interview could not be started";
         throw new TRPCError({ code: "FORBIDDEN", message });
