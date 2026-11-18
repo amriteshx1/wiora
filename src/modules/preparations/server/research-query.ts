@@ -26,6 +26,7 @@ export function buildBraveQuery(
   const client = quoted(filled(context.client));
   const counterparty = quoted(filled(context.counterparty));
   const subject = quoted(filled(context.subject));
+  const people = quoted(filled(context.people));
   const description = quoted((filled(context.startupDescription) || filled(context.description) || filled(context.situation)).slice(0, 80));
 
   const sources = "(interview experience OR interview questions OR site:takeyouforward.com OR site:reddit.com OR site:linkedin.com OR site:glassdoor.com)";
@@ -40,8 +41,19 @@ export function buildBraveQuery(
     query = [client || company, "customer company", publicPages].filter(Boolean).join(" ");
   } else if (conversationType === "negotiation") {
     query = [counterparty || company, subject, publicPages].filter(Boolean).join(" ");
-  } else if (conversationType === "leadership" || conversationType === "difficult_conversation") {
+  } else if (conversationType === "leadership" || conversationType === "difficult_conversation" || conversationType === "performance_review") {
     query = [company, description, publicPages].filter(Boolean).join(" ");
+  } else if (conversationType === "customer_escalation") {
+    query = [client || company, "customer company", publicPages].filter(Boolean).join(" ");
+  } else if (conversationType === "partnership_meeting") {
+    query = [counterparty || company, "partnership", publicPages].filter(Boolean).join(" ");
+  } else if (conversationType === "media_interview") {
+    const outlet = quoted(filled(context.outlet));
+    query = [outlet || company, subject, "interview", publicPages].filter(Boolean).join(" ");
+  } else if (conversationType === "salary_negotiation") {
+    query = [company, role, "compensation interview", publicPages].filter(Boolean).join(" ");
+  } else if (conversationType === "networking_conversation") {
+    query = [company, people, publicPages].filter(Boolean).join(" ");
   } else {
     query = [company, client, investor, counterparty, description, publicPages].filter(Boolean).join(" ");
   }

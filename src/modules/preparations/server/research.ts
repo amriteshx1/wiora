@@ -154,7 +154,10 @@ export async function researchPreparation(preparationId: string): Promise<void> 
     return;
   }
 
-  const privateConversation = preparation.conversationType === "leadership" || preparation.conversationType === "difficult_conversation";
+  const privateConversation =
+    preparation.conversationType === "leadership" ||
+    preparation.conversationType === "difficult_conversation" ||
+    preparation.conversationType === "performance_review";
   if (!plan.shouldResearch || (privateConversation && !plan.namedPublicOrganization)) {
     await replaceFindings(preparation.id, unknownFinding("Public research was not useful for this situation."));
     await saveFingerprint(preparation.id, fingerprint);

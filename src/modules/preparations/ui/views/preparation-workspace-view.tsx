@@ -13,11 +13,17 @@ import { useTRPC } from "@/trpc/client";
 
 import { getPack, isRecentRunUpdate, preparationListLabels, type ConversationType, type DocumentSlot, type IntakeContext } from "../../types";
 import { CustomForm } from "../forms/custom-form";
+import { CustomerEscalationForm } from "../forms/customer-escalation-form";
 import { DifficultConversationForm } from "../forms/difficult-conversation-form";
 import { InvestorPitchForm } from "../forms/investor-pitch-form";
 import { JobInterviewForm } from "../forms/job-interview-form";
 import { LeadershipForm } from "../forms/leadership-form";
+import { MediaInterviewForm } from "../forms/media-interview-form";
 import { NegotiationForm } from "../forms/negotiation-form";
+import { NetworkingConversationForm } from "../forms/networking-conversation-form";
+import { PartnershipMeetingForm } from "../forms/partnership-meeting-form";
+import { PerformanceReviewForm } from "../forms/performance-review-form";
+import { SalaryNegotiationForm } from "../forms/salary-negotiation-form";
 import { SalesCallForm } from "../forms/sales-call-form";
 import { SituationBrief } from "../components/situation-brief";
 import { SessionCheckout } from "../components/session-checkout";
@@ -66,6 +72,12 @@ const forms = {
   negotiation: NegotiationForm,
   leadership: LeadershipForm,
   difficult_conversation: DifficultConversationForm,
+  performance_review: PerformanceReviewForm,
+  customer_escalation: CustomerEscalationForm,
+  partnership_meeting: PartnershipMeetingForm,
+  media_interview: MediaInterviewForm,
+  salary_negotiation: SalaryNegotiationForm,
+  networking_conversation: NetworkingConversationForm,
   custom: CustomForm,
 } as const;
 

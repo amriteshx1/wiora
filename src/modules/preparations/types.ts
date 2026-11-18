@@ -7,6 +7,12 @@ export const conversationTypes = [
   "negotiation",
   "leadership",
   "difficult_conversation",
+  "performance_review",
+  "customer_escalation",
+  "partnership_meeting",
+  "media_interview",
+  "salary_negotiation",
+  "networking_conversation",
   "custom",
 ] as const;
 
@@ -115,6 +121,76 @@ export const leadershipSchema = z.object({
 
 export const difficultConversationSchema = leadershipSchema;
 
+export const performanceReviewSchema = z.object({
+  company: optionalText,
+  jobTitle: optionalText,
+  people: optionalText,
+  situation: optionalText,
+  achievements: optionalText,
+  feedbackReceived: optionalText,
+  desiredOutcome: optionalText,
+  previousCommunication: optionalText,
+  concerns: optionalText,
+  ...sharedContext,
+});
+
+export const customerEscalationSchema = z.object({
+  client: optionalText,
+  product: optionalText,
+  situation: optionalText,
+  desiredOutcome: optionalText,
+  previousCommunication: optionalText,
+  participants: optionalText,
+  objections: optionalText,
+  constraints: optionalText,
+  ...sharedContext,
+});
+
+export const partnershipMeetingSchema = z.object({
+  company: optionalText,
+  counterparty: optionalText,
+  subject: optionalText,
+  desiredOutcome: optionalText,
+  previousCommunication: optionalText,
+  people: optionalText,
+  constraints: optionalText,
+  ...sharedContext,
+});
+
+export const mediaInterviewSchema = z.object({
+  company: optionalText,
+  outlet: optionalText,
+  journalist: optionalText,
+  subject: optionalText,
+  talkingPoints: optionalText,
+  previousCommunication: optionalText,
+  concerns: optionalText,
+  ...sharedContext,
+});
+
+export const salaryNegotiationSchema = z.object({
+  company: optionalText,
+  jobTitle: optionalText,
+  counterparty: optionalText,
+  subject: optionalText,
+  currentCompensation: optionalText,
+  desiredOutcome: optionalText,
+  minimumAcceptable: optionalText,
+  constraints: optionalText,
+  previousCommunication: optionalText,
+  ...sharedContext,
+});
+
+export const networkingConversationSchema = z.object({
+  company: optionalText,
+  people: optionalText,
+  situation: optionalText,
+  desiredOutcome: optionalText,
+  description: optionalText,
+  previousCommunication: optionalText,
+  ...sharedContext,
+});
+
 export const customSchema = z.object({
   description: optionalText,
   desiredOutcome: optionalText,
@@ -194,6 +270,38 @@ const intakeGroupMap: Record<ConversationType, IntakeGroup[]> = {
     { title: "The conversation", fieldNames: ["situation", "desiredOutcome", "whatHappened"] },
     { title: "People", fieldNames: ["people", "relationship"] },
     { title: "Limits", fieldNames: ["constraints", "concerns"] },
+    { title: "Materials", fieldNames: [], slotNames: ["relevant"] },
+  ],
+  performance_review: [
+    { title: "The review", fieldNames: ["company", "jobTitle", "situation", "desiredOutcome"] },
+    { title: "Work so far", fieldNames: ["achievements", "feedbackReceived"] },
+    { title: "People", fieldNames: ["people", "previousCommunication", "concerns"] },
+    { title: "Materials", fieldNames: [], slotNames: ["relevant"] },
+  ],
+  customer_escalation: [
+    { title: "The issue", fieldNames: ["client", "product", "situation", "desiredOutcome"] },
+    { title: "Materials", fieldNames: [], slotNames: ["proposal", "supporting"] },
+    { title: "People", fieldNames: ["participants", "previousCommunication", "objections", "constraints"] },
+  ],
+  partnership_meeting: [
+    { title: "The opportunity", fieldNames: ["counterparty", "subject", "desiredOutcome", "company"] },
+    { title: "Materials", fieldNames: [], slotNames: ["proposal", "supporting"] },
+    { title: "People", fieldNames: ["people", "previousCommunication", "constraints"] },
+  ],
+  media_interview: [
+    { title: "The appearance", fieldNames: ["outlet", "subject", "company"] },
+    { title: "Materials", fieldNames: ["talkingPoints"], slotNames: ["relevant"] },
+    { title: "People", fieldNames: ["journalist", "previousCommunication", "concerns"] },
+  ],
+  salary_negotiation: [
+    { title: "The offer", fieldNames: ["company", "jobTitle", "subject", "currentCompensation"] },
+    { title: "The terms", fieldNames: ["desiredOutcome", "minimumAcceptable", "constraints"] },
+    { title: "The other side", fieldNames: ["counterparty", "previousCommunication"] },
+    { title: "Materials", fieldNames: [], slotNames: ["supporting"] },
+  ],
+  networking_conversation: [
+    { title: "The conversation", fieldNames: ["situation", "people", "company", "desiredOutcome"] },
+    { title: "You", fieldNames: ["description", "previousCommunication"] },
     { title: "Materials", fieldNames: [], slotNames: ["relevant"] },
   ],
   custom: [
@@ -279,10 +387,40 @@ export function preparationListLabels(conversationType: string, context: unknown
       role: filled(ctx.subject) || "Negotiation",
     };
   }
-  if (conversationType === "leadership" || conversationType === "difficult_conversation") {
+  if (conversationType === "leadership" || conversationType === "difficult_conversation" || conversationType === "performance_review") {
     return {
-      company: filled(ctx.people) || fallback,
+      company: filled(ctx.people) || filled(ctx.company) || fallback,
       role: filled(ctx.desiredOutcome) || filled(ctx.situation) || fallback,
+    };
+  }
+  if (conversationType === "customer_escalation") {
+    return {
+      company: filled(ctx.client) || fallback,
+      role: filled(ctx.situation) || filled(ctx.product) || "Escalation",
+    };
+  }
+  if (conversationType === "partnership_meeting") {
+    return {
+      company: filled(ctx.counterparty) || filled(ctx.company) || fallback,
+      role: filled(ctx.subject) || filled(ctx.desiredOutcome) || "Partnership",
+    };
+  }
+  if (conversationType === "media_interview") {
+    return {
+      company: filled(ctx.outlet) || filled(ctx.company) || fallback,
+      role: filled(ctx.subject) || filled(ctx.journalist) || "Media interview",
+    };
+  }
+  if (conversationType === "salary_negotiation") {
+    return {
+      company: filled(ctx.company) || filled(ctx.counterparty) || fallback,
+      role: filled(ctx.jobTitle) || filled(ctx.subject) || "Compensation",
+    };
+  }
+  if (conversationType === "networking_conversation") {
+    return {
+      company: filled(ctx.people) || filled(ctx.company) || fallback,
+      role: filled(ctx.desiredOutcome) || filled(ctx.situation) || "Networking",
     };
   }
   return {
@@ -520,6 +658,198 @@ export const preparationPacks: Record<ConversationType, PreparationPack> = {
     counterpartObjective: "Determine whether the user can say what happened, hold the desired outcome, and stay specific.",
     behaviorNotes: "Stay inside the relationship and the facts the user provided. Hold the conversation; do not offer an open menu of topics.",
     fields: leadershipFields("difficult"),
+    fileSlots: [
+      { slot: "relevant", label: "Relevant documents", multiple: true },
+    ],
+  },
+  performance_review: {
+    id: "performance_review",
+    label: "Performance review",
+    description: "A review with your manager.",
+    schema: performanceReviewSchema,
+    hasMinimum: (context) =>
+      filled(context.situation).length > 0 &&
+      filled(context.desiredOutcome).length > 0,
+    researchHints: `${sourcePriority} Skip public research unless a named public organization is part of the review. Do not invent private performance data.`,
+    evaluationDimensions: [
+      "clarity of achievements",
+      "handling of feedback",
+      "career ask",
+      "relationship with the manager",
+      "specificity",
+    ],
+    counterpartObjective: "Determine whether the user can defend their work, receive feedback, and make a clear career ask.",
+    behaviorNotes: "Sit as the manager who knows this person's work. Open in role, press on evidence, and do not offer an open menu of topics.",
+    fields: [
+      { name: "company", label: "Company", placeholder: "Where you work", multiline: false },
+      { name: "jobTitle", label: "Your role", placeholder: "Title under review", multiline: false },
+      { name: "people", label: "Manager or reviewers", placeholder: "Who will be in the review", multiline: true },
+      { name: "situation", label: "What this review is about", placeholder: "Cycle, promotion discussion, or check-in", multiline: true },
+      { name: "achievements", label: "Achievements", placeholder: "What you want credited, with evidence", multiline: true },
+      { name: "feedbackReceived", label: "Feedback already given", placeholder: "What they have already said", multiline: true },
+      { name: "desiredOutcome", label: "Desired outcome", placeholder: "Promotion, raise, new scope, or a fair rating", multiline: true },
+      { name: "previousCommunication", label: "Previous communication", placeholder: "Notes, self-review, or messages so far", multiline: true },
+      { name: "concerns", label: "Concerns", placeholder: "What you are worried they will raise", multiline: true },
+    ],
+    fileSlots: [
+      { slot: "relevant", label: "Relevant documents", multiple: true },
+    ],
+  },
+  customer_escalation: {
+    id: "customer_escalation",
+    label: "Customer escalation",
+    description: "A hard call with a specific customer.",
+    schema: customerEscalationSchema,
+    hasMinimum: (context) =>
+      filled(context.client).length > 0 &&
+      filled(context.situation).length > 0,
+    researchHints: `${sourcePriority} Look for public experiences with this customer or company, then official pages and recent news. Do not invent private complaint details.`,
+    evaluationDimensions: [
+      "acknowledgement",
+      "ownership",
+      "resolution quality",
+      "constraint handling",
+      "relationship recovery",
+    ],
+    counterpartObjective: "Determine whether the user can own the failure, stay specific, and reach a resolution the customer can accept.",
+    behaviorNotes: "Sit as the dissatisfied customer. Hold the complaint, press for a real fix, and do not soften unless they earn it.",
+    fields: [
+      { name: "client", label: "Customer or company", placeholder: "Who is escalating", multiline: false },
+      { name: "product", label: "Product or service", placeholder: "What failed", multiline: true },
+      { name: "situation", label: "What went wrong", placeholder: "The failure, complaint, or missed promise", multiline: true },
+      { name: "desiredOutcome", label: "Desired outcome", placeholder: "The resolution you want to reach", multiline: true },
+      { name: "previousCommunication", label: "Previous communication", placeholder: "Tickets, emails, or calls so far", multiline: true },
+      { name: "participants", label: "Participants", placeholder: "Who will be on the call", multiline: true },
+      { name: "objections", label: "Known complaints", placeholder: "What they have already said", multiline: true },
+      { name: "constraints", label: "Constraints", placeholder: "Refunds, policy, legal, or delivery limits", multiline: true },
+    ],
+    fileSlots: [
+      { slot: "proposal", label: "Proposal or account notes", multiple: false },
+      { slot: "supporting", label: "Supporting documents", multiple: true },
+    ],
+  },
+  partnership_meeting: {
+    id: "partnership_meeting",
+    label: "Partnership meeting",
+    description: "A collaboration with a specific partner.",
+    schema: partnershipMeetingSchema,
+    hasMinimum: (context) =>
+      filled(context.counterparty).length > 0 &&
+      filled(context.desiredOutcome).length > 0,
+    researchHints: `${sourcePriority} Look for this organization's public partnerships, news, and how they talk about collaboration.`,
+    evaluationDimensions: [
+      "clarity of the opportunity",
+      "value for both sides",
+      "risks and constraints",
+      "next-step quality",
+      "relationship building",
+    ],
+    counterpartObjective: "Determine whether the user can make a specific collaboration case and handle the other side's interests.",
+    behaviorNotes: "Sit as the partner evaluating fit. Drive toward a concrete next step; do not ask what they would like to cover.",
+    fields: [
+      { name: "counterparty", label: "Partner or organization", placeholder: "Who you are meeting", multiline: false },
+      { name: "company", label: "Your company", placeholder: "Who you represent", multiline: false },
+      { name: "subject", label: "The opportunity", placeholder: "Collaboration, alliance, or joint venture", multiline: true },
+      { name: "desiredOutcome", label: "Desired outcome", placeholder: "The next step you want", multiline: true },
+      { name: "people", label: "People involved", placeholder: "Who will be in the room", multiline: true },
+      { name: "previousCommunication", label: "Previous communication", placeholder: "What has already been said", multiline: true },
+      { name: "constraints", label: "Constraints", placeholder: "Exclusivity, legal, timing, or budget limits", multiline: true },
+    ],
+    fileSlots: [
+      { slot: "proposal", label: "Proposal", multiple: false },
+      { slot: "supporting", label: "Supporting documents", multiple: true },
+    ],
+  },
+  media_interview: {
+    id: "media_interview",
+    label: "Media interview",
+    description: "An interview with a journalist or host.",
+    schema: mediaInterviewSchema,
+    hasMinimum: (context) =>
+      filled(context.subject).length > 0 ||
+      (filled(context.outlet).length > 0 && filled(context.talkingPoints).length > 0),
+    researchHints: `${sourcePriority} Look for this outlet's coverage, the journalist's recent work, and public comments on the topic. Do not invent quotes.`,
+    evaluationDimensions: [
+      "message discipline",
+      "handling hard questions",
+      "clarity",
+      "credibility",
+      "staying on the record you intended",
+    ],
+    counterpartObjective: "Determine whether the user can stay on message under a journalist's questions.",
+    behaviorNotes: "Sit as the interviewer. Ask short, pointed questions, follow up on weak answers, and do not coach them.",
+    fields: [
+      { name: "outlet", label: "Outlet or show", placeholder: "Publication, podcast, or appearance", multiline: false },
+      { name: "company", label: "Your organization", placeholder: "Who you represent", multiline: false },
+      { name: "subject", label: "Topic", placeholder: "What the interview is about", multiline: true },
+      { name: "talkingPoints", label: "Talking points", placeholder: "What you need to land", multiline: true },
+      { name: "journalist", label: "Journalist or host", placeholder: "Only what you actually know", multiline: true },
+      { name: "previousCommunication", label: "Previous communication", placeholder: "Brief, email, or questions sent in advance", multiline: true },
+      { name: "concerns", label: "Concerns", placeholder: "Questions you do not want to fumble", multiline: true },
+    ],
+    fileSlots: [
+      { slot: "relevant", label: "Briefs and supporting documents", multiple: true },
+    ],
+  },
+  salary_negotiation: {
+    id: "salary_negotiation",
+    label: "Salary negotiation",
+    description: "A compensation talk with a known employer.",
+    schema: salaryNegotiationSchema,
+    hasMinimum: (context) =>
+      filled(context.desiredOutcome).length > 0 &&
+      (filled(context.company).length > 0 || filled(context.subject).length > 0),
+    researchHints: `${sourcePriority} Research public compensation ranges and how this company talks about pay. Do not invent a private offer.`,
+    evaluationDimensions: [
+      "clarity of the ask",
+      "use of evidence",
+      "handling of pushback",
+      "tradeoffs",
+      "protecting the minimum",
+    ],
+    counterpartObjective: "Determine whether the user can defend a specific compensation ask without collapsing to the first offer.",
+    behaviorNotes: "Sit as the hiring manager or recruiter who owns budget. Push on the number, trade benefits, and do not give away the raise.",
+    fields: [
+      { name: "company", label: "Company", placeholder: "Who you are negotiating with", multiline: false },
+      { name: "jobTitle", label: "Role", placeholder: "Title attached to the offer", multiline: false },
+      { name: "subject", label: "What is on the table", placeholder: "Offer, raise, equity, or terms", multiline: true },
+      { name: "currentCompensation", label: "Current or offered terms", placeholder: "Salary, equity, bonus, benefits", multiline: true },
+      { name: "desiredOutcome", label: "Desired outcome", placeholder: "The package you want", multiline: true },
+      { name: "minimumAcceptable", label: "Minimum acceptable", placeholder: "The line you will not cross", multiline: true },
+      { name: "constraints", label: "Constraints", placeholder: "Timing, competing offers, bands, approvals", multiline: true },
+      { name: "counterparty", label: "Counterparty", placeholder: "Recruiter, manager, or HR", multiline: false },
+      { name: "previousCommunication", label: "Previous communication", placeholder: "Offers and messages so far", multiline: true },
+    ],
+    fileSlots: [
+      { slot: "supporting", label: "Offer letters and supporting documents", multiple: true },
+    ],
+  },
+  networking_conversation: {
+    id: "networking_conversation",
+    label: "Networking conversation",
+    description: "An introduction with a specific person.",
+    schema: networkingConversationSchema,
+    hasMinimum: (context) =>
+      filled(context.people).length > 0 &&
+      filled(context.desiredOutcome).length > 0,
+    researchHints: `${sourcePriority} Research only public profiles, talks, and company pages for named people or organizations. Do not invent a private relationship.`,
+    evaluationDimensions: [
+      "introduction quality",
+      "relevance",
+      "listening",
+      "clear ask",
+      "relationship building",
+    ],
+    counterpartObjective: "Determine whether the user can introduce themselves clearly, be specific, and leave with a real next step.",
+    behaviorNotes: "Sit as the person being approached. Be busy, judge relevance quickly, and do not offer help unless they earn it.",
+    fields: [
+      { name: "people", label: "Who you are speaking with", placeholder: "Name, role, or the kind of person", multiline: true },
+      { name: "company", label: "Their organization", placeholder: "Company, community, or event host", multiline: false },
+      { name: "situation", label: "Setting", placeholder: "Conference, intro, cold outreach, coffee", multiline: true },
+      { name: "desiredOutcome", label: "Desired outcome", placeholder: "Advice, intro, follow-up, or a relationship", multiline: true },
+      { name: "description", label: "How you will introduce yourself", placeholder: "Who you are and why this conversation", multiline: true },
+      { name: "previousCommunication", label: "Previous communication", placeholder: "Messages or context so far", multiline: true },
+    ],
     fileSlots: [
       { slot: "relevant", label: "Relevant documents", multiple: true },
     ],

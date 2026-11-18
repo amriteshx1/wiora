@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusIcon } from "lucide-react";
+import { ArrowUpRight, PlusIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -37,16 +37,19 @@ export function ConversationTypeGrid({ onChoose }: Props) {
           type="button"
           className={cn(
             cardClass,
-            "w-full border-dashed md:w-[calc((100%-0.75rem)/2)] xl:w-[calc((100%-1.5rem)/3)]",
+            "w-full items-center border-dashed text-center",
+            "md:w-[calc((100%-0.75rem)/2+0.75rem)]",
+            "xl:w-[calc(2*((100%-1.5rem)/3)+1.5rem)]",
           )}
           onClick={() => onChoose("custom")}
         >
           <span className="inline-flex items-center gap-2 font-medium">
             <PlusIcon className="size-4" />
-            Custom conversation
+            Create your own
+            <ArrowUpRight className="size-4" />
           </span>
           <span className="text-sm font-normal text-muted-foreground">
-            {preparationPacks.custom.description}
+            A conversation that doesn't fit the usual categories.
           </span>
         </button>
       </div>

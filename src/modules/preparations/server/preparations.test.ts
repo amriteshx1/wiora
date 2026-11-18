@@ -49,6 +49,43 @@ describe("hasMinimum", () => {
     expect(preparationPacks.difficult_conversation.hasMinimum({ situation: "A broken promise", desiredOutcome: "A repair" }, none)).toBe(true);
   });
 
+  it("requires situation and desired outcome for a performance review", () => {
+    const pack = preparationPacks.performance_review;
+    expect(pack.hasMinimum({ situation: "Q4 cycle" }, none)).toBe(false);
+    expect(pack.hasMinimum({ situation: "Q4 cycle", desiredOutcome: "A promotion discussion" }, none)).toBe(true);
+  });
+
+  it("requires a client and what went wrong for an escalation", () => {
+    const pack = preparationPacks.customer_escalation;
+    expect(pack.hasMinimum({ client: "Northwind" }, none)).toBe(false);
+    expect(pack.hasMinimum({ client: "Northwind", situation: "Missed SLA" }, none)).toBe(true);
+  });
+
+  it("requires a partner and a desired outcome for a partnership meeting", () => {
+    const pack = preparationPacks.partnership_meeting;
+    expect(pack.hasMinimum({ counterparty: "Northwind" }, none)).toBe(false);
+    expect(pack.hasMinimum({ counterparty: "Northwind", desiredOutcome: "A pilot" }, none)).toBe(true);
+  });
+
+  it("requires a topic or an outlet with talking points for a media interview", () => {
+    const pack = preparationPacks.media_interview;
+    expect(pack.hasMinimum({}, none)).toBe(false);
+    expect(pack.hasMinimum({ subject: "Product launch" }, none)).toBe(true);
+    expect(pack.hasMinimum({ outlet: "Tech Daily", talkingPoints: "Reliability" }, none)).toBe(true);
+  });
+
+  it("requires a desired outcome and a company or subject for salary negotiation", () => {
+    const pack = preparationPacks.salary_negotiation;
+    expect(pack.hasMinimum({ desiredOutcome: "180k" }, none)).toBe(false);
+    expect(pack.hasMinimum({ company: "Acme", desiredOutcome: "180k" }, none)).toBe(true);
+  });
+
+  it("requires the person and a desired outcome for networking", () => {
+    const pack = preparationPacks.networking_conversation;
+    expect(pack.hasMinimum({ people: "A VP of product" }, none)).toBe(false);
+    expect(pack.hasMinimum({ people: "A VP of product", desiredOutcome: "A follow-up" }, none)).toBe(true);
+  });
+
   it("requires a description for custom and stores no fixed dimensions", () => {
     expect(preparationPacks.custom.hasMinimum({}, none)).toBe(false);
     expect(preparationPacks.custom.hasMinimum({ description: "   " }, none)).toBe(false);
@@ -91,6 +128,38 @@ describe("intakeGroups", () => {
       "The conversation",
       "People",
       "Limits",
+      "Materials",
+    ]);
+    expect(intakeGroups(preparationPacks.performance_review).map((group) => group.title)).toEqual([
+      "The review",
+      "Work so far",
+      "People",
+      "Materials",
+    ]);
+    expect(intakeGroups(preparationPacks.customer_escalation).map((group) => group.title)).toEqual([
+      "The issue",
+      "Materials",
+      "People",
+    ]);
+    expect(intakeGroups(preparationPacks.partnership_meeting).map((group) => group.title)).toEqual([
+      "The opportunity",
+      "Materials",
+      "People",
+    ]);
+    expect(intakeGroups(preparationPacks.media_interview).map((group) => group.title)).toEqual([
+      "The appearance",
+      "Materials",
+      "People",
+    ]);
+    expect(intakeGroups(preparationPacks.salary_negotiation).map((group) => group.title)).toEqual([
+      "The offer",
+      "The terms",
+      "The other side",
+      "Materials",
+    ]);
+    expect(intakeGroups(preparationPacks.networking_conversation).map((group) => group.title)).toEqual([
+      "The conversation",
+      "You",
       "Materials",
     ]);
     expect(intakeGroups(preparationPacks.custom).map((group) => group.title)).toEqual([
