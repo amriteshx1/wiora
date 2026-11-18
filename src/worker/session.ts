@@ -121,13 +121,13 @@ export async function startRun(runId: string): Promise<void> {
   let lastAction = state?.nextAction ?? "";
   let lastFocus = state?.nextFocusAreaId ?? "";
   let lastMinute = -1;
-  let timer: ReturnType<typeof setInterval> | undefined;
+  const timer: { id?: ReturnType<typeof setInterval> } = {};
   const pending: { speaker: string; text: string }[] = [];
   const waiters: Array<() => void> = [];
 
   const stop = () => {
     stopped = true;
-    if (timer) clearInterval(timer);
+    if (timer.id) clearInterval(timer.id);
     realtime.disconnect();
     held.delete(runId);
   };
@@ -285,7 +285,7 @@ export async function startRun(runId: string): Promise<void> {
     }
   }
 
-  timer = setInterval(() => {
+  timer.id = setInterval(() => {
     void (async () => {
       if (stopped) return;
       const [current] = await db.select().from(simulationRuns).where(eq(simulationRuns.id, run.id));
