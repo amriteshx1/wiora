@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { MinusIcon, PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -9,11 +10,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import FeatureMarquee from "../components/Marquee";
 import { LandingHero } from "../components/landing-hero";
 import { LandingNav } from "../components/landing-nav";
-import { LandingPricing } from "../components/landing-pricing";
-import { LandingWorkflow } from "../components/landing-workflow";
+import { LandingPricing, type LandingPlan } from "../components/landing-pricing";
+import { LandingShowcase } from "../components/landing-showcase";
+import { LandingStages } from "../components/landing-stages";
 import { LandingFooter } from "../components/landing-footer";
 import {
   LandingAfter,
@@ -28,59 +29,65 @@ import {
 const faqs = [
   {
     q: "What kinds of conversations can I run on Wiora?",
-    a: "Any conversation you can describe in a counterpart’s instructions: pitches, client calls, sales, negotiations, interviews, or presentations. You write the role. The session is the same.",
+    a: "A job interview, an investor pitch, a sales call, a negotiation, a leadership conversation, a difficult conversation, or a custom situation. Each preparation is one of those.",
   },
   {
-    q: "How do I define the counterpart?",
-    a: "Create an agent with a name and instructions. Those instructions are what the live voice session follows, so the counterpart stays in that role while you speak.",
+    q: "How is the other side defined?",
+    a: "You describe the situation and add the documents. Wiora researches public sources, writes the brief, and sets how the conversation will feel. You do not pick a difficulty, and you do not invent a counterpart by hand.",
+  },
+  {
+    q: "What happens during research?",
+    a: "Wiora reads the files you attached, looks up the other side in public sources when that is possible, and synthesizes a brief. Research is free. You can correct facts before you spend a credit.",
   },
   {
     q: "How does a live session work?",
-    a: "Create a meeting, select the counterpart, and join from the lobby. You speak. They listen and answer in real time from the instructions you wrote.",
+    a: "After the brief is ready, spend one credit. Join one continuous 30-minute voice session. The counterpart responds to what you just said until the time ends.",
   },
   {
     q: "Will they ask things I did not write down?",
-    a: "Yes. The counterpart responds as the conversation turns, including follow-ups that come from what you just said, not only from a prepared list.",
+    a: "Yes. Follow-ups come from what you just said, not only from a prepared list.",
   },
   {
     q: "What stays after the session ends?",
-    a: "A summary, a searchable transcript, the recording, and Ask AI on that session. Ask AI answers from the summary and the chat you continue there. The next day, a short follow-up email arrives.",
+    a: "A report of what went wrong, why, what was expected, and what a stronger answer needed — plus moments, transcript, recording, and Ask. Practicing a weakness again, or taking the next practice, uses another credit.",
   },
   {
-    q: "Can I try Wiora before choosing a paid plan?",
-    a: "Yes. The free plan includes 3 agents and 3 meetings. Paid plans add more minutes, processing, and workspace options.",
+    q: "Is there a free live session or a subscription?",
+    a: "Preparation and research are free. There is no free live session and no subscription. Credits are a one-time purchase: PRO is 5 sessions, PLUS is 10, and SUPER is 15.",
   },
 ];
 
-export const HomeView = () => {
+export const HomeView = ({ plans }: { plans: LandingPlan[] }) => {
   return (
     <div className="relative flex w-full flex-col">
       <LandingNav />
       <LandingHero />
-      <FeatureMarquee />
+      <LandingShowcase />
       <LandingProblem />
+      <LandingStages />
       <LandingSituations />
-      <LandingWorkflow />
       <LandingAfter />
-      <LandingPricing />
+      <LandingPricing plans={plans} />
 
       <section>
-        <div className="landing-shell flex flex-col gap-10 border-b border-[var(--wiora-rule)] py-16 md:gap-12 md:py-24">
+        <div className="landing-shell grid items-start gap-10 border-t border-[var(--wiora-rule)] py-16 md:grid-cols-2 md:gap-16 md:py-24">
           <Reveal>
-            <h2 className="landing-section-title">
-              Before the session.
-            </h2>
-            <p className="mt-4 max-w-[52ch] text-sm leading-relaxed text-[var(--wiora-mute)] md:text-base">
-              A counterpart, a live voice session, and a record of what was said.
+            <h2 className="landing-section-title max-w-[12ch]">Before you start.</h2>
+            <p className="mt-4 max-w-[40ch] text-[15px] leading-relaxed text-[var(--wiora-mute)] md:text-base">
+              The brief, the live session, and the record of what was said.
             </p>
           </Reveal>
-          <Accordion type="single" collapsible className="w-full border-t border-[var(--wiora-rule)]">
+          <Accordion type="single" collapsible className="w-full">
             {faqs.map((item) => (
               <AccordionItem key={item.q} value={item.q} className="border-[var(--wiora-rule)]">
-                <AccordionTrigger className="py-5 text-left text-base font-medium hover:no-underline">
+                <AccordionTrigger className="group py-5 text-left text-[15px] font-medium hover:no-underline md:text-base [&>svg]:hidden">
                   {item.q}
+                  <span className="relative size-4 shrink-0">
+                    <PlusIcon className="size-4 text-[var(--wiora-mute)] group-data-[state=open]:hidden" />
+                    <MinusIcon className="absolute inset-0 size-4 hidden text-[var(--wiora-mute)] group-data-[state=open]:block" />
+                  </span>
                 </AccordionTrigger>
-                <AccordionContent className="max-w-[68ch] pb-5 text-sm leading-relaxed text-[var(--wiora-mute)]">
+                <AccordionContent className="max-w-[58ch] pb-5 text-sm leading-relaxed text-[var(--wiora-mute)]">
                   {item.a}
                 </AccordionContent>
               </AccordionItem>
@@ -89,21 +96,23 @@ export const HomeView = () => {
         </div>
       </section>
 
-      <section>
-        <Reveal className="landing-shell flex flex-col items-start gap-5 py-16 md:items-center md:py-24 md:text-center">
-          <h2 className="landing-section-title landing-cta-title">
-            Meet the other side.
-          </h2>
-          <p className="max-w-[52ch] text-sm text-[var(--wiora-mute)] md:text-base lg:text-lg">
-            Define the counterpart. Join the session. Keep what was said.
-          </p>
-          <Button asChild className={`${landingPrimaryBtn} h-11 px-6 lg:text-base text-xs`}>
-            <Link href="/sign-up">Get Started for Free</Link>
-          </Button>
-        </Reveal>
-      </section>
+      <div className="landing-close">
+        <section>
+          <Reveal className="landing-shell flex flex-col items-start justify-between gap-6 py-16 md:flex-row md:items-center md:py-20">
+            <div className="max-w-[36rem]">
+              <h2 className="landing-section-title">Meet the other side.</h2>
+              <p className="mt-3 max-w-[46ch] text-[15px] leading-relaxed text-[var(--wiora-mute)] md:text-base">
+                Prepare the situation. Practice it once. Read what to do next.
+              </p>
+            </div>
+            <Button asChild className={`${landingPrimaryBtn} h-10 shrink-0 px-5`}>
+              <Link href="/sign-up">Start a preparation</Link>
+            </Button>
+          </Reveal>
+        </section>
 
-      <LandingFooter />
+        <LandingFooter />
+      </div>
     </div>
   );
 };

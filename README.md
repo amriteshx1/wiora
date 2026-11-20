@@ -1,182 +1,229 @@
 # Wiora
 
-**AI counterparts for live conversations.**
+Meet the other side before it matters.
 
-Meet the other side before it matters. You define who sits across from you, meet them in a real-time voice session, and keep that meeting: recording, transcript, summary, and Ask AI.
+Wiora helps you rehearse high-stakes conversations in your own words: job interviews, investor pitches, sales calls, negotiations, leadership talks, difficult conversations, or a custom situation. Each **preparation** is one real scenario. You describe it, Wiora researches and writes a brief, you practice live for thirty minutes, then read what to do next.
 
-A counterpart is an agent with a name and instructions — interviewer, investor, client, or anyone else you can describe. The same session shape covers pitches, client conversations, sales, negotiations, and interviews. None of those is the product category.
+**Conversation types:** job interview · investor pitch · sales call · negotiation · leadership conversation · difficult conversation · custom
 
-The product is three steps, already wired:
+## How it works
 
-1. **Define the counterpart.** Name them and write the role.
-2. **Enter the conversation.** Join a live voice session. OpenAI Realtime speaks as that counterpart on the Stream call.
-3. **Keep the conversation.** Transcript, recording, and a generated summary stay on the meeting. Ask AI answers from that summary and the chat you continue there. A follow-up email goes out the next day.
+1. **Describe the situation** — Pick a conversation type, add context, and attach the documents that matter (resume, deck, proposal, and the like). Leaving at this step does not use a preparation credit.
+2. **Research & brief** — Submitting follow-ups starts research and spends **one preparation credit**. The brief is built from your intake and public research. Updating or re-running the brief spends another preparation credit.
+3. **Practice live** — One **interview credit** starts a continuous **30-minute voice session**. That does not spend a second preparation credit. You speak; the counterpart stays in role and leads from the brief.
+4. **Read the report** — Strengths, gaps, moments, transcript, recording, and Ask on that run.
 
-This is not a custom-trained model, an autonomous agent workforce, or a guarantee of any outcome. It is a role-defined voice counterpart and a session you can reopen.
+After sign-in you land on **Home** and pick a conversation type.
+
+## Credits
+
+Every account starts with **10 free preparations**. Live sessions are not free.
+
+| Pack | Interview credits | Preparations |
+| --- | --- | --- |
+| Pro | 5 | 10 |
+| Premium | 10 | 20 |
+| Super | 15 | 30 |
+
+- **Preparation credits** are spent when research starts (and again if you refresh the brief). They are not spent again when the interview ends.
+- **Interview credits** are spent when you start a live session.
+- Packs are prepaid Polar products (not a subscription). Refunds are handled personally within 24 hours of purchase — contact [amritesh.cv](https://amritesh.cv/).
+
+The dashboard sidebar shows remaining preparations, remaining live sessions, and **Add Credits**.
+
+## Quick start
+
+```bash
+npm install
+```
+
+Create `.env` with the database, Better Auth, OAuth, Stream, OpenAI, Polar, Resend, and S3 values used by the app. Non-voice model calls use `OPENAI_TEXT_MODEL`. Public research uses `BRAVE_SEARCH_API_KEY` and `BRAVE_SEARCH_COUNTRY` (default `IN`). Credit packs use `POLAR_PRODUCT_PRO`, `POLAR_PRODUCT_PLUS`, and `POLAR_PRODUCT_SUPER`. Polar webhooks use `POLAR_WEBHOOK_SECRET`. The voice worker uses `WORKER_URL` and `WORKER_SECRET`.
+
+```bash
+npm run dev
+npm run worker
+```
+
+Object storage is S3-compatible: MinIO locally, Cloudflare R2 when deployed. The app uses the same `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, and `S3_SECRET_ACCESS_KEY` in both places.
 
 ---
 
-## ✨ Features
+## Features
 
-- 🧠 **Role-defined counterparts** – A name and instructions. Those instructions are the prompt for the live session.
-- 🎙️ **Real-time voice** – You speak on a Stream call. OpenAI Realtime listens and answers in that role, including turns you did not script.
-- 📝 **A kept session** – Searchable transcript, recording, and a summary written after the call by a background job. Ask AI continues on that meeting from the summary and recent chat, not from an unlimited transcript dump.
-- 🪄 **Session history** – Meetings, summaries, transcripts, and the counterpart that was in the room.
-- 🔐 **Authentication & billing** – Better Auth, with subscriptions on Polar.
-- 👀 **Serverless backend** – Neon (Postgres), Drizzle, and tRPC.
-- 🎨 **App UI** – Next.js, React, Tailwind CSS, and the existing component set.
+- **Situation intake** — Type-specific forms and document slots so the brief matches the conversation you are walking into.
+- **Research & brief** — One Brave research request per research run, then a correctable brief. A preparation credit is spent when research is queued.
+- **Live counterpart** — Stream Video plus an OpenAI Realtime worker (`gpt-realtime-2.1-mini`). The other side greets in role, then leads from the brief. Spoken turns stay within **40 words**. User speech is not limited.
+- **Session artifacts** — Transcript with elapsed timestamps, recording, richer moments, structured report, and Ask with message bubbles.
+- **Preparation workspace** — Home type picker, list, journey, brief, lobby, call, and report in one flow.
+- **Auth & credits** — Better Auth and Polar prepaid packs. Interview credits and preparation credits are separate ledgers.
+- **Data layer** — local Postgres, Drizzle, tRPC, Inngest for research, reports, and hard-stop jobs.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech stack
 
 ### Frontend
 - Next.js 15 (App Router)
-- React 19 
-- TypeScript 
-- TailwindCSS 4 + shadcn/ui 
+- React 19
+- TypeScript
+- Tailwind CSS 4 + shadcn/ui
 - Motion
 - React Query + tRPC
 
-### Real-Time & AI
-- Stream Video/Chat SDK
+### Real-time & AI
+- Stream Video / Chat
 - OpenAI Realtime API
-- @stream-io/openai-realtime
-- Inngest (background jobs & automation)
+- `@stream-io/openai-realtime`
+- Inngest (research, reports, session hard-stop)
 
-### Backend & Database
-- Neon (Serverless Postgres)
+### Backend & database
+- Postgres (Docker locally)
 - Drizzle ORM
 - tRPC
-- BetterAuth
-- Polar (subscriptions, billing)
+- Better Auth
+- Polar (Pro / Premium / Super packs)
 
-### Other Integrations
-- Resend (emails)
+### Other
+- Resend (email)
 - Dicebear (avatars)
-- Cloud environment via .env config
+- S3-compatible object storage
+- Brave Search (LLM context)
 
 ---
 
-## 📂 Project Structure
+## Project structure
 
 ```bash
 wiora/
-│── src/app/             # Next.js routes, landing, dashboard, call, webhooks
-│── src/modules/         # Agents, meetings, call, home, auth, billing UI
-│── src/db/              # Drizzle schema
-│── src/inngest/         # Post-session summary and follow-up jobs
-│── src/components/      # Shared UI
-│── src/lib/             # Stream, auth, and server config
-│── public/              # Assets
+├── src/app/                 # Routes, landing, dashboard, API, webhooks
+├── src/modules/
+│   ├── preparations/        # Intake, brief, runs, call, report UI + server
+│   ├── home/                # Marketing landing
+│   ├── auth/                # Sign-in / sign-up
+│   ├── premium/             # Credits & checkout
+│   └── dashboard/           # Shell, sidebar, nav, plan card
+├── src/worker/              # OpenAI Realtime session worker
+├── src/db/                  # Drizzle schema
+├── src/inngest/             # Research, report generation, run hard-stop
+├── src/components/          # Shared UI
+├── src/lib/                 # Auth, Stream, Polar, storage
+└── public/
 ```
 
 ---
 
-## ⚙️ Setup & Installation
+## Setup & installation
 
-### 1. Clone the repository
+### 1. Clone
+
 ```bash
 git clone https://github.com/your-username/wiora.git
 cd wiora
 ```
 
-### 2. Install dependencies
+### 2. Install
+
 ```bash
 npm install
 ```
 
-### 3. Configure Environment Variables
+### 3. Environment
 
-- Create a .env file in the project root and include:
+Create a `.env` in the project root. At minimum:
 
-  ```bash
-  DATABASE_URL="postgresql://<your-neon-db>"
-  BETTER_AUTH_SECRET="<your_auth_secret>"
-  BETTER_AUTH_URL="http://localhost:3000"
-
-  GITHUB_CLIENT_ID="<github_client_id>"
-  GITHUB_CLIENT_SECRET="<github_client_secret>"
-
-  GOOGLE_CLIENT_ID="<google_client_id>"
-  GOOGLE_CLIENT_SECRET="<google_client_secret>"
-
-  NEXT_PUBLIC_APP_URL="http://localhost:3000"
-
-  NEXT_PUBLIC_STREAM_VIDEO_API_KEY="<stream_video_public>"
-  STREAM_VIDEO_SECRET_KEY="<stream_video_secret>"
-
-  NEXT_PUBLIC_STREAM_CHAT_API_KEY="<stream_chat_public>"
-  STREAM_CHAT_SECRET_KEY="<stream_chat_secret>"
-
-  OPENAI_API_KEY="<openai_realtime_key>"
-
-  POLAR_ACCESS_TOKEN="<polar_access_token>"
-  RESEND_API_KEY="<resend_key>"
-  ```
-
-### 4. Database Setup (Drizzle + Neon)
-
-- Push the schema:
-  
 ```bash
+DATABASE_URL="postgresql://wiora:wiora@127.0.0.1:5433/wiora"
+BETTER_AUTH_SECRET="<your_auth_secret>"
+BETTER_AUTH_URL="http://localhost:3000"
+
+GITHUB_CLIENT_ID="<github_client_id>"
+GITHUB_CLIENT_SECRET="<github_client_secret>"
+
+GOOGLE_CLIENT_ID="<google_client_id>"
+GOOGLE_CLIENT_SECRET="<google_client_secret>"
+
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+NEXT_PUBLIC_STREAM_VIDEO_API_KEY="<stream_video_public>"
+STREAM_VIDEO_SECRET_KEY="<stream_video_secret>"
+
+NEXT_PUBLIC_STREAM_CHAT_API_KEY="<stream_chat_public>"
+STREAM_CHAT_SECRET_KEY="<stream_chat_secret>"
+
+OPENAI_API_KEY="<openai_key>"
+OPENAI_TEXT_MODEL="gpt-5.6-luna"
+BRAVE_SEARCH_API_KEY="<brave_search_api_key>"
+BRAVE_SEARCH_COUNTRY="IN"
+
+POLAR_ACCESS_TOKEN="<polar_access_token>"
+POLAR_PRODUCT_PRO="<polar_product_id>"
+POLAR_PRODUCT_PLUS="<polar_product_id>"
+POLAR_PRODUCT_SUPER="<polar_product_id>"
+POLAR_WEBHOOK_SECRET="<polar_webhook_secret>"
+
+WORKER_URL="http://localhost:8787"
+WORKER_SECRET="<worker_secret>"
+
+RESEND_API_KEY="<resend_key>"
+```
+
+Add S3 vars for uploads and recordings.
+
+### 4. Database
+
+Start local Postgres (and MinIO) with Docker, then push the schema:
+
+```bash
+docker compose up -d
 npm run db:push
+npm run db:studio   # optional
 ```
 
-- Open Drizzle Studio:
-  
-```bash
-npm run db:studio
-```
-
-### 5. Start the development server
-```bash
-npm run dev
-```
-
-- Your app runs at:
+### 5. Run
 
 ```bash
-http://localhost:3000
+npm run dev        # http://localhost:3000
+npm run worker     # realtime voice (separate process)
 ```
 
----
-
-## 🚀 Usage
-
-- Sign up with OAuth or email.
-- Create a counterpart: a name and the instructions for their role.
-- Start a meeting, select that counterpart, and join from the lobby.
-- Speak with them in real time.
-- After the session, open the summary, searchable transcript, recording, and Ask AI.
-- Manage billing and subscriptions in Polar.
+Restart the worker after changing session instructions. Next.js hot-reloads the app; the worker does not.
 
 ---
 
-## 🔮 Future Enhancements
+## Usage
 
-Not built. Listed so the current product is not confused with them.
-
-- More than one counterpart in the same session
-- Search across past sessions
-- Timelines and highlight reels from a transcript
-- Shared session history for a team
-
----
-
-## 🤝 Contributing
-
-- Contributions are welcome!
-- Feel free to fork the repo, submit issues, or open a PR.
+- Sign up with OAuth or email (you are sent to `/home`).
+- Create a **new preparation**, choose the conversation type, and complete intake.
+- Submit follow-ups to start research (this uses one preparation credit).
+- Review the brief. Saving a brief refresh uses another preparation credit.
+- Buy interview credits when you are ready; join the lobby and enter the live session (this uses one interview credit).
+- Open the report: summary, moments, transcript, recording, and Ask.
 
 ---
 
-## 📜 License
+## Future enhancements
 
-- Licensed under the MIT License.
+Not built today; listed so the product is not confused with them.
+
+- Multiple counterparts in one session
+- Cross-preparation search
+- Timelines / highlight reels from transcript
+- Shared history for teams
 
 ---
 
- ## 🌐 Connect
+## Contributing
 
-- Engineered with care by Amritesh.
+Contributions welcome—fork, open issues, or submit a PR.
+
+---
+
+## License
+
+MIT License.
+
+---
+
+## Connect
+
+Engineered with care by Amritesh.

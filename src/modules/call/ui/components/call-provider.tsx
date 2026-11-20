@@ -9,15 +9,30 @@ import { CallConnect } from "./call-connect";
 interface Props{
     meetingId: string;
     meetingName: string;
+    tokenSource?: "run";
+    endedHref?: string;
+    endedDetail?: string;
+    hardEndAt?: string | null;
+    layout?: "page" | "embed";
+    onEnded?: () => void;
 };
 
-export const CallProvider = ({ meetingId, meetingName}: Props) => {
+export const CallProvider = ({
+    meetingId,
+    meetingName,
+    tokenSource,
+    endedHref,
+    endedDetail,
+    hardEndAt,
+    layout = "page",
+    onEnded,
+}: Props) => {
     const { data, isPending } = authClient.useSession();
 
     if(!data || isPending){
         return (
-            <div className="flex h-screen items-center justify-center bg-radial from-sidebar-accent to-sidebar">
-                <LoaderIcon className="size-6 animate-spin text-white" />
+            <div className={layout === "page" ? "flex h-screen items-center justify-center bg-background" : "flex h-full min-h-[28rem] items-center justify-center"}>
+                <LoaderIcon className="size-6 text-foreground" />
             </div>
         )
     }
@@ -32,6 +47,12 @@ export const CallProvider = ({ meetingId, meetingName}: Props) => {
             data.user.image ?? 
               generateAvatarUri({ seed: data.user.name, variant: "initials"})
           }
+          tokenSource={tokenSource}
+          endedHref={endedHref}
+          endedDetail={endedDetail}
+          hardEndAt={hardEndAt}
+          layout={layout}
+          onEnded={onEnded}
         />
     );
 };

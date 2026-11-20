@@ -5,7 +5,7 @@ import "@/modules/home/ui/styles/landing.css";
 
 const display = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["300", "400", "500", "600"],
   variable: "--font-landing-display",
   display: "swap",
 });
@@ -13,7 +13,7 @@ const display = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Wiora",
   description:
-    "Meet the other side before it matters. Wiora is AI counterparts for live conversations: a real-time voice session, then the recording, transcript, summary, and Ask AI.",
+    "Meet the other side before it matters. Prepare a real conversation, practice it live, then read what to do next.",
 };
 
 export default function LandingLayout({

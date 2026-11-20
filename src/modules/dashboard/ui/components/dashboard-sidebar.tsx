@@ -3,120 +3,80 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { BotIcon, StarIcon, VideoIcon } from "lucide-react";
+import { CreditCardIcon, HouseIcon, NotebookPenIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import {Separator} from "@/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import { DashboardTrial } from "./dashboard-trial";
+import { DashboardSidebarPlanCard } from "./dashboard-sidebar-plan-card";
 import { DashboardUserButton } from "./dashboard-user-button";
 
-const firstSection = [
-    {
-        icon: VideoIcon,
-        label: "Meetings",
-        href: "/meetings",
-    },
-    {
-        icon: BotIcon,
-        label: "Agents",
-        href: "/agents",
-    },
+const items = [
+  {
+    icon: HouseIcon,
+    label: "Home",
+    href: "/home",
+  },
+  {
+    icon: NotebookPenIcon,
+    label: "Preparations",
+    href: "/preparations",
+  },
+  {
+    icon: CreditCardIcon,
+    label: "Credits",
+    href: "/upgrade",
+  },
 ];
 
-const secondSection = [
-    {
-        icon: StarIcon,
-        label: "Upgrade",
-        href: "/upgrade",
-    },
-];
+function isNavActive(pathname: string, href: string) {
+  if (href === "/home") {
+    return pathname === "/home" || pathname.startsWith("/preparations/new");
+  }
+  if (href === "/preparations") {
+    return pathname === "/preparations"
+      || (pathname.startsWith("/preparations/") && !pathname.startsWith("/preparations/new"));
+  }
+  return pathname === href;
+}
 
 export const DashboardSidebar = () => {
-    const pathname = usePathname();
-    // const pathname = "/agents";
+  const pathname = usePathname();
 
-    return (
-       <Sidebar>
-        <SidebarHeader className="text-sidebar-accent-foreground">
-            <Link href="/" className="flex items-center gap-2 px-2 pt-2">
-              <Image src="/logo.svg" height={25} width={25} alt="Wiora" />
-              <p className="text-2xl font-semibold">Wiora</p>
+  return (
+    <Sidebar className="border-r border-sidebar-border">
+      <SidebarHeader className="px-4 pt-5 pb-2">
+        <Link href="/home" className="flex items-center gap-2">
+          <Image src="/logo.svg" height={22} width={22} alt="Wiora" />
+          <p className="text-lg font-medium tracking-tight">Wiora</p>
+        </Link>
+      </SidebarHeader>
+      <SidebarContent className="px-3 pt-4">
+        <nav className="flex flex-col gap-1">
+          {items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex h-10 items-center gap-3 rounded-[24px] px-3 text-sm tracking-tight text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground",
+                isNavActive(pathname, item.href) && "bg-sidebar-accent text-sidebar-foreground",
+              )}
+            >
+              <item.icon className="size-4" />
+              <span>{item.label}</span>
             </Link>
-        </SidebarHeader>
-        <div className="px-4 py-2">
-            <Separator className="opacity-10 text-[#5D6B68]"/>
-        </div>
-        <SidebarContent>
-            <SidebarGroup>
-                <SidebarGroupContent>
-                    <SidebarMenu>
-                        {firstSection.map((item) => (
-                            <SidebarMenuItem key={item.href}>
-                                <SidebarMenuButton 
-                                asChild
-                                className={cn(
-                                    "h-10 hover:bg-linear-to-r/oklch border border-transparent hover:border-[#5D6B68]/10 from-sidebar-accent from-5% via-30% via-sidebar/50 to-sidebar/50",
-                                    pathname === item.href && "bg-linear-to-r/oklch border-[#5D6B68]/10"
-                                )}
-                                isActive={pathname === item.href}
-                                >
-                                    <Link href={item.href}>
-                                      <item.icon className="size-5" />
-                                      <span className="text-sm font-medium tracking-tight">
-                                        {item.label}
-                                      </span>
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        ))}
-                    </SidebarMenu>
-                </SidebarGroupContent>
-            </SidebarGroup>
-            <div className="px-4 py-2">
-               <Separator className="opacity-10 text-[#5D6B68]"/>
-            </div>
-            <SidebarGroup>
-                <SidebarGroupContent>
-                    <SidebarMenu>
-                        {secondSection.map((item) => (
-                            <SidebarMenuItem key={item.href}>
-                                <SidebarMenuButton 
-                                asChild
-                                className={cn(
-                                    "h-10 hover:bg-linear-to-r/oklch border border-transparent hover:border-[#5D6B68]/10 from-sidebar-accent from-5% via-30% via-sidebar/50 to-sidebar/50",
-                                    pathname === item.href && "bg-linear-to-r/oklch border-[#5D6B68]/10"
-                                )}
-                                isActive={pathname === item.href}
-                                >
-                                    <Link href={item.href}>
-                                      <item.icon className="size-5" />
-                                      <span className="text-sm font-medium tracking-tight">
-                                        {item.label}
-                                      </span>
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        ))}
-                    </SidebarMenu>
-                </SidebarGroupContent>
-            </SidebarGroup>
-        </SidebarContent>
-        <SidebarFooter className="text-white">
-            <DashboardTrial />
-            <DashboardUserButton />
-        </SidebarFooter>
-       </Sidebar>
-    )
-}
+          ))}
+        </nav>
+      </SidebarContent>
+      <SidebarFooter className="gap-3 px-3 pb-4">
+        <DashboardSidebarPlanCard />
+        <DashboardUserButton />
+      </SidebarFooter>
+    </Sidebar>
+  );
+};

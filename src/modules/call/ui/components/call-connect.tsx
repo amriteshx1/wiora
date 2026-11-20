@@ -22,6 +22,12 @@ interface Props{
     userId: string;
     userName: string;
     userImage: string;
+    tokenSource?: "run";
+    endedHref?: string;
+    endedDetail?: string;
+    hardEndAt?: string | null;
+    layout?: "page" | "embed";
+    onEnded?: () => void;
 };
 
 export const CallConnect = ({
@@ -30,13 +36,18 @@ export const CallConnect = ({
     userId,
     userName,
     userImage,
+    endedHref = "/preparations",
+    endedDetail = "The report is being written on your preparation",
+    hardEndAt = null,
+    layout = "page",
+    onEnded,
 }: Props) => {
     const trpc = useTRPC();
-    const { mutateAsync: generateToken} = useMutation(
-        trpc.meetings.generateToken.mutationOptions(),
+    const { mutateAsync: generateRunToken} = useMutation(
+        trpc.runs.generateToken.mutationOptions(),
     );
-    const generateTokenRef = useRef(generateToken);
-    generateTokenRef.current = generateToken;
+    const generateTokenRef = useRef(() => generateRunToken({ runId: meetingId }));
+    generateTokenRef.current = () => generateRunToken({ runId: meetingId });
 
     const [client, setClient] = useState<StreamVideoClient>();
     useEffect(() => {
@@ -63,14 +74,14 @@ export const CallConnect = ({
         if(!client) return;
 
         const _call = client.call("default", meetingId);
-        _call.camera.disable();
-        _call.microphone.disable();
+        _call.speaker.setVolume(1);
+        void _call.microphone.disable();
+        void _call.camera.disable();
         setCall(_call);
 
         return () => {
             if(_call.state.callingState !== CallingState.LEFT){
                 _call.leave();
-                _call.endCall();
                 setCall(undefined);
             }
         };
@@ -78,8 +89,8 @@ export const CallConnect = ({
 
     if(!client || !call){
         return (
-            <div className="flex h-screen items-center justify-center bg-radial from-sidebar-accent to-sidebar">
-                <LoaderIcon className="size-6 animate-spin text-white" />
+            <div className={layout === "page" ? "flex h-screen items-center justify-center bg-background" : "flex h-full min-h-[28rem] items-center justify-center"}>
+                <LoaderIcon className="size-6 text-foreground" />
             </div>
         );
     };
@@ -87,7 +98,15 @@ export const CallConnect = ({
     return (
         <StreamVideo client={client}>
             <StreamCall call={call}>
-                <CallUI meetingName={meetingName} userId={userId} />
+                <CallUI
+                  runId={meetingId}
+                  meetingName={meetingName}
+                  endedHref={endedHref}
+                  endedDetail={endedDetail}
+                  hardEndAt={hardEndAt}
+                  layout={layout}
+                  onEnded={onEnded}
+                />
             </StreamCall>
         </StreamVideo>
     );

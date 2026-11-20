@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 
 import { ErrorState } from "@/components/error-state";

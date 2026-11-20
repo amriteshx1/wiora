@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next";
 
 import { TRPCReactProvider } from "@/trpc/client";
@@ -7,15 +7,17 @@ import { TRPCReactProvider } from "@/trpc/client";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter", 
+const wiora = Plus_Jakarta_Sans({
+  variable: "--font-wiora",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Wiora",
   description:
-    "AI counterparts for live conversations. Define who sits across from you, meet them in a real-time voice session, and keep the recording, transcript, summary, and Ask AI.",
+    "Prepare for one real conversation for free, then spend a credit on a 30-minute interview.",
 };
 
 export default function RootLayout({
@@ -28,7 +30,7 @@ export default function RootLayout({
       <TRPCReactProvider>
         <html lang="en">
           <body
-            className={`${inter.variable} antialiased`}
+            className={`${wiora.variable} font-sans antialiased`}
           >
             <Toaster />
             {children}

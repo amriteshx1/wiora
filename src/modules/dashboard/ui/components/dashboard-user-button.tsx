@@ -46,8 +46,7 @@ export const DashboardUserButton = () => {
   if(isMobile){
     return(
       <Drawer>
-        <DrawerTrigger className="rounded-lg  border border-border/10 p-3 w-full flex 
-          items-center justify-between bg-white/5 hover:bg-white/10 overflow-hidden gap-x-2">
+        <DrawerTrigger className="flex w-full items-center justify-between gap-x-2 overflow-hidden rounded-[24px] border border-sidebar-border bg-sidebar-accent/40 p-3 text-sidebar-foreground hover:bg-sidebar-accent">
             {data.user.image ? (
                 <Avatar>
                     <AvatarImage src={data.user.image} />
@@ -63,7 +62,7 @@ export const DashboardUserButton = () => {
               <p className="text-sm truncate w-full">
                 {data.user.name}
               </p>
-              <p className="text-xs truncate w-full">
+              <p className="text-xs truncate w-full text-sidebar-foreground/60">
                 {data.user.email}
               </p>
             </div>
@@ -98,8 +97,7 @@ export const DashboardUserButton = () => {
 
   return (
     <DropdownMenu>
-        <DropdownMenuTrigger className="rounded-lg  border border-border/10 p-3 w-full flex 
-          items-center justify-between bg-white/5 hover:bg-white/10 overflow-hidden gap-x-2">
+        <DropdownMenuTrigger className="flex w-full items-center justify-between gap-x-2 overflow-hidden rounded-[24px] border border-sidebar-border bg-sidebar-accent/40 p-3 text-sidebar-foreground hover:bg-sidebar-accent">
             {data.user.image ? (
                 <Avatar>
                     <AvatarImage src={data.user.image} />
@@ -115,7 +113,7 @@ export const DashboardUserButton = () => {
               <p className="text-sm truncate w-full">
                 {data.user.name}
               </p>
-              <p className="text-xs truncate w-full">
+              <p className="text-xs truncate w-full text-sidebar-foreground/60">
                 {data.user.email}
               </p>
             </div>

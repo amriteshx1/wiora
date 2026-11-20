@@ -1,89 +1,203 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { CircleCheckIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { useTRPC } from "@/trpc/client";
-import { authClient } from "@/lib/auth-client";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
-import { PricingCard } from "../components/pricing-card";
+import { WaitingButton } from "@/components/waiting-button";
+import { cn } from "@/lib/utils";
+
+const entryLabel: Record<string, string> = {
+  purchase: "Credits purchased",
+  reservation: "Interview held",
+  deduction: "Interview started",
+  restore: "Credit returned",
+  refund: "Refund",
+};
+
+const preparationLabel: Record<string, string> = {
+  grant_free: "Free preparations",
+  purchase: "Preparations purchased",
+  reservation: "Preparation held",
+  deduction: "Preparation completed",
+  restore: "Preparation returned",
+  released: "Preparation returned",
+};
 
 export const UpgradeView = () => {
-    const trpc = useTRPC();
+  const trpc = useTRPC();
+  const search = useSearchParams();
+  const checkoutId = search.get("checkout_id");
+  const { data } = useSuspenseQuery({
+    ...trpc.premium.getBilling.queryOptions(),
+    refetchInterval: checkoutId ? 2000 : false,
+  });
+  const checkout = useMutation(trpc.premium.createCheckout.mutationOptions({
+    onSuccess: (result) => {
+      window.location.assign(result.url);
+    },
+    onError: (error) => toast.error(error.message),
+  }));
+  const confirmed = checkoutId
+    ? data.history.some((entry) => entry.checkoutId === checkoutId)
+    : false;
+  const planName = data.plans.find((plan) => plan.id === data.plan)?.name ?? data.plan;
 
-    const { data: products } = useSuspenseQuery(
-        trpc.premium.getProducts.queryOptions()
-    );
-
-    const { data: currentSubscription } = useSuspenseQuery(
-        trpc.premium.getCurrentSubscription.queryOptions()
-    );
-
-    return (
-        <div className="flex-1 py-4 px-4 md:px-8 flex flex-col gap-y-10">
-            <div className="mt-4 flex-1 flex flex-col gap-y-10 items-center">
-                <h5 className="font-medium text-2xl md:text-3xl">
-                    You are on the {" "}
-                    <span className="font-semibold text-primary">
-                        {currentSubscription?.name ?? "Free"}
-                    </span>{" "}
-                    plan
-                </h5>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {products.map((product) => {
-                        const isCurrentProduct = currentSubscription?.id === product.id;
-                        const isPremium = !!currentSubscription;
-
-                        let buttonText = "Upgrade";
-                        let onClick = () => authClient.checkout({ products: [product.id] });
-
-                        if(isCurrentProduct) {
-                            buttonText = "Manage";
-                            onClick = () => authClient.customer.portal();
-                        }else if (isPremium){
-                            buttonText = "Change Plan";
-                            onClick = () => authClient.customer.portal();
-                        }
-
-                        return (
-                            <PricingCard 
-                              key={product.id}
-                              buttonText={buttonText}
-                              onClick={onClick}
-                              variant={
-                                product.metadata.variant === "highlighted"
-                                  ? "highlighted"
-                                  : "default"
-                              }
-                              title={product.name}
-                              price={
-                                product.prices[0].amountType === "fixed"
-                                  ? product.prices[0].priceAmount / 100
-                                  : 0
-                              }
-                              description={product.description}
-                              priceSuffix={`/${product.prices[0].recurringInterval}`}
-                              features={product.benefits.map(
-                                (benefit) => benefit.description
-                              )}
-                              badge={product.metadata.badge as string | null}
-                            />
-                        )
-                    })}
-                </div>
-            </div>
+  return (
+    <div className="flex-1 px-4 py-8 md:px-8">
+      <div className="flex flex-col gap-10">
+        <div>
+          <h5 className="text-2xl font-medium tracking-tight">Credits</h5>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Start with 10 free preparations on us. Explore every conversation type and build your preparation briefs.
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Choose a plan to unlock live practice and put your preparation to the test.
+          </p>
         </div>
-    );
+
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="rounded-[24px] bg-muted/70 p-6">
+            <p className="text-sm text-muted-foreground">Interview credits</p>
+            <p className="mt-2 text-4xl font-medium tabular-nums tracking-tight">{data.balance}</p>
+          </div>
+          <div className="rounded-[24px] bg-muted/70 p-6">
+            <p className="text-sm text-muted-foreground">Preparations</p>
+            <p className="mt-2 text-4xl font-medium tabular-nums tracking-tight">{data.preparationBalance}</p>
+          </div>
+          <div className="rounded-[24px] bg-muted/70 p-6">
+            <p className="text-sm text-muted-foreground">Latest bundle</p>
+            <p className="mt-2 text-2xl font-medium tracking-tight">{planName ? planName : "None yet"}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {data.plan
+                ? `${data.creditsInPlan} interview credits and ${data.preparationsInPlan} preparations in that purchase`
+                : "Buy a pack when interview credits or preparations run out"}
+            </p>
+          </div>
+        </div>
+
+        {checkoutId && !confirmed ? (
+          <p className="text-sm text-muted-foreground">Confirming the payment</p>
+        ) : null}
+
+        <div className="grid items-stretch gap-3 md:grid-cols-3">
+          {data.plans.map((plan) => (
+            <article
+              key={plan.id}
+              className={cn(
+                "flex h-full flex-col gap-6 rounded-[24px] p-7",
+                plan.highlighted ? "bg-muted py-8 md:py-10" : "border bg-background",
+              )}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-medium tracking-tight md:text-xl">{plan.name}</h3>
+                  {plan.badge ? <p className="mt-1 text-xs text-muted-foreground">{plan.badge}</p> : null}
+                  {plan.description ? <p className="mt-1 text-xs text-muted-foreground">{plan.description}</p> : null}
+                </div>
+                <p className="flex text-2xl font-medium tracking-tight md:text-3xl">
+                  {plan.priceLabel}
+                  {plan.priceSuffix ? <span className="self-end text-xs font-normal text-muted-foreground">{plan.priceSuffix}</span> : null}
+                </p>
+              </div>
+
+              <WaitingButton
+                type="button"
+                className="w-full"
+                variant={plan.highlighted ? "default" : "outline"}
+                waiting={checkout.isPending}
+                idle={plan.archived ? "Unavailable" : "Buy credits"}
+                busy="Opening checkout"
+                disabled={plan.archived}
+                onClick={() => {
+                  if (plan.archived) return;
+                  checkout.mutate({ plan: plan.id });
+                }}
+              />
+
+              <div className="flex flex-col items-start gap-y-2.5">
+                <p className="mb-2 text-sm font-medium">Features</p>
+                <p className="flex items-center gap-x-2.5 text-xs font-medium">
+                  <CircleCheckIcon className="size-4 fill-primary text-white" />
+                  {plan.preparationCredits} preparations
+                </p>
+                {plan.benefits.map((feature) => (
+                  <p key={feature} className="flex items-center gap-x-2.5 text-xs font-medium">
+                    <CircleCheckIcon className="size-4 fill-primary text-white" />
+                    {feature}
+                  </p>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="rounded-[24px] border bg-background p-6">
+          <h6 className="font-medium">Interview history</h6>
+          {data.history.length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">Purchases and interviews will show up here</p>
+          ) : (
+            <div className="mt-4 divide-y">
+              {data.history.map((entry) => (
+                <div key={entry.id} className="flex items-center justify-between gap-4 py-3 text-sm">
+                  <div>
+                    <p>{entryLabel[entry.entryType] ?? entry.entryType}</p>
+                    <p className="text-muted-foreground">{new Date(entry.createdAt).toLocaleString()}</p>
+                  </div>
+                  <p className="font-medium tabular-nums">{entry.delta > 0 ? `+${entry.delta}` : entry.delta}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-[24px] border bg-background p-6">
+          <h6 className="font-medium">Preparation history</h6>
+          {data.preparationHistory.length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">Free allowance and completed preparations will show up here</p>
+          ) : (
+            <div className="mt-4 divide-y">
+              {data.preparationHistory.map((entry) => (
+                <div key={entry.id} className="flex items-center justify-between gap-4 py-3 text-sm">
+                  <div>
+                    <p>{preparationLabel[entry.entryType] ?? entry.entryType}</p>
+                    <p className="text-muted-foreground">{new Date(entry.createdAt).toLocaleString()}</p>
+                  </div>
+                  <p className="font-medium tabular-nums">{entry.delta > 0 ? `+${entry.delta}` : entry.delta}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <p className="text-center text-sm text-muted-foreground">
+          Refund requests are processed within 24hrs of purchase. Contact at{" "}
+          <a
+            href="https://amritesh.cv/"
+            className="underline underline-offset-4"
+            target="_blank"
+            rel="noreferrer"
+          >
+            amritesh.cv
+          </a>
+        </p>
+      </div>
+    </div>
+  );
 };
 
 export const UpgradeViewLoading = () => {
-    return (
-        <LoadingState title="Loading" description="This may take a few seconds" />
-    );
+  return (
+    <LoadingState title="Loading credits" description="Opening billing" />
+  );
 };
 
 export const UpgradeViewError = () => {
-    return (
-        <ErrorState title="Error" description="Please try again later" />
-    );
+  return (
+    <ErrorState title="Could not load credits" description="Try again in a moment" />
+  );
 };
