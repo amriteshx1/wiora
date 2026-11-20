@@ -8,100 +8,106 @@ const scenes = [
   {
     id: "pitch",
     label: "Pitch",
-    you: "The market is crowded, but we own the workflow.",
+    you: "We close in the room. The workflow is the product.",
     them: "Then why hasn't anyone else done this?",
-    youAgain: "They sell a tool. We sit in the room.",
-    caption: "Live session",
-    body: "The counterpart answers from what you just said — not a script you wrote in advance.",
-    reportWrong: "You restated the market when they asked for proof.",
+    youAgain: "They log the call after. We sit in it before it happens.",
+    caption: "The investor",
+    body: "They sit in that seat. They greet in role. They answer from the claim you just made - not from a script you typed last night.",
+    reportWrong: "You restated the category when they asked who already paid.",
     reportNeed: "One customer. One number. Then stop talking.",
     scores: [
-      { label: "Clarity", value: 72 },
-      { label: "Proof", value: 38 },
-      { label: "Composure", value: 61 },
+      { label: "Traction", value: 38 },
+      { label: "Market", value: 71 },
+      { label: "Defensibility", value: 54 },
     ],
   },
   {
     id: "interview",
     label: "Interview",
-    you: "I led the launch when the brief was still moving.",
-    them: "What did you actually decide, and what did you defer?",
-    youAgain: "I froze scope for two weeks and owned the miss if it slipped.",
-    caption: "Live session",
-    body: "Follow-ups arrive while you are still speaking. That is the part notes cannot rehearse.",
-    reportWrong: "You described the launch, not the decision.",
-    reportNeed: "Name what you froze, who you told, and what you would own if it slipped.",
+    you: "I ran the intern loop when the team was still two people.",
+    them: "What did you actually decide without your manager?",
+    youAgain: "I cut the take-home from five hours to one. Two people dropped. I owned that.",
+    caption: "The interviewer",
+    body: "They sit across the table. The follow-up is about the decision, not the job post. Notes cannot rehearse that turn.",
+    reportWrong: "You described the loop instead of the call you made.",
+    reportNeed: "Name the decision, who it hit, and what you would own if it failed.",
     scores: [
-      { label: "Clarity", value: 64 },
-      { label: "Ownership", value: 81 },
-      { label: "Composure", value: 55 },
+      { label: "Project depth", value: 74 },
+      { label: "Resume credibility", value: 41 },
+      { label: "Communication", value: 63 },
     ],
   },
   {
     id: "sales",
     label: "Sales",
-    you: "Implementation is six weeks if we freeze scope this Friday.",
-    them: "And if legal hasn't signed by then?",
-    youAgain: "Then we start the technical work and hold go-live, not the kickoff.",
-    caption: "Live session",
-    body: "Discovery, objections, and the turn that is not on the slide.",
-    reportWrong: "You answered a legal delay with a new timeline.",
-    reportNeed: "Separate kickoff from go-live. Do not re-trade the whole plan.",
+    you: "We can be live in six weeks if legal signs Friday.",
+    them: "Procurement hasn't seen a redline. What if they don't?",
+    youAgain: "Kickoff still happens. Go-live waits on the paper - not the other way around.",
+    caption: "The buyer",
+    body: "They stay in the deal. The objection is not on the slide. It arrives while you are still selling the timeline.",
+    reportWrong: "You answered a legal delay by rewriting the whole plan.",
+    reportNeed: "Keep kickoff. Hold go-live. Do not re-trade scope to soothe procurement.",
     scores: [
-      { label: "Clarity", value: 68 },
-      { label: "Scope", value: 44 },
-      { label: "Composure", value: 70 },
+      { label: "Discovery", value: 66 },
+      { label: "Objection handling", value: 39 },
+      { label: "Closing", value: 58 },
     ],
   },
   {
     id: "negotiation",
     label: "Negotiation",
-    you: "We can move on timeline if the scope stays honest.",
-    them: "Honest meaning you drop the second phase?",
-    youAgain: "No. Honest meaning we price the second phase as optional.",
-    caption: "Live session",
-    body: "The other seat can turn. You hear it happen, then you answer.",
-    reportWrong: "You conceded timeline before the scope was named.",
-    reportNeed: "Price the second phase as optional. Do not gift the calendar.",
+    you: "We can move the start date if the second phase stays priced.",
+    them: "Priced, or optional? Those are different.",
+    youAgain: "Optional. You can decline it. You cannot fold it into this fee.",
+    caption: "The other side",
+    body: "They can turn a concession into a gift while you are still speaking. You hear it live, then you answer.",
+    reportWrong: "You moved the calendar before the second phase had a price.",
+    reportNeed: "Price the option. Do not donate the date to close the room.",
     scores: [
-      { label: "Clarity", value: 58 },
-      { label: "Hold", value: 44 },
-      { label: "Composure", value: 70 },
+      { label: "Leverage", value: 44 },
+      { label: "Concessions", value: 51 },
+      { label: "Outcome", value: 62 },
     ],
   },
   {
     id: "leadership",
     label: "Leadership",
-    you: "I'm putting the launch back two weeks.",
-    them: "The board already heard December.",
-    youAgain: "They heard a date. They haven't heard the risk. I'll take that conversation.",
-    caption: "Live session",
-    body: "The wording has to hold in the room it will actually be said.",
-    reportWrong: "You protected the date instead of the risk.",
-    reportNeed: "Bring the board the miss, then the new date — in that order.",
+    you: "I'm moving the launch two weeks. The board already heard December.",
+    them: "So I tell them we missed?",
+    youAgain: "You tell them the risk first. I'll take the date.",
+    caption: "The next room",
+    body: "They are the person who has to carry your words. The wording has to hold here - not in the notes you wrote after.",
+    reportWrong: "You protected the date instead of naming the risk.",
+    reportNeed: "Bring the miss, then the new date. In that order.",
     scores: [
-      { label: "Clarity", value: 61 },
-      { label: "Candor", value: 48 },
-      { label: "Composure", value: 74 },
+      { label: "Issue clarity", value: 61 },
+      { label: "Candor", value: 46 },
+      { label: "What you asked", value: 72 },
     ],
   },
   {
     id: "difficult",
     label: "Difficult",
-    you: "I need to talk about how that meeting landed.",
-    them: "You're saying I was out of line?",
-    youAgain: "I'm saying the team went quiet. I want to know what you meant to happen.",
-    caption: "Live session",
-    body: "The conversations you delay. Practice them once before they happen.",
+    you: "I need to talk about how Tuesday's meeting landed.",
+    them: "You're saying I was the problem.",
+    youAgain: "The team went quiet after you spoke. I want to know what you meant to happen.",
+    caption: "The other person",
+    body: "The conversation you keep delaying. Sit across from them once, then have it for real.",
     reportWrong: "You opened with a verdict they had to defend.",
     reportNeed: "Name the effect on the team. Ask what they meant. Then stop.",
     scores: [
-      { label: "Clarity", value: 66 },
-      { label: "Care", value: 42 },
-      { label: "Composure", value: 58 },
+      { label: "What happened", value: 64 },
+      { label: "Stayed specific", value: 37 },
+      { label: "Desired outcome", value: 55 },
     ],
   },
 ] as const;
+
+function verdictFor(value: number) {
+  if (value < 45) return "thin";
+  if (value < 65) return "mixed";
+  return "held";
+}
 
 function Bubble({
   side,
@@ -173,31 +179,46 @@ export function LandingShowcase() {
 
           <article className="flex min-h-[420px] flex-col justify-between rounded-[24px] bg-[var(--wiora-mist)] p-6 md:min-h-[500px] md:p-8">
             <div className="rounded-[20px] bg-[var(--wiora-paper)] p-4 landing-whisper md:p-5">
-              <p className="text-[13px] text-[var(--wiora-ash)]">Report</p>
-              <p className="mt-2.5 text-[15px] leading-relaxed text-[var(--wiora-ink)]">
-                {scene.reportWrong}
+              <p className="w-full text-[13px] leading-snug text-[var(--wiora-mute)]">
+                “{scene.them}”
               </p>
-              <div className="mt-3.5 h-px bg-[var(--wiora-rule)]" />
-              <p className="mt-3.5 text-[13px] text-[var(--wiora-ash)]">What a stronger answer needed</p>
-              <p className="mt-1.5 text-[15px] leading-relaxed text-[var(--wiora-mute)]">
-                {scene.reportNeed}
-              </p>
-              <div className="mt-5 flex flex-col gap-2.5">
-                {scene.scores.map((row) => (
-                  <div key={row.label}>
-                    <div className="mb-1 flex justify-between text-[12px] text-[var(--wiora-mute)]">
-                      <span>{row.label}</span>
-                      <span>{row.value}</span>
-                    </div>
-                    <div className="h-1 overflow-hidden rounded-full bg-[var(--wiora-rule)]">
-                      <div
-                        className="h-full rounded-full bg-[#141414]/70"
-                        style={{ width: `${row.value}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p className="text-[12px] text-[var(--wiora-ash)]">This turn</p>
+                  <p className="mt-1.5 text-[15px] leading-relaxed text-[var(--wiora-ink)]">
+                    {scene.reportWrong}
+                  </p>
+                </div>
+                <div className="border-[var(--wiora-rule)] sm:border-l sm:pl-4">
+                  <p className="text-[12px] text-[var(--wiora-ash)]">Needed</p>
+                  <p className="mt-1.5 text-[15px] leading-relaxed text-[var(--wiora-ink)]">
+                    {scene.reportNeed}
+                  </p>
+                </div>
               </div>
+              <ul className="mt-5 flex flex-col gap-2.5 border-t border-[var(--wiora-rule)] pt-4">
+                {scene.scores.map((row) => (
+                  <li
+                    key={row.label}
+                    className="flex items-baseline gap-2 text-[13px]"
+                  >
+                    <span className="shrink-0 text-[var(--wiora-mute)]">{row.label}</span>
+                    <span
+                      aria-hidden
+                      className="h-[7px] min-w-8 flex-1 self-center"
+                      style={{
+                        backgroundImage:
+                          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M0 6 L2.5 1 L5 6 L7.5 1 L10 6' fill='none' stroke='%239a958c' stroke-width='1'/%3E%3C/svg%3E\")",
+                        backgroundRepeat: "repeat-x",
+                        backgroundPosition: "center",
+                      }}
+                    />
+                    <span className="shrink-0 text-[var(--wiora-ink)]">
+                      {verdictFor(row.value)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
             <div className="mt-7 max-w-[36rem]">
               <h3 className="text-[1.65rem] font-normal leading-tight tracking-[-0.03em] md:text-[2rem]">
