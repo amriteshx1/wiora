@@ -154,28 +154,29 @@
 }
 
 .landing-room {
-  background-color: #050505;
+  background-color: #000000;
 }
 
 .landing-room::before {
+  filter: blur(54px) contrast(1.55) saturate(1.04);
   background:
     repeating-linear-gradient(
       122deg,
       #000000 0px,
-      #1a1a1a var(--silk-1),
-      #d0d4dc var(--silk-2),
-      #121212 var(--silk-3),
+      #0c0c0c var(--silk-1),
+      #eceef2 var(--silk-2),
+      #101010 var(--silk-3),
       #000000 var(--silk-4),
-      #f4f6f8 var(--silk-5),
+      #ffffff var(--silk-5),
       #000000 var(--silk-6)
     ),
     repeating-linear-gradient(
       68deg,
-      #050505 0px,
+      #000000 0px,
       transparent var(--silk-t1),
       #ffffff var(--silk-t2),
       transparent var(--silk-t3),
-      #050505 var(--silk-t4)
+      #000000 var(--silk-t4)
     );
 }
 

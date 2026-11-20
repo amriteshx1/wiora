@@ -79,7 +79,7 @@ export function ResearchScene({ title, processingStep, documents, summary }: Pro
                     : node.detail}
                 </p>
                 {active ? (
-                  <div className="mt-3 h-px w-40 overflow-hidden bg-border">
+                  <div className="mt-3 h-px w-80 overflow-hidden bg-border">
                     <div className="research-fill h-px w-full bg-foreground" />
                   </div>
                 ) : null}

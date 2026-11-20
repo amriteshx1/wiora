@@ -45,8 +45,8 @@ export function LandingFooter() {
             <span className="text-[15px] font-medium leading-none tracking-tight">Wiora</span>
           </div>
           <p className="mt-4 max-w-[22rem] text-sm leading-relaxed text-white/60">
-            Prepare one real conversation, practice it live, then read what to
-            do next.
+            Practice one real conversation with an AI counterpart before it
+            happens.
           </p>
         </div>
 

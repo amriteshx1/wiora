@@ -25,9 +25,9 @@ export function LandingPricing({ plans }: { plans: LandingPlan[] }) {
         <Reveal className="max-w-[36rem]">
           <h2 className="landing-section-title">Credits, not a subscription</h2>
           <p className="mt-4 text-[15px] leading-relaxed text-[var(--wiora-mute)] md:text-base">
-            Preparation is free. Buy credits when you are ready to practice. One
-            credit is one 30-minute live session. Packs differ only by how many
-            you get.
+            Ten free preparations to start. Buy a pack when you are ready to
+            sit in the room. One interview credit is one live session. Packs
+            add live sessions and more preparations - nothing else.
           </p>
         </Reveal>
 

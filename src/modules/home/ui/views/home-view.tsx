@@ -26,31 +26,31 @@ import { Reveal } from "../components/landing-ui";
 const faqs = [
   {
     q: "What kinds of conversations can I run on Wiora?",
-    a: "A job interview, an investor pitch, a sales call, a negotiation, a leadership conversation, a difficult conversation, or a custom situation. Each preparation is one of those.",
+    a: "A job interview, investor pitch, sales call, negotiation, leadership talk, difficult conversation, performance review, customer escalation, partnership meeting, media interview, salary negotiation, networking conversation, or a custom situation you describe. Each preparation is one of those.",
   },
   {
-    q: "How is the other side defined?",
-    a: "You describe the situation and add the documents. Wiora researches public sources, writes the brief, and sets how the conversation will feel. You do not pick a difficulty, and you do not invent a counterpart by hand.",
+    q: "Who sits across from me?",
+    a: "An AI counterpart for this situation. They play the other person from the brief you approved. You do not pick a difficulty, and you do not invent them by name.",
   },
   {
     q: "What happens during research?",
-    a: "Wiora reads the files you attached, looks up the other side in public sources when that is possible, and synthesizes a brief. Research is free. You can correct facts before you spend a credit.",
+    a: "Wiora reads the context you gave. A file is optional. If the other side is a public organization, it looks up what is already on the internet, then writes a brief. Submitting research spends one preparation credit. You can still correct facts before you join.",
   },
   {
     q: "How does a live session work?",
-    a: "After the brief is ready, spend one credit. Join one continuous 30-minute voice session. The counterpart responds to what you just said until the time ends.",
+    a: "Spend one interview credit and join a live voice session. You speak first. An AI counterpart greets as the other person and stays in the conversation. Follow-ups come from what you just said.",
   },
   {
     q: "Will they ask things I did not write down?",
-    a: "Yes. Follow-ups come from what you just said, not only from a prepared list.",
+    a: "Yes. Follow-ups come from what you just said, not only from a prepared list. Spoken turns on their side stay short.",
   },
   {
     q: "What stays after the session ends?",
-    a: "A report of what went wrong, why, what was expected, and what a stronger answer needed — plus moments, transcript, recording, and Ask. Practicing a weakness again, or taking the next practice, uses another credit.",
+    a: "A report of what went wrong, why, and what a stronger answer needed - plus moments, transcript, recording, and Ask. Practicing a weakness again, or taking the next run, uses another interview credit.",
   },
   {
     q: "Is there a free live session or a subscription?",
-    a: "Preparation and research are free. There is no free live session and no subscription. Credits are a one-time purchase: PRO is 5 sessions, PLUS is 10, and SUPER is 15.",
+    a: "Every account starts with ten free preparations. There is no free live session and no subscription. Packs are a one-time purchase: Pro is 5 live sessions, Premium is 10, Super is 15 - each with matching extra preparations.",
   },
 ];
 
@@ -71,7 +71,8 @@ export const HomeView = ({ plans }: { plans: LandingPlan[] }) => {
           <Reveal>
             <h2 className="landing-section-title max-w-[12ch]">Before you start.</h2>
             <p className="mt-4 max-w-[40ch] text-[15px] leading-relaxed text-[var(--wiora-mute)] md:text-base">
-              The brief, the live session, and the record of what was said.
+              You give the context. An AI counterpart plays the other person.
+              Then you read what was said.
             </p>
           </Reveal>
           <Accordion type="single" collapsible className="w-full">
@@ -99,7 +100,7 @@ export const HomeView = ({ plans }: { plans: LandingPlan[] }) => {
             <div className="max-w-[36rem]">
               <h2 className="landing-section-title">Meet the other side.</h2>
               <p className="mt-3 max-w-[46ch] text-[15px] leading-relaxed text-white/65 md:text-base">
-                Prepare the situation. Practice it once. Read what to do next.
+                Give the context. Then sit across from an AI counterpart.
               </p>
             </div>
             <Button asChild className="h-10 shrink-0 rounded-full bg-white px-5 text-sm font-medium text-[#141414] shadow-none hover:bg-white/90">

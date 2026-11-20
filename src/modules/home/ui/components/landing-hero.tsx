@@ -17,10 +17,10 @@ export function LandingHero() {
         <h1 className="landing-hero-title max-w-[16ch]">
           Meet the other side before it matters.
         </h1>
-        <p className="max-w-[44ch] self-center text-[15px] leading-relaxed text-[var(--wiora-mute)] md:text-base md:leading-[1.6]">
-          One real conversation. Describe the situation, let Wiora research and
-          write the brief, practice it live for thirty minutes, then read what
-          to do next.
+        <p className="self-center text-[15px] leading-relaxed text-[var(--wiora-mute)] md:text-base md:leading-[1.6]">
+          One real conversation you have coming. Give Wiora the context: who
+          you are meeting, and what it is about. An AI counterpart then sits
+          across from you and plays that person, live.
         </p>
         <div className="flex flex-wrap gap-2.5">
           <Button asChild className={cn(landingPrimaryBtn, "h-10 px-5")}>

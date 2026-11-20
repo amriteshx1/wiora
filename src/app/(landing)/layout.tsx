@@ -13,7 +13,7 @@ const display = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Wiora",
   description:
-    "Meet the other side before it matters. Prepare a real conversation, practice it live, then read what to do next.",
+    "Meet the other side before it matters. Give the context, then sit across from an AI counterpart and practice the conversation live.",
 };
 
 export default function LandingLayout({

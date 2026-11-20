@@ -17,7 +17,7 @@ const wiora = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Wiora",
   description:
-    "Prepare for one real conversation for free, then spend a credit on a 30-minute interview.",
+    "Meet the other side before it matters. Give the context, then sit across from an AI counterpart and practice the conversation live.",
 };
 
 export default function RootLayout({
