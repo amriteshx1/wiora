@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { isPaidOrderEvent, polarOrderFields, verifyPolarSignature } from "./polar-webhook";
 
-const secret = "whsec_WytTCUm/q8T/IHQT5ffLIYodr6TH4oK9PgE0PYdeT6I=";
+const secret = `whsec_${Buffer.from("wiora-polar-webhook-test-secret").toString("base64")}`;
 const body = JSON.stringify({ type: "order.paid", data: { id: "ord_1" } });
 const id = "msg_1";
 const timestamp = String(Math.floor(Date.now() / 1000));

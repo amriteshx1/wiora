@@ -2,61 +2,54 @@
 
 Meet the other side before it matters.
 
-Wiora helps you rehearse high-stakes conversations in your own words: job interviews, investor pitches, sales calls, negotiations, leadership talks, difficult conversations, or a custom situation. Each **preparation** is one real scenario. You describe it, Wiora researches and writes a brief, you practice live for thirty minutes, then read what to do next.
+Wiora is practice for one real upcoming conversation. You pick the type, describe the situation, attach the documents that matter, and Wiora researches the public side of it. You get a brief, then sit across from that counterpart in a 30-minute live voice session. Afterward you keep a report, moments, transcript, recording, and Ask.
 
-**Conversation types:** job interview · investor pitch · sales call · negotiation · leadership conversation · difficult conversation · custom
+This is not a custom-trained model, an agent you configure by name, a subscription, or a guarantee of any outcome. It is a situation-specific counterpart and a session you can reopen.
+
+**Conversation types**
+
+Job interview · Investor pitch · Sales call · Negotiation · Leadership conversation · Difficult conversation · Performance review · Customer escalation · Partnership meeting · Media interview · Salary negotiation · Networking conversation · Custom
+
+---
 
 ## How it works
 
-1. **Describe the situation** — Pick a conversation type, add context, and attach the documents that matter (resume, deck, proposal, and the like). Leaving at this step does not use a preparation credit.
-2. **Research & brief** — Submitting follow-ups starts research and spends **one preparation credit**. The brief is built from your intake and public research. Updating or re-running the brief spends another preparation credit.
-3. **Practice live** — One **interview credit** starts a continuous **30-minute voice session**. That does not spend a second preparation credit. You speak; the counterpart stays in role and leads from the brief.
+1. **Describe the situation** — From Home, pick a type (or Create your own). Fill the type-specific intake and attach files. Saving a draft does not spend a preparation credit.
+2. **Research and brief** — Submit follow-ups to start research. That spends **one preparation credit**. Brave Search looks up public sources; the brief is synthesized from your intake, documents, and those findings. You can correct facts. Refreshing or re-running the brief spends another preparation credit.
+3. **Practice live** — One **interview credit** starts a continuous **30-minute** voice session. That does not spend a second preparation credit. You speak first; the counterpart greets in role, then leads from the brief. Spoken turns stay at **40 words or fewer** (aim 20–30). You are not asked to be brief.
 4. **Read the report** — Strengths, gaps, moments, transcript, recording, and Ask on that run.
 
-After sign-in you land on **Home** and pick a conversation type.
+After sign-in you land on **Home**.
+
+---
 
 ## Credits
 
-Every account starts with **10 free preparations**. Live sessions are not free.
+Every account starts with **10 free preparations**. Live sessions are not free. There is no subscription.
 
-| Pack | Interview credits | Preparations |
+| Pack (Polar) | Live sessions | Preparations |
 | --- | --- | --- |
 | Pro | 5 | 10 |
 | Premium | 10 | 20 |
 | Super | 15 | 30 |
 
-- **Preparation credits** are spent when research starts (and again if you refresh the brief). They are not spent again when the interview ends.
-- **Interview credits** are spent when you start a live session.
-- Packs are prepaid Polar products (not a subscription). Refunds are handled personally within 24 hours of purchase — contact [amritesh.cv](https://amritesh.cv/).
+- **Preparation credits** are spent when research is queued (and again if you refresh the brief). They are not spent again when the interview ends.
+- **Interview credits** are spent when you start a live session. One live session at a time.
+- Packs are prepaid Polar products. Refund requests are processed within 24 hours of purchase — contact [amritesh.cv](https://amritesh.cv/).
 
-The dashboard sidebar shows remaining preparations, remaining live sessions, and **Add Credits**.
-
-## Quick start
-
-```bash
-npm install
-```
-
-Create `.env` with the database, Better Auth, OAuth, Stream, OpenAI, Polar, Resend, and S3 values used by the app. Non-voice model calls use `OPENAI_TEXT_MODEL`. Public research uses `BRAVE_SEARCH_API_KEY` and `BRAVE_SEARCH_COUNTRY` (default `IN`). Credit packs use `POLAR_PRODUCT_PRO`, `POLAR_PRODUCT_PLUS`, and `POLAR_PRODUCT_SUPER`. Polar webhooks use `POLAR_WEBHOOK_SECRET`. The voice worker uses `WORKER_URL` and `WORKER_SECRET`.
-
-```bash
-npm run dev
-npm run worker
-```
-
-Object storage is S3-compatible: MinIO locally, Cloudflare R2 when deployed. The app uses the same `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, and `S3_SECRET_ACCESS_KEY` in both places.
+The sidebar shows remaining preparations, remaining live sessions, and **Add Credits**.
 
 ---
 
 ## Features
 
-- **Situation intake** — Type-specific forms and document slots so the brief matches the conversation you are walking into.
-- **Research & brief** — One Brave research request per research run, then a correctable brief. A preparation credit is spent when research is queued.
-- **Live counterpart** — Stream Video plus an OpenAI Realtime worker (`gpt-realtime-2.1-mini`). The other side greets in role, then leads from the brief. Spoken turns stay within **40 words**. User speech is not limited.
-- **Session artifacts** — Transcript with elapsed timestamps, recording, richer moments, structured report, and Ask with message bubbles.
-- **Preparation workspace** — Home type picker, list, journey, brief, lobby, call, and report in one flow.
-- **Auth & credits** — Better Auth and Polar prepaid packs. Interview credits and preparation credits are separate ledgers.
-- **Data layer** — local Postgres, Drizzle, tRPC, Inngest for research, reports, and hard-stop jobs.
+- **Type-specific intake** — Twelve predefined packs plus custom. Each type has its own fields, files, research hints, evaluation dimensions, and counterpart stance.
+- **Research and brief** — One Brave LLM-context request per research run, then a correctable situation brief. Research is skipped for private conversations unless a named public organization is in play.
+- **Live counterpart** — Stream Video plus an OpenAI Realtime worker (`gpt-realtime-2.1-mini`). The other side stays in role and drives from the brief.
+- **Session artifacts** — Transcript with elapsed timestamps, recording, moments, structured report, and Ask with waiting indicators.
+- **Preparation workspace** — Home type picker, list, details → follow-ups → research → brief → interview → report.
+- **Auth and credits** — Better Auth. Separate ledgers for preparations and interviews. Polar checkout for Pro / Premium / Super.
+- **Data layer** — Postgres, Drizzle, tRPC, Inngest (research, reports, session hard-stop), S3-compatible object storage.
 
 ---
 
@@ -70,24 +63,24 @@ Object storage is S3-compatible: MinIO locally, Cloudflare R2 when deployed. The
 - Motion
 - React Query + tRPC
 
-### Real-time & AI
+### Real-time and AI
 - Stream Video / Chat
-- OpenAI Realtime API
-- `@stream-io/openai-realtime`
-- Inngest (research, reports, session hard-stop)
+- OpenAI Realtime API (`gpt-realtime-2.1-mini`)
+- Text model via `OPENAI_TEXT_MODEL` (default `gpt-5.6-luna`)
+- Brave Search (LLM Context)
+- Inngest (research, reports, hard-stop)
 
-### Backend & database
-- Postgres (Docker locally)
+### Backend and database
+- Postgres (Docker locally; Neon in production)
 - Drizzle ORM
 - tRPC
 - Better Auth
-- Polar (Pro / Premium / Super packs)
+- Polar (prepaid packs, not subscriptions)
 
 ### Other
 - Resend (email)
 - Dicebear (avatars)
-- S3-compatible object storage
-- Brave Search (LLM context)
+- S3-compatible object storage (MinIO locally, Cloudflare R2 when deployed)
 
 ---
 
@@ -97,22 +90,23 @@ Object storage is S3-compatible: MinIO locally, Cloudflare R2 when deployed. The
 wiora/
 ├── src/app/                 # Routes, landing, dashboard, API, webhooks
 ├── src/modules/
-│   ├── preparations/        # Intake, brief, runs, call, report UI + server
+│   ├── preparations/        # Intake, research, brief, runs, report
+│   ├── call/                # Live session UI
 │   ├── home/                # Marketing landing
 │   ├── auth/                # Sign-in / sign-up
-│   ├── premium/             # Credits & checkout
-│   └── dashboard/           # Shell, sidebar, nav, plan card
+│   ├── premium/             # Credits and Polar checkout
+│   └── dashboard/           # Shell, sidebar, Home
 ├── src/worker/              # OpenAI Realtime session worker
 ├── src/db/                  # Drizzle schema
 ├── src/inngest/             # Research, report generation, run hard-stop
 ├── src/components/          # Shared UI
-├── src/lib/                 # Auth, Stream, Polar, storage
+├── src/lib/                 # Auth, Stream, Polar, Brave, storage
 └── public/
 ```
 
 ---
 
-## Setup & installation
+## Setup and installation
 
 ### 1. Clone
 
@@ -129,7 +123,7 @@ npm install
 
 ### 3. Environment
 
-Create a `.env` in the project root. At minimum:
+Create a `.env` in the project root:
 
 ```bash
 DATABASE_URL="postgresql://wiora:wiora@127.0.0.1:5433/wiora"
@@ -161,17 +155,23 @@ POLAR_PRODUCT_PLUS="<polar_product_id>"
 POLAR_PRODUCT_SUPER="<polar_product_id>"
 POLAR_WEBHOOK_SECRET="<polar_webhook_secret>"
 
-WORKER_URL="http://localhost:8787"
+WORKER_URL="http://127.0.0.1:8787"
 WORKER_SECRET="<worker_secret>"
 
 RESEND_API_KEY="<resend_key>"
+
+S3_ENDPOINT="http://127.0.0.1:9002"
+S3_REGION="us-east-1"
+S3_BUCKET="wiora"
+S3_ACCESS_KEY_ID="wiora"
+S3_SECRET_ACCESS_KEY="wiora-local-secret"
 ```
 
-Add S3 vars for uploads and recordings.
+Non-voice model calls use `OPENAI_TEXT_MODEL`. Public research uses `BRAVE_SEARCH_API_KEY`. Credit packs use the three `POLAR_PRODUCT_*` ids. Polar webhooks use `POLAR_WEBHOOK_SECRET`. The voice worker uses `WORKER_URL` and `WORKER_SECRET`.
 
-### 4. Database
+### 4. Database and storage
 
-Start local Postgres (and MinIO) with Docker, then push the schema:
+Start local Postgres and MinIO, then push the schema:
 
 ```bash
 docker compose up -d
@@ -193,10 +193,11 @@ Restart the worker after changing session instructions. Next.js hot-reloads the 
 ## Usage
 
 - Sign up with OAuth or email (you are sent to `/home`).
-- Create a **new preparation**, choose the conversation type, and complete intake.
-- Submit follow-ups to start research (this uses one preparation credit).
+- Pick a conversation type, or **Create your own**.
+- Complete intake. Submit follow-ups to start research (one preparation credit).
 - Review the brief. Saving a brief refresh uses another preparation credit.
-- Buy interview credits when you are ready; join the lobby and enter the live session (this uses one interview credit).
+- Buy a pack when you need live sessions or more preparations.
+- Join the lobby and enter the live session (one interview credit, 30 minutes).
 - Open the report: summary, moments, transcript, recording, and Ask.
 
 ---
@@ -214,7 +215,7 @@ Not built today; listed so the product is not confused with them.
 
 ## Contributing
 
-Contributions welcome—fork, open issues, or submit a PR.
+Contributions welcome — fork, open issues, or submit a PR.
 
 ---
 
