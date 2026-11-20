@@ -312,28 +312,28 @@
 }
 
 .landing-price-main {
-  background-color: #262a30;
+  background-color: #1a1e24;
 }
 
 .landing-price-main::before {
   background:
     repeating-linear-gradient(
       122deg,
-      #1c2026 0px,
-      #4a525c var(--silk-1),
-      #c4cad0 var(--silk-2),
-      #3a424a var(--silk-3),
-      #181c22 var(--silk-4),
-      #d4d8dc var(--silk-5),
-      #1c2026 var(--silk-6)
+      #12161c 0px,
+      #3a424c var(--silk-1),
+      #9aa2aa var(--silk-2),
+      #2c343c var(--silk-3),
+      #101418 var(--silk-4),
+      #b4bcc4 var(--silk-5),
+      #12161c var(--silk-6)
     ),
     repeating-linear-gradient(
       68deg,
-      #22262c 0px,
+      #181c22 0px,
       transparent var(--silk-t1),
-      #d8dce0 var(--silk-t2),
+      #c0c6cc var(--silk-t2),
       transparent var(--silk-t3),
-      #22262c var(--silk-t4)
+      #181c22 var(--silk-t4)
     );
 }
 
