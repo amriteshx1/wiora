@@ -21,10 +21,7 @@ import {
   LandingProblem,
   LandingSituations,
 } from "../components/landing-story";
-import {
-  Reveal,
-  landingPrimaryBtn,
-} from "../components/landing-ui";
+import { Reveal } from "../components/landing-ui";
 
 const faqs = [
   {
@@ -101,11 +98,11 @@ export const HomeView = ({ plans }: { plans: LandingPlan[] }) => {
           <Reveal className="landing-shell flex flex-col items-start justify-between gap-6 py-16 md:flex-row md:items-center md:py-20">
             <div className="max-w-[36rem]">
               <h2 className="landing-section-title">Meet the other side.</h2>
-              <p className="mt-3 max-w-[46ch] text-[15px] leading-relaxed text-[var(--wiora-mute)] md:text-base">
+              <p className="mt-3 max-w-[46ch] text-[15px] leading-relaxed text-white/65 md:text-base">
                 Prepare the situation. Practice it once. Read what to do next.
               </p>
             </div>
-            <Button asChild className={`${landingPrimaryBtn} h-10 shrink-0 px-5`}>
+            <Button asChild className="h-10 shrink-0 rounded-full bg-white px-5 text-sm font-medium text-[#141414] shadow-none hover:bg-white/90">
               <Link href="/sign-up">Start a preparation</Link>
             </Button>
           </Reveal>

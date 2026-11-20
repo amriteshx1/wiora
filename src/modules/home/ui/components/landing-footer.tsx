@@ -40,11 +40,11 @@ export function LandingFooter() {
               alt="Wiora"
               width={22}
               height={22}
-              className="size-[22px]"
+              className="size-[22px] invert"
             />
             <span className="text-[15px] font-medium leading-none tracking-tight">Wiora</span>
           </div>
-          <p className="mt-4 max-w-[22rem] text-sm leading-relaxed text-[var(--wiora-mute)]">
+          <p className="mt-4 max-w-[22rem] text-sm leading-relaxed text-white/60">
             Prepare one real conversation, practice it live, then read what to
             do next.
           </p>
@@ -59,14 +59,14 @@ export function LandingFooter() {
                   key={link.label}
                   type="button"
                   onClick={() => scrollToId(link.id)}
-                  className="w-fit text-left text-sm text-[var(--wiora-mute)] transition-colors hover:text-[var(--wiora-ink)]"
+                  className="w-fit text-left text-sm text-white/60 transition-colors hover:text-white"
                 >
                   {link.label}
                 </button>
               ) : (
                 <p
                   key={link.label}
-                  className="text-sm text-[var(--wiora-mute)]"
+                  className="text-sm text-white/60"
                 >
                   {link.label}
                 </p>
@@ -76,8 +76,8 @@ export function LandingFooter() {
         ))}
       </div>
 
-      <div className="landing-shell flex flex-col gap-2 border-t border-[var(--wiora-rule)] py-6 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs text-[var(--wiora-mute)]">© Wiora. All rights reserved.</p>
+      <div className="landing-shell flex flex-col gap-2 border-t border-white/15 py-6 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs text-white/50">© Wiora. All rights reserved.</p>
       </div>
     </footer>
   );
