@@ -4,7 +4,7 @@ import Link from "next/link";
 import { CircleCheckIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Reveal, landingGhostBtn, landingPrimaryBtn } from "@/modules/home/ui/components/landing-ui";
+import { Reveal, landingGhostBtn } from "@/modules/home/ui/components/landing-ui";
 import { cn } from "@/lib/utils";
 
 export type LandingPlan = {
