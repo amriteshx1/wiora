@@ -112,9 +112,9 @@ export function LandingAfter() {
         </Reveal>
 
         <div className="grid gap-2.5 md:grid-cols-6 md:grid-rows-3">
-          <article className="landing-soft-cool flex flex-col rounded-[24px] p-5 md:col-span-2 md:row-span-2 md:p-6">
+          <article className="landing-soft-cool flex flex-col rounded-[24px] p-5 text-white md:col-span-2 md:row-span-2 md:p-6">
             <p className="text-[13px] text-white/55">Moments</p>
-            <p className="mt-2 max-w-[40ch] text-[1.1rem] font-normal leading-snug tracking-[-0.03em] text-white md:text-[1.25rem]">
+            <p className="mt-2 max-w-[40ch] text-[1.1rem] font-normal leading-snug tracking-[-0.03em] md:text-[1.25rem]">
               The follow-up you did not have a number for.
             </p>
             <p className="mt-2 max-w-[46ch] text-sm leading-relaxed text-white/65">
@@ -123,7 +123,7 @@ export function LandingAfter() {
             </p>
           </article>
 
-          <article className="landing-room flex min-h-[240px] flex-col justify-between rounded-[24px] p-5 md:col-span-2 md:row-span-3 md:min-h-[340px] md:p-7">
+          <article className="landing-report flex min-h-[240px] flex-col justify-between rounded-[24px] p-5 md:col-span-2 md:row-span-3 md:min-h-[340px] md:p-7">
             <p className="max-w-[36ch] rounded-[16px] bg-white/12 px-3.5 py-2 text-[13px] leading-snug text-white/85">
               Then why hasn&apos;t anyone else done this?
             </p>
@@ -151,9 +151,9 @@ export function LandingAfter() {
             </p>
           </article>
 
-          <article className="landing-soft-warm flex flex-col rounded-[24px] p-5 md:col-span-2 md:row-span-2 md:p-6">
+          <article className="landing-soft-warm flex flex-col rounded-[24px] p-5 text-white md:col-span-2 md:row-span-2 md:p-6">
             <p className="text-[13px] text-white/55">Ask</p>
-            <p className="mt-2 max-w-[40ch] text-[1.1rem] font-normal leading-snug tracking-[-0.03em] text-white md:text-[1.25rem]">
+            <p className="mt-2 max-w-[40ch] text-[1.1rem] font-normal leading-snug tracking-[-0.03em] md:text-[1.25rem]">
               What a stronger answer needed, asked in your own words.
             </p>
             <p className="mt-2 max-w-[46ch] text-sm leading-relaxed text-white/65">
