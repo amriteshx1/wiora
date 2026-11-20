@@ -6,7 +6,7 @@ import { db } from "@/db";
 import { preparationDocuments, preparations, researchFindings, simulationRuns } from "@/db/schema";
 import { inngest } from "@/inngest/client";
 import { respondJson } from "@/lib/openai-text";
-import { deleteObject, headObject, presignDownload, presignUpload } from "@/lib/storage";
+import { deleteObject, headObject, presignDownload } from "@/lib/storage";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "@/constants";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
@@ -317,23 +317,10 @@ export const preparationsRouter = createTRPCRouter({
         .set({ objectKey: key, updatedAt: new Date() })
         .where(eq(preparationDocuments.id, document.id));
 
-      try {
-        const uploadUrl = await presignUpload({
-          key,
-          contentType: input.contentType,
-          byteSize: input.byteSize,
-        });
-
-        return {
-          documentId: document.id,
-          uploadUrl,
-        };
-      } catch (error) {
-        await db
-          .delete(preparationDocuments)
-          .where(eq(preparationDocuments.id, document.id));
-        throw error;
-      }
+      return {
+        documentId: document.id,
+        uploadUrl: `/api/storage/upload/${document.id}`,
+      };
     }),
 
   confirmUpload: protectedProcedure

@@ -17,10 +17,18 @@ function required(name: string): string {
   return value;
 }
 
+function endpoint(): string {
+  const value = required("S3_ENDPOINT").trim();
+  if (value.startsWith("http://") || value.startsWith("https://")) {
+    return value.replace(/\/$/, "");
+  }
+  return `https://${value.replace(/\/$/, "")}`;
+}
+
 function client(): S3Client {
   return new S3Client({
     region: required("S3_REGION"),
-    endpoint: required("S3_ENDPOINT"),
+    endpoint: endpoint(),
     forcePathStyle: true,
     requestChecksumCalculation: "WHEN_REQUIRED",
     responseChecksumValidation: "WHEN_REQUIRED",
@@ -49,6 +57,22 @@ export async function presignUpload(input: {
       ContentLength: input.byteSize,
     }),
     { expiresIn: 60 },
+  );
+}
+
+export async function putObject(input: {
+  key: string;
+  contentType: string;
+  body: Uint8Array;
+}): Promise<void> {
+  await client().send(
+    new PutObjectCommand({
+      Bucket: bucket(),
+      Key: input.key,
+      ContentType: input.contentType,
+      Body: input.body,
+      ContentLength: input.body.byteLength,
+    }),
   );
 }
 

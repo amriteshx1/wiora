@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PlusIcon } from "lucide-react";
 
@@ -24,6 +25,11 @@ function greeting(now = new Date()) {
 export function DashboardHomeView() {
   const router = useRouter();
   const { data, isPending } = authClient.useSession();
+  const [hello, setHello] = useState("Hello");
+
+  useEffect(() => {
+    setHello(greeting());
+  }, []);
 
   if (isPending) {
     return <LoadingState title="Opening home" description="Finding your preparations" />;
@@ -38,7 +44,7 @@ export function DashboardHomeView() {
       <div className="py-8 md:py-10">
         <div className="flex items-center justify-between gap-4">
           <h5 className="text-3xl font-medium tracking-tight md:text-4xl">
-            {greeting()}, {firstName(data?.user.name)}
+            {hello}, {firstName(data?.user.name)}
           </h5>
           <Button
             type="button"
