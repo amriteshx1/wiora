@@ -68,11 +68,22 @@ function fixedPrice(prices: Array<{ amountType?: string; isArchived?: boolean; p
   return prices.find((price) => price.amountType === "fixed" && !price.isArchived && typeof price.priceAmount === "number");
 }
 
-function benefitLines(benefits: Array<{ description?: string | null }>): string[] {
+function benefitLines(benefits: Array<{ description?: string | null; name?: string | null }>): string[] {
   return benefits.flatMap((benefit) => {
-    const description = benefit.description?.trim();
+    const description = benefit.description?.trim() || benefit.name?.trim();
     return description ? [description] : [];
   });
+}
+
+function metaText(metadata: Record<string, unknown>, key: string): string {
+  const value = metadata[key];
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (value && typeof value === "object" && "value" in value) {
+    const inner = (value as { value: unknown }).value;
+    if (typeof inner === "string") return inner.trim();
+  }
+  return "";
 }
 
 export async function listPlanOffers(): Promise<PlanOffer[]> {
@@ -86,15 +97,14 @@ export async function listPlanOffers(): Promise<PlanOffer[]> {
     if (!price || typeof price.priceAmount !== "number" || !price.priceCurrency) {
       throw new Error(`${product.name} has no fixed price`);
     }
-    const metadata = product.metadata ?? {};
-    const badge = metadata.badge;
-    const variant = metadata.variant;
+    const metadata = (product.metadata ?? {}) as Record<string, unknown>;
+    const variant = metaText(metadata, "variant").toLowerCase();
     return {
       id,
       name: product.name,
       description: product.description,
-      benefits: benefitLines(product.benefits),
-      badge: typeof badge === "string" ? badge : null,
+      benefits: benefitLines(product.benefits ?? []),
+      badge: metaText(metadata, "badge") || null,
       highlighted: variant === "highlighted",
       credits: PLAN_CREDITS[id],
       preparationCredits: PLAN_PREPARATION_CREDITS[id],
@@ -106,6 +116,13 @@ export async function listPlanOffers(): Promise<PlanOffer[]> {
       archived: product.isArchived,
     } satisfies PlanOffer;
   }));
+  if (!offers.some((offer) => offer.highlighted)) {
+    const middle = offers.find((offer) => offer.id === "plus");
+    if (middle) {
+      middle.highlighted = true;
+      middle.badge = middle.badge || "Best value";
+    }
+  }
   return offers;
 }
 
