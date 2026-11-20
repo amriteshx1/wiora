@@ -102,17 +102,17 @@ export function LandingStages() {
                 <li key={step.label} className="flex gap-3">
                   <span
                     className={`mt-1.5 size-1.5 shrink-0 rounded-full ${
-                      index === 1 ? "bg-[var(--wiora-ink)]" : "bg-[var(--wiora-ink)]/30"
+                      index === 1 ? "bg-white" : "bg-white/30"
                     }`}
                   />
                   <div>
-                    <p className="text-sm font-medium">{step.label}</p>
-                    <p className="mt-0.5 text-[13px] leading-relaxed text-[var(--wiora-mute)]">
+                    <p className="text-sm font-medium text-white">{step.label}</p>
+                    <p className="mt-0.5 text-[13px] leading-relaxed text-white/65">
                       {step.detail}
                     </p>
                     {index === 1 ? (
-                      <div className="mt-2 h-px w-32 overflow-hidden bg-[var(--wiora-rule)]">
-                        <div className="research-fill h-px w-full bg-[var(--wiora-ink)]" />
+                      <div className="mt-2 h-px w-32 overflow-hidden bg-white/20">
+                        <div className="research-fill h-px w-full bg-white" />
                       </div>
                     ) : null}
                   </div>
@@ -120,10 +120,10 @@ export function LandingStages() {
               ))}
             </ol>
             <div className="mt-8">
-              <h3 className="text-[1.45rem] font-normal tracking-[-0.03em] md:text-[1.7rem]">
+              <h3 className="text-[1.45rem] font-normal tracking-[-0.03em] text-white md:text-[1.7rem]">
                 Research
               </h3>
-              <p className="mt-2 max-w-[42ch] text-sm leading-relaxed text-[var(--wiora-mute)]">
+              <p className="mt-2 max-w-[42ch] text-sm leading-relaxed text-white/70">
                 Public sources, your documents, then a brief. Nothing is spent
                 here. You can still correct facts before a credit is used.
               </p>
