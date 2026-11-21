@@ -142,13 +142,14 @@ export function LandingShowcase() {
       <div className="landing-shell pb-16 md:pb-20">
         <div className="mb-5 flex justify-center overflow-x-auto">
           <div className="flex min-w-max items-end gap-1 border-b border-[var(--wiora-rule)]">
-            {scenes.map((item) => (
+            {scenes.map((item, index) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => setActive(item.id)}
                 className={cn(
                   "relative px-3.5 py-2.5 text-[13px] transition-colors md:px-4 md:text-sm",
+                  index >= 4 && "hidden md:block",
                   item.id === active
                     ? "text-[var(--wiora-ink)] after:absolute after:inset-x-3 after:bottom-[-1px] after:h-px after:bg-[var(--wiora-ink)]"
                     : "text-[var(--wiora-ash)] hover:text-[var(--wiora-mute)]",
