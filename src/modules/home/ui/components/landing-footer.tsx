@@ -50,30 +50,35 @@ export function LandingFooter() {
           </p>
         </div>
 
-        {columns.map((column) => (
-          <div key={column.title} className="flex flex-col gap-3">
-            <p className="text-sm font-medium">{column.title}</p>
-            {column.links.map((link) =>
-              "id" in link && link.id ? (
-                <button
-                  key={link.label}
-                  type="button"
-                  onClick={() => scrollToId(link.id)}
-                  className="w-fit text-left text-sm text-white/60 transition-colors hover:text-white"
-                >
-                  {link.label}
-                </button>
-              ) : (
-                <p
-                  key={link.label}
-                  className="text-sm text-white/60"
-                >
-                  {link.label}
-                </p>
-              ),
-            )}
-          </div>
-        ))}
+        <div className="flex flex-wrap justify-center gap-x-8 gap-y-8 md:contents">
+          {columns.map((column) => (
+            <div
+              key={column.title}
+              className="flex min-w-[5.25rem] flex-col gap-3 md:min-w-[7rem]"
+            >
+              <p className="text-sm font-medium">{column.title}</p>
+              {column.links.map((link) =>
+                "id" in link && link.id ? (
+                  <button
+                    key={link.label}
+                    type="button"
+                    onClick={() => scrollToId(link.id)}
+                    className="w-fit text-left text-sm text-white/60 transition-colors hover:text-white"
+                  >
+                    {link.label}
+                  </button>
+                ) : (
+                  <p
+                    key={link.label}
+                    className="text-sm text-white/60"
+                  >
+                    {link.label}
+                  </p>
+                ),
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="landing-shell flex flex-col gap-2 border-t border-white/15 py-6 sm:flex-row sm:items-center sm:justify-between">
