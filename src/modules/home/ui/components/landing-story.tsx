@@ -111,18 +111,18 @@ export function LandingAfter() {
         </Reveal>
 
         <div className="grid gap-2.5 md:grid-cols-6 md:grid-rows-3">
-          <article className="landing-soft-cool flex flex-col rounded-[24px] p-5 text-white md:col-span-2 md:row-span-2 md:p-6">
+          <article className="landing-soft-cool order-3 flex flex-col rounded-[24px] p-5 text-white md:order-none md:col-span-2 md:row-span-2 md:p-6">
             <p className="text-[13px] text-white/55">Moments</p>
             <p className="mt-2 max-w-[40ch] text-[1.1rem] font-normal leading-snug tracking-[-0.03em] md:text-[1.25rem]">
               The follow-up you did not have a number for.
             </p>
-            <p className="mt-2 max-w-[46ch] text-sm leading-relaxed text-white/65">
+            <p className="mt-2 hidden max-w-[46ch] text-sm leading-relaxed text-white/65 md:block">
               The pause after they asked for proof. Open the moment, jump to
               that second in the recording, and hear the turn again.
             </p>
           </article>
 
-          <article className="landing-report flex min-h-[240px] flex-col justify-between rounded-[24px] p-5 md:col-span-2 md:row-span-3 md:min-h-[340px] md:p-7">
+          <article className="landing-report order-4 flex min-h-[240px] flex-col justify-between rounded-[24px] p-5 md:order-none md:col-span-2 md:row-span-3 md:min-h-[340px] md:p-7">
             <p className="max-w-[36ch] rounded-[16px] bg-white/12 px-3.5 py-2 text-[13px] leading-snug text-white/85">
               Then why hasn&apos;t anyone else done this?
             </p>
@@ -137,37 +137,37 @@ export function LandingAfter() {
             </div>
           </article>
 
-          <article className="rounded-[24px] bg-[var(--wiora-mist)] p-4 md:col-span-1 md:p-5">
+          <article className="order-1 rounded-[24px] bg-[var(--wiora-mist)] p-4 md:order-none md:col-span-1 md:p-5">
             <p className="text-[16px] font-medium tracking-tight">Transcript</p>
             <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--wiora-mute)]">
               Search what was said, line by line.
             </p>
           </article>
-          <article className="rounded-[24px] bg-[var(--wiora-mist)] p-4 md:col-span-1 md:p-5">
+          <article className="order-2 rounded-[24px] bg-[var(--wiora-mist)] p-4 md:order-none md:col-span-1 md:p-5">
             <p className="text-[16px] font-medium tracking-tight">Recording</p>
             <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--wiora-mute)]">
               Hear the conversation back.
             </p>
           </article>
 
-          <article className="landing-soft-warm flex flex-col rounded-[24px] p-5 text-white md:col-span-2 md:row-span-2 md:p-6">
+          <article className="landing-soft-warm order-5 flex flex-col rounded-[24px] p-5 text-white md:order-none md:col-span-2 md:row-span-2 md:p-6">
             <p className="text-[13px] text-white/55">Ask</p>
             <p className="mt-2 max-w-[40ch] text-[1.1rem] font-normal leading-snug tracking-[-0.03em] md:text-[1.25rem]">
               Why that answer failed, asked in your own words.
             </p>
-            <p className="mt-2 max-w-[46ch] text-sm leading-relaxed text-white/65">
+            <p className="mt-2 hidden max-w-[46ch] text-sm leading-relaxed text-white/65 md:block">
               Grounded in this run&apos;s report and the chat that follows - not
               in the brief from before you joined.
             </p>
           </article>
 
-          <article className="rounded-[24px] bg-[var(--wiora-mist)] p-4 md:col-span-1 md:p-5">
+          <article className="order-6 rounded-[24px] bg-[var(--wiora-mist)] p-4 md:order-none md:col-span-1 md:p-5">
             <p className="text-[16px] font-medium tracking-tight">Practice this again</p>
             <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--wiora-mute)]">
               Run the weak turn again.
             </p>
           </article>
-          <article className="rounded-[24px] bg-[var(--wiora-mist)] p-4 md:col-span-1 md:p-5">
+          <article className="order-7 rounded-[24px] bg-[var(--wiora-mist)] p-4 md:order-none md:col-span-1 md:p-5">
             <p className="text-[16px] font-medium tracking-tight">Next practice</p>
             <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--wiora-mute)]">
               Same brief, new live session.
